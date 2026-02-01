@@ -47,3 +47,4 @@ header('Cache-Control: must-revalidate');
 readfile($tmpZip);
 unlink($tmpZip);
 exit;
+?>
