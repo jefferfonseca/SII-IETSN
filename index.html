@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inicio de Sesión</title>
+    <!-- Materialize CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <!-- Material Icons -->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col s12 m8 offset-m2 l6 offset-l3">
+          <div class="card login-card">
+            <div class="card-content">
+              <div class="login-header">
+                <i class="material-icons">lock</i>
+                <h4>Iniciar Sesión</h4>
+                <p class="grey-text">Accede a tu cuenta</p>
+              </div>
+
+              <!-- Formulario de login -->
+              <div id="loginForm">
+                <div class="input-field">
+                  <i class="material-icons prefix">badge</i>
+                  <input id="documento" type="text" class="validate" />
+                  <label for="documento">Documento</label>
+                </div>
+
+                <div class="input-field">
+                  <i class="material-icons prefix">lock</i>
+                  <input id="password" type="password" class="validate" />
+                  <label for="password">Contraseña</label>
+                </div>
+
+                <button
+                  class="btn waves-effect waves-light btn-login"
+                  onclick="login()"
+                >
+                  Iniciar Sesión
+                  <i class="material-icons right">send</i>
+                </button>
+
+                <div class="divider-text">
+                  <span>o continúa con</span>
+                </div>
+
+                <button
+                  class="btn waves-effect waves-light btn-qr"
+                  onclick="abrirQR()"
+                >
+                  <i class="material-icons left">qr_code_2</i>
+                  Iniciar con Código QR
+                </button>
+              </div>
+
+              <!-- Sección de QR -->
+              <div id="qrSection" class="hidden">
+                <div class="qr-container">
+                  <div id="qr-reader" style="width: 100%"></div>
+
+                  <p class="grey-text">
+                    Apunta la cámara al código QR de tu carné
+                  </p>
+
+                  <button
+                    class="btn waves-effect waves-light btn-qr"
+                    onclick="cerrarQR()"
+                  >
+                    <i class="material-icons left">arrow_back</i>
+                    Volver
+                  </button>
+                </div>
+              </div>
+
+              <div id="message"></div>
+
+              <!-- <div class="forgot-password">
+                <small
+                  >¿Olvidaste tu contraseña?
+                  <a href="#">Recupérala aquí</a></small
+                >
+              </div> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <!-- Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <script>
+      // Inicializar Materialize
+      document.addEventListener("DOMContentLoaded", function () {
+        M.updateTextFields();
+      });
+
+      // Función de login
+      function login() {
+        const documento = document.getElementById("documento").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const messageDiv = document.getElementById("message");
+
+        if (!documento || !password) {
+          messageDiv.style.display = "block";
+          messageDiv.className = "red lighten-4 red-text text-darken-4";
+          messageDiv.innerHTML =
+            '<i class="material-icons left">error</i>Completa todos los campos';
+          return;
+        }
+
+        fetch("/SII-IETSN/api/auth/login.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            documento: documento,
+            password: password,
+          }),
+        })
+          .then((res) => res.json())
+          .then((res) => {
+            if (res.success) {
+              messageDiv.style.display = "block";
+              messageDiv.className = "green lighten-4 green-text text-darken-4";
+              messageDiv.innerHTML = `
+          <i class="material-icons left">check_circle</i>
+          Bienvenido ${res.data.nombre} ${res.data.apellido}
+        `;
+
+              setTimeout(() => {
+                window.location.href = "dashboard.php";
+              }, 1200);
+            } else {
+              messageDiv.style.display = "block";
+              messageDiv.className = "red lighten-4 red-text text-darken-4";
+              messageDiv.innerHTML = `
+          <i class="material-icons left">error</i>
+          ${res.message}
+        `;
+            }
+          })
+          .catch(() => {
+            messageDiv.style.display = "block";
+            messageDiv.className = "red lighten-4 red-text text-darken-4";
+            messageDiv.innerHTML =
+              '<i class="material-icons left">error</i>Error de conexión';
+          });
+      }
+
+      // Función para alternar entre login y QR
+      function toggleQR() {
+        const loginForm = document.getElementById("loginForm");
+        const qrSection = document.getElementById("qrSection");
+        const messageDiv = document.getElementById("message");
+
+        if (loginForm.classList.contains("hidden")) {
+          loginForm.classList.remove("hidden");
+          qrSection.classList.add("hidden");
+        } else {
+          loginForm.classList.add("hidden");
+          qrSection.classList.remove("hidden");
+
+          messageDiv.style.display = "block";
+          messageDiv.className = "blue lighten-4 blue-text text-darken-4";
+          messageDiv.innerHTML =
+            '<i class="material-icons left">info</i>Escanea el código QR con tu dispositivo';
+
+          setTimeout(() => {
+            messageDiv.style.display = "none";
+          }, 3000);
+        }
+      }
+
+      // Permitir login con Enter
+      document.addEventListener("keypress", function (e) {
+        if (
+          e.key === "Enter" &&
+          !document.getElementById("loginForm").classList.contains("hidden")
+        ) {
+          login();
+        }
+      });
+
+      let html5QrCode;
+
+      function abrirQR() {
+        document.getElementById("loginForm").classList.add("hidden");
+        document.getElementById("qrSection").classList.remove("hidden");
+
+        html5QrCode = new Html5Qrcode("qr-reader");
+
+        Html5Qrcode.getCameras()
+          .then((cameras) => {
+            if (cameras && cameras.length) {
+              const cameraId = cameras[0].id;
+
+              html5QrCode.start(
+                cameraId,
+                {
+                  fps: 10,
+                  qrbox: 250,
+                },
+                (qrText) => {
+                  // QR leído correctamente
+                  console.log("QR leído:", qrText);
+                  html5QrCode.stop().catch(() => {});
+                  procesarQR(qrText);
+                },
+                (errorMessage) => {
+                  // errores de lectura (se ignoran)
+                },
+              );
+            }
+          })
+          .catch((err) => {
+            alert("No se pudo acceder a la cámara");
+            console.error(err);
+          });
+      }
+      function cerrarQR() {
+        if (html5QrCode) {
+          html5QrCode.stop().catch(() => {});
+        }
+
+        document.getElementById("qrSection").classList.add("hidden");
+        document.getElementById("loginForm").classList.remove("hidden");
+      }
+      function procesarQR(qrText) {
+        const messageDiv = document.getElementById("message");
+        let data;
+
+        try {
+          data = JSON.parse(qrText);
+        } catch (e) {
+          messageDiv.style.display = "block";
+          messageDiv.className = "red lighten-4 red-text text-darken-4";
+          messageDiv.innerHTML =
+            '<i class="material-icons left">error</i>QR inválido';
+          cerrarQR();
+          return;
+        }
+
+        if (data.tipo !== "usuario" || !data.doc_hash) {
+          messageDiv.style.display = "block";
+          messageDiv.className = "red lighten-4 red-text text-darken-4";
+          messageDiv.innerHTML =
+            '<i class="material-icons left">error</i>QR no válido para este sistema';
+          cerrarQR();
+          return;
+        }
+
+        fetch("/SII-IETSN/api/auth/login_qr.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tipo: data.tipo,
+            doc_hash: data.doc_hash,
+          }),
+        })
+          .then((res) => res.json())
+          .then((res) => {
+            if (res.success) {
+              // ✅ MISMO cuadro verde que login tradicional
+              messageDiv.style.display = "block";
+              messageDiv.className = "green lighten-4 green-text text-darken-4";
+              messageDiv.innerHTML = `
+          <i class="material-icons left">check_circle</i>
+          Bienvenido ${res.data.nombre} ${res.data.apellido}
+        `;
+              window.location.href = "dashboard.php";
+
+              // Cerrar cámara y redirigir
+              setTimeout(() => {
+                cerrarQR();
+                window.location.href = "dashboard.php";
+              }, 1200);
+            } else {
+              messageDiv.style.display = "block";
+              messageDiv.className = "red lighten-4 red-text text-darken-4";
+              messageDiv.innerHTML = `
+          <i class="material-icons left">error</i>
+          ${res.message}
+        `;
+              cerrarQR();
+            }
+          })
+          .catch(() => {
+            messageDiv.style.display = "block";
+            messageDiv.className = "red lighten-4 red-text text-darken-4";
+            messageDiv.innerHTML =
+              '<i class="material-icons left">error</i>Error de conexión';
+            cerrarQR();
+          });
+      }
+    </script>
+  </body>
+</html>

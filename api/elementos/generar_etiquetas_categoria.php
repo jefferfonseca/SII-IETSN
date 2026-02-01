@@ -1,0 +1,205 @@
+<?php
+header('Content-Type: application/json');
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/_qr_helper.php';
+
+/*************************************************
+ * CONFIGURACIÓN GENERAL
+ *************************************************/
+$logoUrl = "https://ietsannicolas.edu.co/images/Escudo.png";
+$backgroundPath = __DIR__ . "/../../etiqueta-base.png";
+
+/*************************************************
+ * RESPUESTA BASE
+ *************************************************/
+$response = [
+    "success" => false,
+    "message" => "",
+    "data" => []
+];
+
+/*************************************************
+ * VALIDAR PARÁMETROS
+ *************************************************/
+if (!isset($_GET['id_categoria'])) {
+    $response["message"] = "La categoría es obligatoria";
+    echo json_encode($response);
+    exit;
+}
+
+$idCategoria = (int) $_GET['id_categoria'];
+
+try {
+
+    /*************************************************
+     * 1️⃣ OBTENER ELEMENTOS + CATEGORÍA
+     *************************************************/
+    $stmt = $pdo->prepare("
+        SELECT 
+            e.id_elemento,
+            e.codigo,
+            c.codigo AS tipo,
+            c.nombre AS nombre_categoria
+        FROM elementos e
+        INNER JOIN categorias c ON c.id_categoria = e.id_categoria
+        WHERE e.id_categoria = ?
+        ORDER BY e.codigo ASC
+    ");
+    $stmt->execute([$idCategoria]);
+    $elementos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (!$elementos) {
+        throw new Exception("No hay elementos en la categoría");
+    }
+
+    /*************************************************
+     * 2️⃣ CREAR CARPETA DESTINO (NOMBRE REAL)
+     *************************************************/
+    $nombreCategoria = $elementos[0]['nombre_categoria'];
+    $nombreCategoriaLimpio = preg_replace(
+        '/[^a-zA-Z0-9_-]/',
+        '',
+        str_replace(' ', '_', $nombreCategoria)
+    );
+
+    $nombreCarpeta = "QR-" . $nombreCategoriaLimpio;
+    $outputDir = __DIR__ . "/../../etiquetas_generadas/$nombreCarpeta";
+
+    if (!is_dir($outputDir)) {
+        mkdir($outputDir, 0777, true);
+    }
+
+    /*************************************************
+     * 3️⃣ GENERAR ETIQUETAS
+     *************************************************/
+    $_SESSION['progreso_etiquetas'] = [
+        'total' => count($elementos),
+        'actual' => 0
+    ];
+
+    $progresoFile = __DIR__ . '/_progreso_etiquetas.json';
+
+    file_put_contents($progresoFile, json_encode([
+        "activo" => true,
+        "total" => count($elementos),
+        "actual" => 0,
+        "completado" => false
+    ]));
+
+    foreach ($elementos as $index => $el) {
+
+    file_put_contents($progresoFile, json_encode([
+        "activo" => true,
+        "total" => count($elementos),
+        "actual" => $index + 1,
+        "completado" => false
+    ]));
+
+    // Número = ID REAL
+    $numero = (string) $el['id_elemento'];
+
+    $payload = [
+        "tipo" => $el['tipo'],
+        "id_elemento" => $el['id_elemento'],
+        "codigo" => $el['codigo'],
+        "numero" => $numero
+    ];
+
+    $qrBin = generarQRMonkey($payload, $logoUrl);
+
+    generarEtiquetaImagick(
+        $el['id_elemento'],
+        $el['tipo'],
+        $numero,
+        $qrBin,
+        $backgroundPath,
+        $outputDir
+    );
+}
+
+    $_SESSION['progreso_etiquetas']['completado'] = true;
+    file_put_contents($progresoFile, json_encode([
+        "activo" => false,
+        "total" => count($elementos),
+        "actual" => count($elementos),
+        "completado" => true
+    ]));
+
+    /*************************************************
+     * RESPUESTA OK
+     *************************************************/
+    $response["success"] = true;
+    $response["message"] = "Etiquetas generadas correctamente";
+    $response["data"] = [
+        "total" => count($elementos),
+        "ruta" => "etiquetas_generadas/$nombreCarpeta"
+    ];
+
+} catch (Exception $e) {
+    $response["message"] = $e->getMessage();
+}
+
+echo json_encode($response);
+
+/*************************************************
+ * FUNCIÓN: GENERAR ETIQUETA CON IMAGICK
+ *************************************************/
+function generarEtiquetaImagick(
+    int $idElemento,
+    string $tipo,
+    string $numero,
+    string $qrBin,
+    string $backgroundPath,
+    string $outputDir
+): void {
+
+    // Fondo base 2847x1425
+    $base = new Imagick($backgroundPath);
+
+    // TEXTO TIPO
+    $drawTipo = new ImagickDraw();
+    $drawTipo->setFillColor('#203154');
+    $drawTipo->setFont('Arial-Black');
+    $drawTipo->setFontSize(580);
+
+    $base->annotateImage(
+        $drawTipo,
+        750,
+        820,
+        0,
+        $tipo
+    );
+
+    // TEXTO NÚMERO (ID)
+    $drawNum = new ImagickDraw();
+    $drawNum->setFillColor('#203154');
+    $drawNum->setFont('Arial-Black');
+    $drawNum->setFontSize(520);
+
+    $base->annotateImage(
+        $drawNum,
+        1100,
+        1250,
+        0,
+        $numero
+    );
+
+    // QR
+    $qr = new Imagick();
+    $qr->readImageBlob($qrBin);
+    $qr->resizeImage(920, 920, Imagick::FILTER_LANCZOS, 1);
+
+    $base->compositeImage(
+        $qr,
+        Imagick::COMPOSITE_OVER,
+        1820,
+        430
+    );
+
+    // Guardar
+    $filename = $outputDir . "/etiqueta_" . $idElemento . ".png";
+    $base->writeImage($filename);
+
+    $base->clear();
+    $qr->clear();
+}

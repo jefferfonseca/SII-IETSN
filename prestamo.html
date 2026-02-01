@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Nuevo Préstamo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="css/materialize.min.css" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body class="grey lighten-4">
+    <nav class="blue">
+      <div class="nav-wrapper container">
+        <span class="brand-logo">Préstamo de Elementos</span>
+      </div>
+    </nav>
+
+    <div class="container" style="margin-top: 20px">
+      <!-- TOMADOR -->
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">Tomador</span>
+
+          <a class="btn blue" id="scanTomador">Escanear QR Tomador</a>
+          <div id="readerTomador" style="display: none; margin-top: 15px"></div>
+
+          <p id="infoTomador" class="green-text"></p>
+        </div>
+      </div>
+
+      <!-- ELEMENTOS -->
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">Elementos</span>
+
+          <p class="grey-text">Escanee los elementos que va a prestar</p>
+
+          <div
+            id="readerElemento"
+            style="display: none; margin-top: 15px"
+          ></div>
+
+          <ul class="collection" id="listaElementos"></ul>
+
+          <div class="center-align" style="margin-top: 15px">
+            <a class="btn green" id="btnAgregarElemento" style="display: none">
+              Agregar más elementos
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- OBSERVACIONES -->
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">Observaciones</span>
+
+          <div class="input-field">
+            <textarea
+              id="observaciones"
+              class="materialize-textarea"
+            ></textarea>
+            <label for="observaciones">Estado al entregar</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- GUARDAR -->
+      <div class="center-align">
+        <a class="btn red" id="guardarPrestamo">Guardar Préstamo</a>
+      </div>
+    </div>
+
+    <script src="js/materialize.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="js/init.js"></script>
+    <script src="js/prestamo.js"></script>
+  </body>
+</html>

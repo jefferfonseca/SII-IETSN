@@ -1,0 +1,7 @@
+RewriteEngine On
+
+# QR de usuarios
+RewriteRule ^qr/([0-9]+)$ qr.php?id=$1 [L,QSA]
+
+# QR de elementos
+RewriteRule ^([0-9]+)$ qr-elementos.php?id=$1 [L,QSA]
