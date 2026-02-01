@@ -76,5 +76,13 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="js/init.js"></script>
     <script src="js/prestamo.js"></script>
-  </body>
-</html>
+  <script>
+const menuElementos = document.getElementById('menu-elementos');
+const submenuElementos = document.getElementById('submenu-elementos');
+
+menuElementos.addEventListener('click', () => {
+  menuElementos.classList.toggle('open');
+  submenuElementos.classList.toggle('open');
+});
+</script>
+</body></html>

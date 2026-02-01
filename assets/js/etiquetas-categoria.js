@@ -200,8 +200,16 @@ function abrirVentanaImpresion(imagenes) {
       </head>
       <body onload="window.print(); window.close();">
         ${imgsHTML}
-      </body>
-    </html>
+      <script>
+const menuElementos = document.getElementById('menu-elementos');
+const submenuElementos = document.getElementById('submenu-elementos');
+
+menuElementos.addEventListener('click', () => {
+  menuElementos.classList.toggle('open');
+  submenuElementos.classList.toggle('open');
+});
+</script>
+</body>    </html>
   `);
 
   win.document.close();

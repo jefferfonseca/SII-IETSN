@@ -25,69 +25,9 @@ $usuario = $_SESSION["usuario"];
 
 <body>
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <i class="material-icons">qr_code_scanner</i>
-            </div>
-            <h5>Sistema de Préstamos</h5>
-            <p>Panel Administrativo</p>
-        </div>
-
-        <div class="sidebar-user">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($usuario['nombre'], 0, 1)); ?>
-            </div>
-            <div class="user-name"><?php echo htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellido']); ?>
-            </div>
-            <div class="user-role">Administrador</div>
-        </div>
-
-        <div class="sidebar-menu">
-            <div class="menu-section">
-                <div class="menu-section-title">Principal</div>
-                <a href="dashboard.php" class="menu-item">
-                    <i class="material-icons">dashboard</i>
-                    <span>Dashboard</span>
-                </a>
-            </div>
-
-            <div class="menu-section">
-                <div class="menu-section-title">Gestión</div>
-                <a href="#" class="menu-item">
-                    <i class="material-icons">assignment</i>
-                    <span>Préstamos</span>
-                </a>
-                <a href="usuarios.php" class="menu-item active">
-                    <i class="material-icons">people</i>
-                    <span>Usuarios</span>
-                </a>
-                <a href="elementos.php" class="menu-item">
-                    <i class="material-icons">inventory_2</i>
-                    <span>Elementos</span>
-                </a>
-            </div>
-
-            <div class="menu-section">
-                <div class="menu-section-title">Sistema</div>
-                <a href="#" class="menu-item">
-                    <i class="material-icons">description</i>
-                    <span>Bitácora</span>
-                </a>
-                <a href="#" class="menu-item">
-                    <i class="material-icons">settings</i>
-                    <span>Configuración</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="sidebar-footer">
-            <button class="btn btn-logout-sidebar waves-effect" onclick="cerrarSesion()">
-                <i class="material-icons left">exit_to_app</i>
-                Cerrar Sesión
-            </button>
-        </div>
-    </div>
+    <?php
+    include 'sidebar.php';
+    ?>
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
@@ -296,6 +236,18 @@ $usuario = $_SESSION["usuario"];
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('hidden');
+                mainContent.classList.toggle('expanded');
+            }
+        }
+
         /* ===============================
            CACHE Y CONSTANTES
         =============================== */
@@ -672,7 +624,14 @@ $usuario = $_SESSION["usuario"];
 
     </script>
 
+   <script>
+const menuElementos = document.getElementById('menu-elementos');
+const submenuElementos = document.getElementById('submenu-elementos');
 
+menuElementos.addEventListener('click', () => {
+  menuElementos.classList.toggle('open');
+  submenuElementos.classList.toggle('open');
+});
+</script>
 </body>
-
 </html>

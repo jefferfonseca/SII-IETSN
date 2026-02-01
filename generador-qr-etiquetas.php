@@ -28,48 +28,9 @@ $usuario = $_SESSION["usuario"];
 <body>
 
     <!-- ================= SIDEBAR ================= -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <i class="material-icons">qr_code_scanner</i>
-            </div>
-            <h5>Sistema de Préstamos</h5>
-            <p>Panel Administrativo</p>
-        </div>
-
-        <div class="sidebar-user">
-            <div class="user-avatar">
-                <?= strtoupper(substr($usuario['nombre'], 0, 1)) ?>
-            </div>
-            <div class="user-name">
-                <?= htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellido']) ?>
-            </div>
-            <div class="user-role">Administrador</div>
-        </div>
-
-        <div class="sidebar-menu">
-            <div class="menu-section">
-                <div class="menu-section-title">Herramientas</div>
-
-                <a href="dashboard.php" class="menu-item">
-                    <i class="material-icons">dashboard</i>
-                    <span>Dashboard</span>
-                </a>
-
-                <a href="generador-qr-etiquetas.php" class="menu-item active">
-                    <i class="material-icons">qr_code_2</i>
-                    <span>Generador Etiquetas</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="sidebar-footer">
-            <button class="btn btn-logout-sidebar waves-effect" onclick="cerrarSesion()">
-                <i class="material-icons left">exit_to_app</i>
-                Cerrar Sesión
-            </button>
-        </div>
-    </div>
+    <?php
+    include 'sidebar.php';
+    ?>
 
     <!-- ================= MAIN CONTENT ================= -->
     <div class="main-content" id="mainContent">
@@ -394,6 +355,14 @@ $usuario = $_SESSION["usuario"];
 
     </script>
 
-</body>
+<script>
+const menuElementos = document.getElementById('menu-elementos');
+const submenuElementos = document.getElementById('submenu-elementos');
 
+menuElementos.addEventListener('click', () => {
+  menuElementos.classList.toggle('open');
+  submenuElementos.classList.toggle('open');
+});
+</script>
+</body>
 </html>

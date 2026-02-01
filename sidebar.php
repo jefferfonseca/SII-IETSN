@@ -1,0 +1,85 @@
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="material-icons">qr_code_scanner</i>
+        </div>
+        <h5>Sistema de Préstamos</h5>
+        <p>Panel Administrativo</p>
+    </div>
+
+    <div class="sidebar-user">
+        <div class="user-avatar">
+            <?php echo strtoupper(substr($usuario['nombre'], 0, 1)); ?>
+        </div>
+        <div class="user-name">
+            <?php echo htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellido']); ?>
+        </div>
+        <div class="user-role">Administrador</div>
+    </div>
+
+    <div class="sidebar-menu">
+
+        <div class="menu-section">
+            <div class="menu-section-title">Principal</div>
+            <a href="dashboard.php" class="menu-item">
+                <i class="material-icons">dashboard</i>
+                <span>Dashboard</span>
+            </a>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Gestión</div>
+
+            <a href="prestamos.php" class="menu-item">
+                <i class="material-icons">assignment</i>
+                <span>Préstamos</span>
+            </a>
+
+            <a href="usuarios.php" class="menu-item">
+                <i class="material-icons">people</i>
+                <span>Usuarios</span>
+            </a>
+
+            <!-- ELEMENTOS (SOLO TOGGLE) -->
+            <div class="menu-item has-submenu" id="menu-elementos">
+                <i class="material-icons">inventory_2</i>
+                <span>Elementos</span>
+                <i class="material-icons arrow">expand_more</i>
+            </div>
+
+            <!-- SUBMENÚ -->
+            <div class="submenu" id="submenu-elementos">
+                <a href="elementos.php" class="submenu-item">
+                    <i class="material-icons">list</i>
+                    <span>Listado</span>
+                </a>
+                <a href="generador-qr-etiquetas.php" class="submenu-item">
+                    <i class="material-icons">qr_code_2</i>
+                    <span>Generador QR</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Sistema</div>
+
+            <a href="bitacora.php" class="menu-item">
+                <i class="material-icons">description</i>
+                <span>Bitácora</span>
+            </a>
+
+            <a href="configuracion.php" class="menu-item">
+                <i class="material-icons">settings</i>
+                <span>Configuración</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="sidebar-footer">
+        <button class="btn btn-logout-sidebar waves-effect" onclick="cerrarSesion()">
+            <i class="material-icons left">exit_to_app</i>
+            Cerrar Sesión
+        </button>
+    </div>
+</div>

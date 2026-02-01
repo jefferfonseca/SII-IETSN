@@ -94,7 +94,7 @@ $usuario = $_SESSION["usuario"];
         <div class="modules-section">
             <h5>Módulos del Sistema</h5>
             <div class="modules-container">
-                <a href="prestamos.html" class="module-card prestamos">
+                <a href="prestamos.php" class="module-card prestamos">
                     <div class="module-icon">
                         <i class="material-icons">assignment</i>
                     </div>
@@ -183,6 +183,14 @@ $usuario = $_SESSION["usuario"];
         });
     </script>
 
-</body>
+<script>
+const menuElementos = document.getElementById('menu-elementos');
+const submenuElementos = document.getElementById('submenu-elementos');
 
+menuElementos.addEventListener('click', () => {
+  menuElementos.classList.toggle('open');
+  submenuElementos.classList.toggle('open');
+});
+</script>
+</body>
 </html>

@@ -9,7 +9,101 @@
   padding: 0;
   box-sizing: border-box;
 }
+/* ===== SUBMENÚ ELEMENTOS ===== */
 
+.menu-item.has-children {
+  flex-direction: column;
+  padding: 0;
+}
+
+.menu-parent {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 30px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.menu-parent:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.menu-parent .arrow {
+  margin-left: auto;
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}
+
+.menu-item.open .menu-parent .arrow {
+  transform: rotate(180deg);
+}
+
+.submenu {
+  display: none;
+  flex-direction: column;
+  padding-left: 15px;
+}
+
+.menu-item.open .submenu {
+  display: flex;
+}
+
+.submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 30px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+}
+
+.submenu-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+}
+/* ===== SUBMENÚ ELEMENTOS ===== */
+
+.menu-item.has-submenu {
+  cursor: pointer;
+}
+
+.menu-item.has-submenu .arrow {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.submenu {
+  display: none;
+  flex-direction: column;
+}
+
+.submenu.open {
+  display: flex;
+}
+
+.submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 60px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+}
+
+.submenu-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+}
+
+.menu-item.has-submenu.open .arrow {
+  transform: rotate(180deg);
+}
+.arrow.rotated {
+  transform: rotate(180deg);
+}
 body {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
