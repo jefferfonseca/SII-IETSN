@@ -13,25 +13,25 @@ $usuario = $_SESSION["usuario"];
 <!DOCTYPE html>
 <html lang="es">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Etiqueta QR - IETSN</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<?php
-$imagen_path = 'etiqueta-base.png';
-$imagen_data = base64_encode(file_get_contents($imagen_path));
-$imagen_base64 = 'data:image/png;base64,' . $imagen_data;
-?>
-<link rel="stylesheet" href="/SII-IETSN/css/qr-elementos.css">
-<link rel="stylesheet" href="/SII-IETSN/css/qr.css">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Etiqueta QR - IETSN</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <?php
+  $imagen_path = 'etiqueta-base.png';
+  $imagen_data = base64_encode(file_get_contents($imagen_path));
+  $imagen_base64 = 'data:image/png;base64,' . $imagen_data;
+  ?>
+  <link rel="stylesheet" href="/SII-IETSN/css/qr-elementos.css">
+  <link rel="stylesheet" href="/SII-IETSN/css/qr.css">
 
-<style>
-  .label {
-    background-image: url("<?php echo $imagen_base64; ?>");
-  }
-</style>
+  <style>
+    .label {
+      background-image: url("<?php echo $imagen_base64; ?>");
+    }
+  </style>
 </head>
 
 <body>
@@ -188,21 +188,12 @@ $imagen_base64 = 'data:image/png;base64,' . $imagen_data;
         </head>
         <body onload="window.print(); window.close();">
           <img src="${imgData}">
-        <script>
-const menuElementos = document.getElementById('menu-elementos');
-const submenuElementos = document.getElementById('submenu-elementos');
-
-menuElementos.addEventListener('click', () => {
-  menuElementos.classList.toggle('open');
-  submenuElementos.classList.toggle('open');
-});
-</script>
-</body>      </html>
+        </body>
+      </html>
     `);
         win.document.close();
       });
     }
-
 
     function descargarEtiqueta() {
       const etiqueta = document.getElementById('etiqueta');
@@ -226,24 +217,16 @@ menuElementos.addEventListener('click', () => {
       const sidebar = document.getElementById('sidebar');
       const mainContent = document.getElementById('mainContent');
 
-      if (window.innerWidth <= 992) {
-        sidebar.classList.toggle('active');
-      } else {
+      if (window.innerWidth <= 992) { sidebar.classList.toggle('active'); } else {
         sidebar.classList.toggle('hidden');
         mainContent.classList.toggle('expanded');
       }
-    }
-
-
+    } const menuElementos = document.getElementById('menu-elementos'); const
+      submenuElementos = document.getElementById('submenu-elementos'); menuElementos.addEventListener('click', () => {
+        menuElementos.classList.toggle('open');
+        submenuElementos.classList.toggle('open');
+      });
   </script>
-<script>
-const menuElementos = document.getElementById('menu-elementos');
-const submenuElementos = document.getElementById('submenu-elementos');
-
-menuElementos.addEventListener('click', () => {
-  menuElementos.classList.toggle('open');
-  submenuElementos.classList.toggle('open');
-});
-</script>
 </body>
+
 </html>
