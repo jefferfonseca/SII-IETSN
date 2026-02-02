@@ -1,0 +1,200 @@
+/* ===================================
+   ESTILOS ESPECÍFICOS PARA PRÉSTAMOS
+   ================================== */
+
+/* Modal de Préstamos */
+.modal-prestamo {
+  max-width: 800px !important;
+  max-height: 90% !important;
+}
+
+/* ==========================
+   SECCIONES DEL MODAL
+   ========================== */
+
+.prestamo-seccion {
+  margin-bottom: 30px;
+  padding: 25px;
+  background: #f8f9fa;
+  border-radius: 15px;
+  border-left: 4px solid var(--primary);
+}
+
+.seccion-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: #2d3748;
+}
+
+.seccion-header i {
+  font-size: 24px;
+  color: var(--primary);
+}
+
+.seccion-header h6 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* ==========================
+   QR SCANNER (CRÍTICO)
+   ========================== */
+
+.qr-scanner-container {
+  width: 100%;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+/* Contenedor REAL del lector */
+#readerTomador,
+#readerElemento {
+  display: none;
+  width: 280px;
+  height: 280px;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Asegura que el video se muestre correctamente */
+#readerTomador video,
+#readerElemento video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* Placeholder QR */
+.qr-placeholder {
+  text-align: center;
+  color: #a0aec0;
+}
+
+.qr-placeholder i {
+  font-size: 60px;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+.qr-placeholder p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* ==========================
+   INFO ESCANEADO
+   ========================== */
+
+.info-escaneado {
+  margin-top: 20px;
+  padding: 15px;
+  background: white;
+  border-radius: 10px;
+  border-left: 4px solid #48bb78;
+}
+
+.chip-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.chip-info i {
+  color: #48bb78;
+  font-size: 24px;
+}
+
+/* ==========================
+   LISTA DE ELEMENTOS
+   ========================== */
+
+.elementos-lista {
+  margin-top: 20px;
+}
+
+.elemento-item {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s;
+}
+
+.elemento-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* ==========================
+   ESTADOS Y BOTONES
+   ========================== */
+
+.badge-prestamo-activo {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.badge-prestamo-devuelto {
+  background: linear-gradient(135deg, #48bb78, #38a169);
+  color: white;
+}
+
+.badge-prestamo-vencido {
+  background: linear-gradient(135deg, #f56565, #e53e3e);
+  color: white;
+}
+
+.btn-devolver {
+  background: linear-gradient(135deg, #14b8a6, #0d9488) !important;
+}
+
+/* Botones deshabilitados */
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ==========================
+   RESPONSIVE
+   ========================== */
+
+@media (max-width: 768px) {
+  .modal-prestamo {
+    max-width: 95% !important;
+  }
+
+  .prestamo-seccion {
+    padding: 15px;
+  }
+
+  #readerTomador,
+  #readerElemento {
+    width: 240px;
+    height: 240px;
+  }
+
+  .qr-scanner-container {
+    min-height: 260px;
+  }
+}
+/* ==========================
+   FIN DE ESTILOS
+   ========================== */

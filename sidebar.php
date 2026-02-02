@@ -22,7 +22,7 @@
 
         <div class="menu-section">
             <div class="menu-section-title">Principal</div>
-            <a href="dashboard.php" class="menu-item">
+            <a href="/SII-IETSN/dashboard.php" class="menu-item">
                 <i class="material-icons">dashboard</i>
                 <span>Dashboard</span>
             </a>
@@ -31,12 +31,12 @@
         <div class="menu-section">
             <div class="menu-section-title">Gestión</div>
 
-            <a href="prestamos.php" class="menu-item">
+            <a href="/SII-IETSN/prestamos.php" class="menu-item">
                 <i class="material-icons">assignment</i>
                 <span>Préstamos</span>
             </a>
 
-            <a href="usuarios.php" class="menu-item">
+            <a href="/SII-IETSN/usuarios.php" class="menu-item">
                 <i class="material-icons">people</i>
                 <span>Usuarios</span>
             </a>
@@ -50,11 +50,11 @@
 
             <!-- SUBMENÚ -->
             <div class="submenu" id="submenu-elementos">
-                <a href="elementos.php" class="submenu-item">
+                <a href="/SII-IETSN/elementos.php" class="submenu-item">
                     <i class="material-icons">list</i>
                     <span>Listado</span>
                 </a>
-                <a href="generador-qr-etiquetas.php" class="submenu-item">
+                <a href="/SII-IETSN/generador-qr-etiquetas.php" class="submenu-item">
                     <i class="material-icons">qr_code_2</i>
                     <span>Generador QR</span>
                 </a>
@@ -64,12 +64,12 @@
         <div class="menu-section">
             <div class="menu-section-title">Sistema</div>
 
-            <a href="bitacora.php" class="menu-item">
+            <a href="/SII-IETSN/bitacora.php" class="menu-item">
                 <i class="material-icons">description</i>
                 <span>Bitácora</span>
             </a>
 
-            <a href="configuracion.php" class="menu-item">
+            <a href="/SII-IETSN/configuracion.php" class="menu-item">
                 <i class="material-icons">settings</i>
                 <span>Configuración</span>
             </a>

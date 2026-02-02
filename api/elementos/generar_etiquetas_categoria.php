@@ -99,7 +99,7 @@ try {
     $numero = (string) $el['id_elemento'];
 
     $payload = [
-        "tipo" => $el['tipo'],
+        "tipo" => 'elemento',
         "id_elemento" => $el['id_elemento'],
         "codigo" => $el['codigo'],
         "numero" => $numero
