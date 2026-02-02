@@ -20,7 +20,6 @@ $usuario = $_SESSION["usuario"];
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/SII-IETSN/css/usuario.css">
     <link rel="stylesheet" href="/SII-IETSN/css/prestamos.css">
-    <link rel="stylesheet" href="/SII-IETSN/css/prestamos-tabla-styles.css">
 </head>
 
 <body>
@@ -52,7 +51,8 @@ $usuario = $_SESSION["usuario"];
                 <!-- Estado -->
                 <div class="input-field">
                     <select id="filtroEstado">
-                        <option value="activo" selected>Activos</option>
+                        <option value="" selected>Todos</option>
+                        <option value="activo">Activos</option>
                         <option value="devuelto">Devueltos</option>
                     </select>
                     <label>Estado</label>
@@ -64,12 +64,11 @@ $usuario = $_SESSION["usuario"];
                     <label for="busquedaPrestamo">Buscar</label>
                 </div>
             </div>
-            <div class="center">
+            <div>
                 <a href="#modalNuevoPrestamo" class="btn btn-nuevo-usuario waves-effect waves-light modal-trigger">
                     <i class="material-icons left">add_circle</i>
                     Nuevo Préstamo
                 </a>
-                <br>
                 <a href="#modalDevolucion" class="btn btn-accion teal modal-trigger">
                     <i class="material-icons left">assignment_return</i>
                     Devolver
@@ -79,23 +78,48 @@ $usuario = $_SESSION["usuario"];
         </div>
 
         <!-- Préstamos Cards -->
-        <div class="prestamos-tabla-container">
-            <table class="highlight responsive-table" id="tablaPrestamos">
-                <thead>
-                    <tr>
-                        <th>Tomador</th>
-                        <th>Elemento</th>
-                        <th>Fecha Préstamo</th>
-                        <th>Fecha Devolución</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody id="prestamosContainer">
-                    <!-- filas dinámicas -->
-                </tbody>
-            </table>
-        </div>
+        <div class="usuarios-container" id="prestamosContainer">
 
+            <!-- EJEMPLO DE CARD - Este será generado dinámicamente -->
+            <div class="usuario-card">
+                <div class="usuario-header">
+                    <div class="usuario-info">
+                        <div class="usuario-avatar">JD</div>
+                        <h3 class="usuario-nombre">Juan Pérez</h3>
+
+                        <div class="usuario-documento">
+                            <i class="material-icons">devices</i>
+                            Laptop HP Pavilion
+                        </div>
+
+                        <div class="usuario-grado">
+                            <i class="material-icons">event</i>
+                            Prestado: 28/01/2026
+                        </div>
+
+                        <div class="usuario-grado">
+                            <i class="material-icons">schedule</i>
+                            Devolución: 04/02/2026
+                        </div>
+                    </div>
+
+                    <div class="usuario-badges">
+                        <span class="badge-estado badge-activo">
+                            <i class="material-icons">pending</i>
+                            Activo
+                        </span>
+                    </div>
+                </div>
+
+                <div class="usuario-acciones">
+                    <a href="#modalDetallePrestamo" class="btn btn-accion btn-editar modal-trigger">
+                        <i class="material-icons">visibility</i>
+                        Ver Detalle
+                    </a>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <!-- Modal Nuevo Préstamo -->
@@ -165,7 +189,7 @@ $usuario = $_SESSION["usuario"];
             <div class="prestamo-seccion">
                 <div class="seccion-header">
                     <i class="material-icons">event</i>
-                    <h6>3. Fecha Estimada de Devolución</h6>
+                    <h6>3. Fecha de Devolución</h6>
                 </div>
 
                 <div class="row">
@@ -339,10 +363,6 @@ $usuario = $_SESSION["usuario"];
             cargarPrestamos();
             const modalElem = document.getElementById('modalNuevoPrestamo');
             const modalDev = document.getElementById('modalDevolucion');
-            document.getElementById('filtroEstado').addEventListener('change', aplicarFiltros);
-            document
-                .getElementById('busquedaPrestamo')
-                .addEventListener('input', aplicarFiltros);
 
             M.Modal.init(modalDev, {
                 dismissible: true,
@@ -360,7 +380,6 @@ $usuario = $_SESSION["usuario"];
                 dismissible: true,
                 onOpenEnd: async () => {
                     tomadorProcesado = false;
-                    setFechaHoy();
                     await activarScannerTomador();
                 },
                 onCloseEnd: async () => {
@@ -385,17 +404,6 @@ $usuario = $_SESSION["usuario"];
             if (scanner && scanner.isScanning) {
                 await scanner.stop();
             }
-        }
-        function setFechaHoy() {
-            const inputFecha = document.getElementById('fecha_devolucion');
-            if (!inputFecha) return;
-
-            const hoy = new Date();
-            const yyyy = hoy.getFullYear();
-            const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-            const dd = String(hoy.getDate()).padStart(2, '0');
-
-            inputFecha.value = `${yyyy}-${mm}-${dd}`;
         }
 
         /* =====================================================
@@ -751,66 +759,63 @@ $usuario = $_SESSION["usuario"];
             renderizarPrestamos(result.data);
         }
 
-   function renderizarPrestamos(prestamos) {
+        function renderizarPrestamos(prestamos) {
 
-    const cont = document.getElementById('prestamosContainer');
-    cont.innerHTML = '';
+            const cont = document.getElementById('prestamosContainer');
+            cont.innerHTML = '';
 
-    // Fecha de hoy normalizada
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
+            prestamos.forEach(p => {
 
-    prestamos.forEach(p => {
+                const badgeEstado = p.estado === 'activo'
+                    ? 'badge-activo'
+                    : 'badge-devuelto';
 
-        const badgeEstado = p.estado === 'activo'
-            ? 'badge-activo'
-            : 'badge-devuelto';
+                cont.innerHTML += `
+        <div class="usuario-card">
+            <div class="usuario-header">
+                <div class="usuario-info">
+                    <div class="usuario-avatar">
+                        ${p.tomador_nombre.substring(0, 2).toUpperCase()}
+                    </div>
 
-        // ============================
-        // LÓGICA DE ALERTA POR FECHA
-        // ============================
-        let fechaDevolucionHTML = '—';
+                    <h3 class="usuario-nombre">${p.tomador_nombre}</h3>
 
-        if (p.fecha_devolucion) {
+                    <div class="usuario-documento">
+                        <i class="material-icons">devices</i>
+                        ${p.elemento_nombre} (${p.elemento_codigo})
+                    </div>
 
-            const fechaDev = new Date(p.fecha_devolucion);
-            fechaDev.setHours(0, 0, 0, 0);
+                    <div class="usuario-grado">
+                        <i class="material-icons">event</i>
+                        Prestado: ${p.fecha_prestamo}
+                    </div>
 
-            const vencido = p.estado === 'activo' && fechaDev < hoy;
+                    <div class="usuario-grado">
+                        <i class="material-icons">schedule</i>
+                        Devolución: ${p.fecha_devolucion ?? '—'}
+                    </div>
+                </div>
 
-            fechaDevolucionHTML = `
-                <span class="${vencido ? 'fecha-alerta' : ''}">
-                    ${p.fecha_devolucion}
-                </span>
-                ${vencido ? '<span class="badge-alerta">ALERTA</span>' : ''}
-            `;
-        }
-
-        // ============================
-        // RENDER DE LA FILA
-        // ============================
-        cont.innerHTML += `
-            <tr>
-                <td>${p.tomador_nombre}</td>
-
-                <td>
-                    ${p.elemento_nombre}<br>
-                    <small class="grey-text">${p.elemento_codigo}</small>
-                </td>
-
-                <td>${p.fecha_prestamo}</td>
-
-                <td>${fechaDevolucionHTML}</td>
-
-                <td>
+                <div class="usuario-badges">
                     <span class="badge-estado ${badgeEstado}">
                         ${p.estado.toUpperCase()}
                     </span>
-                </td>
-            </tr>
+                </div>
+            </div>
+
+            <div class="usuario-acciones">
+                <a href="#modalDetallePrestamo"
+                   class="btn btn-accion btn-editar modal-trigger"
+                   onclick="verDetallePrestamo(${p.id})">
+                    <i class="material-icons">visibility</i>
+                    Ver Detalle
+                </a>
+            </div>
+        </div>
         `;
-    });
-}
+            });
+        }
+
 
         // ===== SIDEBAR =====
         function toggleSidebar() {
@@ -835,67 +840,6 @@ $usuario = $_SESSION["usuario"];
                 submenuElementos.classList.toggle('open');
             });
         }
-
-        async function cargarPrestamos() {
-
-            const response = await fetch('/SII-IETSN/api/prestamos/listar.php');
-            const result = await response.json();
-
-            if (!result.success) {
-                M.toast({ html: 'Error al cargar préstamos', classes: 'red' });
-                return;
-            }
-
-            prestamosGlobales = result.data;
-
-            aplicarFiltros(); // 👈 clave
-        }
-        function aplicarFiltros() {
-
-            const estadoFiltro = document.getElementById('filtroEstado').value;
-            const textoBusqueda = document
-                .getElementById('busquedaPrestamo')
-                .value
-                .toLowerCase()
-                .trim();
-
-            let prestamosFiltrados = [...prestamosGlobales];
-
-            // ✅ FILTRO POR ESTADO (default: activos)
-            if (!estadoFiltro || estadoFiltro === 'activo') {
-                prestamosFiltrados = prestamosFiltrados.filter(
-                    p => p.estado === 'activo'
-                );
-            }
-
-            if (estadoFiltro === 'devuelto') {
-                prestamosFiltrados = prestamosFiltrados.filter(
-                    p => p.estado === 'devuelto'
-                );
-            }
-
-            // ✅ FILTRO POR TEXTO
-            if (textoBusqueda) {
-                prestamosFiltrados = prestamosFiltrados.filter(p => {
-
-                    const tomador = p.tomador_nombre.toLowerCase();
-                    const elemento = p.elemento_nombre.toLowerCase();
-                    const codigo = p.elemento_codigo.toLowerCase();
-
-                    return (
-                        tomador.includes(textoBusqueda) ||
-                        elemento.includes(textoBusqueda) ||
-                        codigo.includes(textoBusqueda)
-                    );
-                });
-            }
-
-            if (textoBusqueda.length < 2) {
-                renderizarPrestamos(prestamosFiltrados);
-                return;
-            }
-        }
-
     </script>
 
 </body>

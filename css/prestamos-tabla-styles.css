@@ -1,0 +1,462 @@
+/* =====================================================
+   ESTILOS MODERNOS PARA TABLA DE PRÉSTAMOS
+   ✅ VERSIÓN CORREGIDA - ALINEACIÓN PERFECTA
+   ===================================================== */
+
+/* Variables de color actualizadas */
+:root {
+    --primary-color: #2563eb;
+    --primary-dark: #1e40af;
+    --secondary-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --border-color: #e5e7eb;
+    --bg-light: #f9fafb;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Container principal de la tabla */
+.prestamos-tabla-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    margin: 24px 0;
+    position: relative;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Animación de entrada */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ✅ TABLA PRINCIPAL - ALINEACIÓN CORREGIDA */
+#tablaPrestamos {
+    margin: 0;
+    border-collapse: collapse; /* ✅ CRÍTICO: collapse en lugar de separate */
+    width: 100%;
+    position: relative;
+    table-layout: auto; /* ✅ CRÍTICO: fuerza anchos consistentes */
+}
+
+/* ✅ ANCHOS ESPECÍFICOS POR COLUMNA */
+#tablaPrestamos thead th:nth-child(1),
+#tablaPrestamos tbody td:nth-child(1) {
+    width: 18%; /* Tomador */
+}
+
+#tablaPrestamos thead th:nth-child(2),
+#tablaPrestamos tbody td:nth-child(2) {
+    width: 20%; /* Elemento */
+}
+
+#tablaPrestamos thead th:nth-child(3),
+#tablaPrestamos tbody td:nth-child(3) {
+    width: 18%; /* Fecha Préstamo */
+}
+
+#tablaPrestamos thead th:nth-child(4),
+#tablaPrestamos tbody td:nth-child(4) {
+    width: 18%; /* Fecha Devolución */
+}
+
+#tablaPrestamos thead th:nth-child(5),
+#tablaPrestamos tbody td:nth-child(5) {
+    width: 14%; /* Estado */
+}
+
+/* Header de la tabla */
+#tablaPrestamos thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+#tablaPrestamos thead tr {
+    transition: all 0.3s ease;
+}
+
+#tablaPrestamos thead th {
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 20px 16px !important; /* ✅ !important para sobrescribir Materialize */
+    text-align: left;
+    border: none;
+    position: relative;
+    box-sizing: border-box; /* ✅ CRÍTICO */
+}
+
+#tablaPrestamos thead th::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+#tablaPrestamos thead th:first-child {
+    padding-left: 24px !important;
+}
+
+#tablaPrestamos thead th:last-child {
+    padding-right: 24px !important;
+}
+
+/* Cuerpo de la tabla */
+#tablaPrestamos tbody tr {
+    background: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+#tablaPrestamos tbody tr:hover {
+    background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%);
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+#tablaPrestamos tbody tr:hover::before {
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+}
+
+#tablaPrestamos tbody tr:nth-child(even) {
+    background: #fafbfc;
+}
+
+#tablaPrestamos tbody tr:nth-child(even):hover {
+    background: linear-gradient(90deg, #f1f5f9 0%, #fafbfc 100%);
+}
+
+/* ✅ CELDAS DEL CUERPO - PADDING CONSISTENTE */
+#tablaPrestamos tbody td {
+    padding: 20px 16px !important; /* ✅ !important para sobrescribir Materialize */
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    vertical-align: middle;
+    border: none;
+    box-sizing: border-box; /* ✅ CRÍTICO */
+    animation: fadeIn 0.4s ease-out backwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#tablaPrestamos tbody tr:nth-child(1) td { animation-delay: 0.05s; }
+#tablaPrestamos tbody tr:nth-child(2) td { animation-delay: 0.1s; }
+#tablaPrestamos tbody tr:nth-child(3) td { animation-delay: 0.15s; }
+#tablaPrestamos tbody tr:nth-child(4) td { animation-delay: 0.2s; }
+#tablaPrestamos tbody tr:nth-child(5) td { animation-delay: 0.25s; }
+
+#tablaPrestamos tbody td:first-child {
+    padding-left: 24px !important;
+    font-weight: 600;
+    color: #1a202c;
+}
+
+#tablaPrestamos tbody td:last-child {
+    padding-right: 24px !important;
+}
+
+/* Información de elementos */
+#tablaPrestamos tbody td small {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    margin-top: 4px;
+    font-weight: normal;
+}
+
+/* Badges de estado */
+.badge-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.badge-estado::before {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    left: 12px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+.badge-activo {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.badge-activo::before {
+    background: #d1fae5;
+}
+
+.badge-devuelto {
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+}
+
+.badge-devuelto::before {
+    background: #e2e8f0;
+}
+
+@media screen and (max-width: 992px) {
+    .prestamos-tabla-container {
+        overflow-x: auto;
+        border-radius: 12px;
+    }
+
+    #tablaPrestamos {
+        min-width: 900px; /* Ajustado para mantener legibilidad */
+    }
+
+    #tablaPrestamos thead th,
+    #tablaPrestamos tbody td {
+        padding: 16px 12px !important;
+    }
+
+    #tablaPrestamos thead th:first-child,
+    #tablaPrestamos tbody td:first-child {
+        padding-left: 16px !important;
+    }
+
+    #tablaPrestamos thead th:last-child,
+    #tablaPrestamos tbody td:last-child {
+        padding-right: 16px !important;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .prestamos-tabla-container {
+        margin: 16px -8px;
+        border-radius: 8px;
+    }
+
+    #tablaPrestamos {
+        min-width: 800px;
+    }
+
+    #tablaPrestamos thead th,
+    #tablaPrestamos tbody td {
+        padding: 12px 8px !important;
+        font-size: 0.8125rem;
+    }
+
+    .badge-estado {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+
+    .btn-accion {
+        padding: 8px 12px;
+    }
+}
+
+/* Estado vacío */
+#prestamosContainer:empty::after {
+    content: '📋 No hay préstamos registrados';
+    display: block;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    font-weight: 500;
+}
+
+/* Efecto de carga */
+.prestamos-tabla-container.loading {
+    position: relative;
+    min-height: 400px;
+}
+
+.prestamos-tabla-container.loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.prestamos-tabla-container.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 48px;
+    height: 48px;
+    margin: -24px 0 0 -24px;
+    border: 4px solid #e5e7eb;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    z-index: 101;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Scroll suave para la tabla */
+.prestamos-tabla-container {
+    scroll-behavior: smooth;
+}
+
+.prestamos-tabla-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.prestamos-tabla-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+
+.prestamos-tabla-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+}
+
+.prestamos-tabla-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Mejora visual para tooltips nativos */
+#tablaPrestamos tbody td[title] {
+    cursor: help;
+    position: relative;
+}
+
+/* Highlight de búsqueda */
+.highlight-search {
+    background: linear-gradient(120deg, #fef3c7 0%, #fde68a 100%);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+/* Efecto de selección de fila */
+#tablaPrestamos tbody tr.selected {
+    background: linear-gradient(90deg, #ede9fe 0%, #ffffff 100%);
+    box-shadow: inset 4px 0 0 #8b5cf6;
+}
+
+/* Indicador de ordenamiento */
+#tablaPrestamos thead th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 32px !important;
+}
+
+#tablaPrestamos thead th.sortable::after {
+    content: '⇅';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.4;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+#tablaPrestamos thead th.sortable:hover::after {
+    opacity: 1;
+}
+
+#tablaPrestamos thead th.sortable.asc::after {
+    content: '↑';
+    opacity: 1;
+}
+
+#tablaPrestamos thead th.sortable.desc::after {
+    content: '↓';
+    opacity: 1;
+}
+
+/* ✅ CORRECCIÓN ADICIONAL: Prevenir desbordamiento de texto */
+#tablaPrestamos tbody td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#tablaPrestamos tbody td:nth-child(2) {
+    white-space: normal; /* Permite wrap en columna de elementos */
+}
+
+/* ✅ CORRECCIÓN: Centrar badges perfectamente */
+#tablaPrestamos tbody td:nth-child(5) {
+    text-align: center;
+    vertical-align: middle;
+}
+.fecha-alerta {
+    color: #dc2626; /* rojo fuerte */
+    font-weight: 700;
+}
+
+.badge-alerta {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+}
