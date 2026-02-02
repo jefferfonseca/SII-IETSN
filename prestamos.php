@@ -46,35 +46,43 @@ $usuario = $_SESSION["usuario"];
                 </div>
             </div>
 
-            <!-- Filtros -->
-            <div class="usuarios-filtros">
-                <!-- Estado -->
-                <div class="input-field">
-                    <select id="filtroEstado">
-                        <option value="" selected>Todos</option>
-                        <option value="activo">Activos</option>
-                        <option value="devuelto">Devueltos</option>
-                    </select>
-                    <label>Estado</label>
+            <div class="row">
+                <div class="col s8 center">
+                    <!-- Filtros -->
+                    <div class="usuarios-filtros">
+                        <!-- Estado -->
+                        <div class="input-field">
+                            <select id="filtroEstado">
+                                <option value="" selected>Todos</option>
+                                <option value="activo">Activos</option>
+                                <option value="devuelto">Devueltos</option>
+                            </select>
+                            <label>Estado</label>
+                        </div>
+
+                        <!-- Buscador -->
+                        <div class="input-field">
+                            <input id="busquedaPrestamo" type="text" placeholder="Buscar por tomador o elemento">
+                            <label for="busquedaPrestamo">Buscar</label>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Buscador -->
-                <div class="input-field">
-                    <input id="busquedaPrestamo" type="text" placeholder="Buscar por tomador o elemento">
-                    <label for="busquedaPrestamo">Buscar</label>
+                <div class="col s4 center">
+                    <a href="#modalNuevoPrestamo" class="btn btn-nuevo-prestamo waves-effect waves-light modal-trigger">
+                        <i class="material-icons left">add_circle</i>
+                        Nuevo Préstamo
+                    </a>
+
+                    <div class="col s4 center"><a href="#modalDevolucion"
+                            class="btn btn-devolver waves-effect waves-light red modal-trigger "
+                            onclick="abrirModalDevolucion()">
+                            <i class="material-icons left">assignment_return</i>
+                            Devolver
+                        </a></div>
+
                 </div>
             </div>
-
-            <a href="#modalNuevoPrestamo" class="btn btn-nuevo-usuario waves-effect waves-light modal-trigger">
-                <i class="material-icons left">add_circle</i>
-                Nuevo Préstamo
-            </a>
-            <a href="#modalDevolucion" class="btn teal darken-1 waves-effect waves-light modal-trigger"
-                style="margin-left:10px">
-                <i class="material-icons left">assignment_return</i>
-                Devolución
-            </a>
-
         </div>
 
         <!-- Préstamos Cards -->
@@ -225,7 +233,6 @@ $usuario = $_SESSION["usuario"];
         </div>
     </div>
 
-
     <!-- Modal Detalle Préstamo -->
     <div id="modalDetallePrestamo" class="modal">
         <div class="modal-content">
@@ -262,7 +269,8 @@ $usuario = $_SESSION["usuario"];
                 <div class="detalle-contenido">
                     <p><strong>Nombre:</strong> <span id="detalle_nombre_elemento">Laptop HP Pavilion</span></p>
                     <p><strong>Código:</strong> <span id="detalle_codigo_elemento">LAP-001</span></p>
-                    <p><strong>Categoría:</strong> <span id="detalle_categoria_elemento">Equipos de Cómputo</span></p>
+                    <p><strong>Categoría:</strong> <span id="detalle_categoria_elemento">Equipos de Cómputo</span>
+                    </p>
                 </div>
             </div>
 
@@ -313,50 +321,6 @@ $usuario = $_SESSION["usuario"];
         </div>
     </div>
 
-    <div id="modalDevolucion" class="modal modal-prestamo">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-icon">
-                    <i class="material-icons">assignment_return</i>
-                </div>
-                <div class="modal-title">
-                    <h5>Devolución</h5>
-                    <p>Escanee el QR del elemento para registrar la devolución</p>
-                </div>
-            </div>
-
-            <div class="prestamo-seccion">
-                <div class="qr-scanner-container">
-
-                    <!-- Placeholder -->
-                    <div class="qr-placeholder" id="placeholderDevolucion">
-                        <i class="material-icons">qr_code_scanner</i>
-                        <p>Apunte al QR del elemento</p>
-                    </div>
-
-                    <!-- Lector -->
-                    <div id="readerDevolucion" style="max-width:320px;margin:auto"></div>
-
-                </div>
-
-                <!-- Info resultado -->
-                <div id="infoDevolucion" class="info-escaneado" style="display:none;margin-top:15px">
-                    <div class="chip-info">
-                        <i class="material-icons">check_circle</i>
-                        <span id="textoDevolucion">Elemento devuelto correctamente</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal-footer">
-            <a href="#!" class="modal-close waves-effect btn btn-cancelar">
-                Cerrar
-            </a>
-        </div>
-    </div>
-
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 
@@ -367,43 +331,12 @@ $usuario = $_SESSION["usuario"];
         let scannerTomador = null;
         let scannerElemento = null;
         let tomadorProcesado = false;
-        let scannerDevolucion = null;
-        let devolucionProcesada = false;
-
-        document.addEventListener('DOMContentLoaded', () => {
-
-            const modalDev = document.getElementById('modalDevolucion');
-
-            M.Modal.init(modalDev, {
-                dismissible: false,
-                onOpenEnd: () => {
-                    // aquí activaremos el scanner en el siguiente paso
-                },
-                onCloseEnd: () => {
-                    // aquí lo apagaremos
-                }
-            });
-        });
 
 
         document.addEventListener('DOMContentLoaded', () => {
             cargarPrestamos();
             const modalElem = document.getElementById('modalNuevoPrestamo');
 
-
-            const modalDev = document.getElementById('modalDevolucion');
-
-            M.Modal.init(modalDev, {
-                dismissible: false,
-                onOpenEnd: async () => {
-                    devolucionProcesada = false;
-                    await activarScannerDevolucion();
-                },
-                onCloseEnd: async () => {
-                    await detenerScanner(scannerDevolucion);
-                    resetearDevolucionUI();
-                }
-            });
             M.Modal.init(modalElem, {
                 dismissible: false,
                 onOpenEnd: async () => {
@@ -746,13 +679,7 @@ $usuario = $_SESSION["usuario"];
                     Ver Detalle
                 </a>
 
-                ${p.estado === 'activo' ? `
-                <a href="#!"
-                   class="btn btn-accion teal"
-                   onclick="devolverPrestamo(${p.id})">
-                    <i class="material-icons">assignment_return</i>
-                    Devolver
-                </a>` : ''}
+                
             </div>
         </div>
         `;
@@ -783,35 +710,6 @@ $usuario = $_SESSION["usuario"];
                 submenuElementos.classList.toggle('open');
             });
         }
-
-        async function activarScannerDevolucion() {
-
-            const reader = document.getElementById('readerDevolucion');
-            const placeholder = document.getElementById('placeholderDevolucion');
-
-            placeholder.style.display = 'none';
-            reader.style.display = 'block';
-
-            if (!scannerDevolucion) {
-                scannerDevolucion = new Html5Qrcode("readerDevolucion");
-            }
-
-            if (scannerDevolucion.isScanning) return;
-
-            scannerDevolucion.start(
-                { facingMode: "environment" },
-                { fps: 15, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
-                async (decodedText) => {
-
-                    if (devolucionProcesada) return;
-                    devolucionProcesada = true;
-
-                    procesarQrDevolucion(decodedText);
-                }
-            );
-
-        }
-
     </script>
 
 </body>
