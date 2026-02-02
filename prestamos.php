@@ -69,10 +69,11 @@ $usuario = $_SESSION["usuario"];
                     <i class="material-icons left">add_circle</i>
                     Nuevo Préstamo
                 </a>
-                <a href="#modalDevolucion" class="btn btn-accion teal modal-trigger" onclick="abrirModalDevolucion()">
+                <a href="#modalDevolucion" class="btn btn-accion teal modal-trigger">
                     <i class="material-icons left">assignment_return</i>
                     Devolver
                 </a>
+
             </div>
         </div>
 
@@ -364,7 +365,7 @@ $usuario = $_SESSION["usuario"];
             const modalDev = document.getElementById('modalDevolucion');
 
             M.Modal.init(modalDev, {
-                dismissible: false,
+                dismissible: true,
                 onOpenEnd: async () => {
                     devolucionProcesada = false;
                     await activarScannerDevolucion();
@@ -376,7 +377,7 @@ $usuario = $_SESSION["usuario"];
             });
 
             M.Modal.init(modalElem, {
-                dismissible: false,
+                dismissible: true,
                 onOpenEnd: async () => {
                     tomadorProcesado = false;
                     await activarScannerTomador();
@@ -434,69 +435,69 @@ $usuario = $_SESSION["usuario"];
                 );
             }, 300);
         }
- async function procesarQrDevolucion(decodedText) {
-    let data;
+        async function procesarQrDevolucion(decodedText) {
+            let data;
 
-    try {
-        data = JSON.parse(decodedText);
-    } catch (e) {
-        M.toast({ html: 'QR inválido', classes: 'red' });
-        devolucionProcesada = false;
-        return;
-    }
-
-    // Validar QR de elemento
-    if (data.tipo !== 'elemento' || typeof data.id_elemento === 'undefined') {
-        M.toast({ html: 'QR no corresponde a un elemento', classes: 'red' });
-        devolucionProcesada = false;
-        return;
-    }
-
-    try {
-        const response = await fetch('/SII-IETSN/api/prestamos/devolver.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id_elemento: data.id_elemento })
-        });
-
-        const result = await response.json();
-
-        if (!result.success) {
-            M.toast({ html: result.message, classes: 'red' });
-            devolucionProcesada = false;
-            return;
-        }
-
-        // ✅ ÉXITO VISUAL
-        document.getElementById('textoDevolucion').innerText =
-            'Elemento devuelto correctamente';
-        document.getElementById('infoDevolucion').style.display = 'block';
-
-        M.toast({ html: 'Devolución registrada', classes: 'green' });
-
-        // 🔄 Refrescar listado
-        cargarPrestamos();
-
-        // ⏱️ Reactivar scanner para la siguiente devolución
-        setTimeout(async () => {
-            document.getElementById('infoDevolucion').style.display = 'none';
-            devolucionProcesada = false;
-
-            // Seguridad extra: detener antes de reactivar
-            if (scannerDevolucion && scannerDevolucion.isScanning) {
-                await scannerDevolucion.stop();
+            try {
+                data = JSON.parse(decodedText);
+            } catch (e) {
+                M.toast({ html: 'QR inválido', classes: 'red' });
+                devolucionProcesada = false;
+                return;
             }
 
-            await activarScannerDevolucion();
-        }, 200);
+            // Validar QR de elemento
+            if (data.tipo !== 'elemento' || typeof data.id_elemento === 'undefined') {
+                M.toast({ html: 'QR no corresponde a un elemento', classes: 'red' });
+                devolucionProcesada = false;
+                return;
+            }
 
-    } catch (err) {
-        console.error(err);
-        M.toast({ html: 'Error procesando la devolución', classes: 'red' });
-        devolucionProcesada = false;
-    }
-}
-      
+            try {
+                const response = await fetch('/SII-IETSN/api/prestamos/devolver.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_elemento: data.id_elemento })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    M.toast({ html: result.message, classes: 'red' });
+                    devolucionProcesada = false;
+                    return;
+                }
+
+                // ✅ ÉXITO VISUAL
+                document.getElementById('textoDevolucion').innerText =
+                    'Elemento devuelto correctamente';
+                document.getElementById('infoDevolucion').style.display = 'block';
+
+                M.toast({ html: 'Devolución registrada', classes: 'green' });
+
+                // 🔄 Refrescar listado
+                cargarPrestamos();
+
+                // ⏱️ Reactivar scanner para la siguiente devolución
+                setTimeout(async () => {
+                    document.getElementById('infoDevolucion').style.display = 'none';
+                    devolucionProcesada = false;
+
+                    // Seguridad extra: detener antes de reactivar
+                    if (scannerDevolucion && scannerDevolucion.isScanning) {
+                        await scannerDevolucion.stop();
+                    }
+
+                    await activarScannerDevolucion();
+                }, 200);
+
+            } catch (err) {
+                console.error(err);
+                M.toast({ html: 'Error procesando la devolución', classes: 'red' });
+                devolucionProcesada = false;
+            }
+        }
+
         function resetearDevolucionUI() {
             devolucionProcesada = false;
             document.getElementById('infoDevolucion').style.display = 'none';
@@ -728,6 +729,7 @@ $usuario = $_SESSION["usuario"];
                 html: 'Préstamos registrados correctamente',
                 classes: 'green'
             });
+            cargarPrestamos();
 
             const modal = M.Modal.getInstance(
                 document.getElementById('modalNuevoPrestamo')
@@ -743,10 +745,6 @@ $usuario = $_SESSION["usuario"];
 
             document.getElementById('listaElementos').innerHTML = '';
             document.getElementById('infoTomador').style.display = 'none';
-
-            const btnElemento = document.getElementById('btnScanElemento');
-            btnElemento.setAttribute('disabled', true);
-            btnElemento.classList.add('disabled');
         }
         async function cargarPrestamos() {
 
