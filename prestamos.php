@@ -67,67 +67,66 @@ $usuario = $_SESSION["usuario"];
                         </div>
                     </div>
                 </div>
-
                 <div class="col s4 center">
+
                     <a href="#modalNuevoPrestamo" class="btn btn-nuevo-prestamo waves-effect waves-light modal-trigger">
                         <i class="material-icons left">add_circle</i>
                         Nuevo Préstamo
                     </a>
 
-                    <div class="col s4 center"><a href="#modalDevolucion"
-                            class="btn btn-devolver waves-effect waves-light red modal-trigger "
-                            onclick="abrirModalDevolucion()">
-                            <i class="material-icons left">assignment_return</i>
-                            Devolver
-                        </a></div>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- Préstamos Cards -->
-        <div class="usuarios-container" id="prestamosContainer">
-
-            <!-- EJEMPLO DE CARD - Este será generado dinámicamente -->
-            <div class="usuario-card">
-                <div class="usuario-header">
-                    <div class="usuario-info">
-                        <div class="usuario-avatar">JD</div>
-                        <h3 class="usuario-nombre">Juan Pérez</h3>
-
-                        <div class="usuario-documento">
-                            <i class="material-icons">devices</i>
-                            Laptop HP Pavilion
-                        </div>
-
-                        <div class="usuario-grado">
-                            <i class="material-icons">event</i>
-                            Prestado: 28/01/2026
-                        </div>
-
-                        <div class="usuario-grado">
-                            <i class="material-icons">schedule</i>
-                            Devolución: 04/02/2026
-                        </div>
-                    </div>
-
-                    <div class="usuario-badges">
-                        <span class="badge-estado badge-activo">
-                            <i class="material-icons">pending</i>
-                            Activo
-                        </span>
-                    </div>
-                </div>
-
-                <div class="usuario-acciones">
-                    <a href="#modalDetallePrestamo" class="btn btn-accion btn-editar modal-trigger">
-                        <i class="material-icons">visibility</i>
-                        Ver Detalle
+                    <a href="#modalDevolucion" class="btn btn-devolver waves-effect waves-light red modal-trigger "
+                        onclick="abrirModalDevolucion()">
+                        <i class="material-icons left">assignment_return</i>
+                        Devolver
                     </a>
                 </div>
             </div>
-
         </div>
+    </div>
+
+    <!-- Préstamos Cards -->
+    <div class="usuarios-container" id="prestamosContainer">
+
+        <!-- EJEMPLO DE CARD - Este será generado dinámicamente -->
+        <div class="usuario-card">
+            <div class="usuario-header">
+                <div class="usuario-info">
+                    <div class="usuario-avatar">JD</div>
+                    <h3 class="usuario-nombre">Juan Pérez</h3>
+
+                    <div class="usuario-documento">
+                        <i class="material-icons">devices</i>
+                        Laptop HP Pavilion
+                    </div>
+
+                    <div class="usuario-grado">
+                        <i class="material-icons">event</i>
+                        Prestado: 28/01/2026
+                    </div>
+
+                    <div class="usuario-grado">
+                        <i class="material-icons">schedule</i>
+                        Devolución: 04/02/2026
+                    </div>
+                </div>
+
+                <div class="usuario-badges">
+                    <span class="badge-estado badge-activo">
+                        <i class="material-icons">pending</i>
+                        Activo
+                    </span>
+                </div>
+            </div>
+
+            <div class="usuario-acciones">
+                <a href="#modalDetallePrestamo" class="btn btn-accion btn-editar modal-trigger">
+                    <i class="material-icons">visibility</i>
+                    Ver Detalle
+                </a>
+            </div>
+        </div>
+
+    </div>
     </div>
 
     <!-- Modal Nuevo Préstamo -->
