@@ -46,87 +46,79 @@ $usuario = $_SESSION["usuario"];
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col s8 center">
-                    <!-- Filtros -->
-                    <div class="usuarios-filtros">
-                        <!-- Estado -->
-                        <div class="input-field">
-                            <select id="filtroEstado">
-                                <option value="" selected>Todos</option>
-                                <option value="activo">Activos</option>
-                                <option value="devuelto">Devueltos</option>
-                            </select>
-                            <label>Estado</label>
-                        </div>
-
-                        <!-- Buscador -->
-                        <div class="input-field">
-                            <input id="busquedaPrestamo" type="text" placeholder="Buscar por tomador o elemento">
-                            <label for="busquedaPrestamo">Buscar</label>
-                        </div>
-                    </div>
+            <!-- Filtros -->
+            <div class="usuarios-filtros">
+                <!-- Estado -->
+                <div class="input-field">
+                    <select id="filtroEstado">
+                        <option value="" selected>Todos</option>
+                        <option value="activo">Activos</option>
+                        <option value="devuelto">Devueltos</option>
+                    </select>
+                    <label>Estado</label>
                 </div>
-                <div class="col s4 center">
 
-                    <a href="#modalNuevoPrestamo" class="btn btn-nuevo-prestamo waves-effect waves-light modal-trigger">
-                        <i class="material-icons left">add_circle</i>
-                        Nuevo Préstamo
-                    </a>
-
-                    <a href="#modalDevolucion" class="btn btn-devolver waves-effect waves-light red modal-trigger "
-                        onclick="abrirModalDevolucion()">
-                        <i class="material-icons left">assignment_return</i>
-                        Devolver
-                    </a>
+                <!-- Buscador -->
+                <div class="input-field">
+                    <input id="busquedaPrestamo" type="text" placeholder="Buscar por tomador o elemento">
+                    <label for="busquedaPrestamo">Buscar</label>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Préstamos Cards -->
-    <div class="usuarios-container" id="prestamosContainer">
-
-        <!-- EJEMPLO DE CARD - Este será generado dinámicamente -->
-        <div class="usuario-card">
-            <div class="usuario-header">
-                <div class="usuario-info">
-                    <div class="usuario-avatar">JD</div>
-                    <h3 class="usuario-nombre">Juan Pérez</h3>
-
-                    <div class="usuario-documento">
-                        <i class="material-icons">devices</i>
-                        Laptop HP Pavilion
-                    </div>
-
-                    <div class="usuario-grado">
-                        <i class="material-icons">event</i>
-                        Prestado: 28/01/2026
-                    </div>
-
-                    <div class="usuario-grado">
-                        <i class="material-icons">schedule</i>
-                        Devolución: 04/02/2026
-                    </div>
-                </div>
-
-                <div class="usuario-badges">
-                    <span class="badge-estado badge-activo">
-                        <i class="material-icons">pending</i>
-                        Activo
-                    </span>
-                </div>
-            </div>
-
-            <div class="usuario-acciones">
-                <a href="#modalDetallePrestamo" class="btn btn-accion btn-editar modal-trigger">
-                    <i class="material-icons">visibility</i>
-                    Ver Detalle
+            <div>
+                <a href="#modalNuevoPrestamo" class="btn btn-nuevo-usuario waves-effect waves-light modal-trigger">
+                    <i class="material-icons left">add_circle</i>
+                    Nuevo Préstamo
+                </a>
+                <a href="#modalDevolucion" class="btn btn-accion teal modal-trigger" onclick="abrirModalDevolucion()">
+                    <i class="material-icons left">assignment_return</i>
+                    Devolver
                 </a>
             </div>
         </div>
 
-    </div>
+        <!-- Préstamos Cards -->
+        <div class="usuarios-container" id="prestamosContainer">
+
+            <!-- EJEMPLO DE CARD - Este será generado dinámicamente -->
+            <div class="usuario-card">
+                <div class="usuario-header">
+                    <div class="usuario-info">
+                        <div class="usuario-avatar">JD</div>
+                        <h3 class="usuario-nombre">Juan Pérez</h3>
+
+                        <div class="usuario-documento">
+                            <i class="material-icons">devices</i>
+                            Laptop HP Pavilion
+                        </div>
+
+                        <div class="usuario-grado">
+                            <i class="material-icons">event</i>
+                            Prestado: 28/01/2026
+                        </div>
+
+                        <div class="usuario-grado">
+                            <i class="material-icons">schedule</i>
+                            Devolución: 04/02/2026
+                        </div>
+                    </div>
+
+                    <div class="usuario-badges">
+                        <span class="badge-estado badge-activo">
+                            <i class="material-icons">pending</i>
+                            Activo
+                        </span>
+                    </div>
+                </div>
+
+                <div class="usuario-acciones">
+                    <a href="#modalDetallePrestamo" class="btn btn-accion btn-editar modal-trigger">
+                        <i class="material-icons">visibility</i>
+                        Ver Detalle
+                    </a>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <!-- Modal Nuevo Préstamo -->
@@ -268,8 +260,7 @@ $usuario = $_SESSION["usuario"];
                 <div class="detalle-contenido">
                     <p><strong>Nombre:</strong> <span id="detalle_nombre_elemento">Laptop HP Pavilion</span></p>
                     <p><strong>Código:</strong> <span id="detalle_codigo_elemento">LAP-001</span></p>
-                    <p><strong>Categoría:</strong> <span id="detalle_categoria_elemento">Equipos de Cómputo</span>
-                    </p>
+                    <p><strong>Categoría:</strong> <span id="detalle_categoria_elemento">Equipos de Cómputo</span></p>
                 </div>
             </div>
 
@@ -319,6 +310,39 @@ $usuario = $_SESSION["usuario"];
             </a>
         </div>
     </div>
+    <div id="modalDevolucion" class="modal modal-prestamo">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="material-icons">assignment_return</i>
+                </div>
+                <div class="modal-title">
+                    <h5>Devolver elemento</h5>
+                    <p>Escanee el QR del elemento a devolver</p>
+                </div>
+            </div>
+
+            <div class="qr-scanner-container">
+                <div class="qr-placeholder" id="placeholderDevolucion">
+                    <i class="material-icons">qr_code_scanner</i>
+                    <p>Escanee el QR del elemento</p>
+                </div>
+
+                <div id="readerDevolucion"></div>
+            </div>
+
+            <div id="infoDevolucion" class="info-escaneado" style="display:none">
+                <div class="chip-info">
+                    <i class="material-icons">check_circle</i>
+                    <span id="textoDevolucion">Elemento devuelto correctamente</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <a href="#!" class="modal-close btn btn-cancelar">Cerrar</a>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -330,11 +354,26 @@ $usuario = $_SESSION["usuario"];
         let scannerTomador = null;
         let scannerElemento = null;
         let tomadorProcesado = false;
+        let scannerDevolucion = null;
+        let devolucionProcesada = false;
 
 
         document.addEventListener('DOMContentLoaded', () => {
             cargarPrestamos();
             const modalElem = document.getElementById('modalNuevoPrestamo');
+            const modalDev = document.getElementById('modalDevolucion');
+
+            M.Modal.init(modalDev, {
+                dismissible: false,
+                onOpenEnd: async () => {
+                    devolucionProcesada = false;
+                    await activarScannerDevolucion();
+                },
+                onCloseEnd: async () => {
+                    await detenerScanner(scannerDevolucion);
+                    resetearDevolucionUI();
+                }
+            });
 
             M.Modal.init(modalElem, {
                 dismissible: false,
@@ -369,6 +408,102 @@ $usuario = $_SESSION["usuario"];
         /* =====================================================
            ESCANEAR TOMADOR (AUTO AL ABRIR MODAL)
            ===================================================== */
+        async function activarScannerDevolucion() {
+
+            const reader = document.getElementById('readerDevolucion');
+            const placeholder = document.getElementById('placeholderDevolucion');
+
+            placeholder.style.display = 'none';
+            reader.style.display = 'block';
+
+            if (!scannerDevolucion) {
+                scannerDevolucion = new Html5Qrcode("readerDevolucion");
+            }
+
+            if (scannerDevolucion.isScanning) return;
+
+            setTimeout(() => {
+                scannerDevolucion.start(
+                    { facingMode: "environment" },
+                    { fps: 15, qrbox: 220 },
+                    (decodedText) => {
+                        if (devolucionProcesada) return;
+                        devolucionProcesada = true;
+                        procesarQrDevolucion(decodedText);
+                    }
+                );
+            }, 300);
+        }
+ async function procesarQrDevolucion(decodedText) {
+    let data;
+
+    try {
+        data = JSON.parse(decodedText);
+    } catch (e) {
+        M.toast({ html: 'QR inválido', classes: 'red' });
+        devolucionProcesada = false;
+        return;
+    }
+
+    // Validar QR de elemento
+    if (data.tipo !== 'elemento' || typeof data.id_elemento === 'undefined') {
+        M.toast({ html: 'QR no corresponde a un elemento', classes: 'red' });
+        devolucionProcesada = false;
+        return;
+    }
+
+    try {
+        const response = await fetch('/SII-IETSN/api/prestamos/devolver.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_elemento: data.id_elemento })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            M.toast({ html: result.message, classes: 'red' });
+            devolucionProcesada = false;
+            return;
+        }
+
+        // ✅ ÉXITO VISUAL
+        document.getElementById('textoDevolucion').innerText =
+            'Elemento devuelto correctamente';
+        document.getElementById('infoDevolucion').style.display = 'block';
+
+        M.toast({ html: 'Devolución registrada', classes: 'green' });
+
+        // 🔄 Refrescar listado
+        cargarPrestamos();
+
+        // ⏱️ Reactivar scanner para la siguiente devolución
+        setTimeout(async () => {
+            document.getElementById('infoDevolucion').style.display = 'none';
+            devolucionProcesada = false;
+
+            // Seguridad extra: detener antes de reactivar
+            if (scannerDevolucion && scannerDevolucion.isScanning) {
+                await scannerDevolucion.stop();
+            }
+
+            await activarScannerDevolucion();
+        }, 200);
+
+    } catch (err) {
+        console.error(err);
+        M.toast({ html: 'Error procesando la devolución', classes: 'red' });
+        devolucionProcesada = false;
+    }
+}
+      
+        function resetearDevolucionUI() {
+            devolucionProcesada = false;
+            document.getElementById('infoDevolucion').style.display = 'none';
+            document.getElementById('placeholderDevolucion').style.display = 'block';
+            document.getElementById('readerDevolucion').style.display = 'none';
+        }
+
         async function activarScannerTomador() {
 
             await detenerScanner(scannerElemento);
@@ -677,8 +812,6 @@ $usuario = $_SESSION["usuario"];
                     <i class="material-icons">visibility</i>
                     Ver Detalle
                 </a>
-
-                
             </div>
         </div>
         `;
