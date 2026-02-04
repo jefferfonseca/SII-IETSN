@@ -64,6 +64,10 @@ $usuario = $_SESSION["usuario"];
                     <label for="busquedaPrestamo">Buscar</label>
                 </div>
             </div>
+            <div id="contadorVencidos" class="contador-vencidos" style="display:none;">
+                🚨 Préstamos vencidos: <strong id="numeroVencidos">0</strong>
+            </div>
+
             <div class="center">
                 <a href="#modalNuevoPrestamo" class="btn btn-nuevo-usuario waves-effect waves-light modal-trigger">
                     <i class="material-icons left">add_circle</i>
@@ -751,46 +755,53 @@ $usuario = $_SESSION["usuario"];
             renderizarPrestamos(result.data);
         }
 
-   function renderizarPrestamos(prestamos) {
+        function renderizarPrestamos(prestamos) {
 
-    const cont = document.getElementById('prestamosContainer');
-    cont.innerHTML = '';
+            const cont = document.getElementById('prestamosContainer');
+            cont.innerHTML = '';
 
-    // Fecha de hoy normalizada
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
+            // Fecha de hoy normalizada
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
 
-    prestamos.forEach(p => {
+            prestamos.forEach(p => {
 
-        const badgeEstado = p.estado === 'activo'
-            ? 'badge-activo'
-            : 'badge-devuelto';
+                const badgeEstado = p.estado === 'activo'
+                    ? 'badge-activo'
+                    : 'badge-devuelto';
 
-        // ============================
-        // LÓGICA DE ALERTA POR FECHA
-        // ============================
-        let fechaDevolucionHTML = '—';
+                let fechaDevolucionHTML = '—';
+                let claseFila = '';
 
-        if (p.fecha_devolucion) {
+                if (p.fecha_devolucion) {
 
-            const fechaDev = new Date(p.fecha_devolucion);
-            fechaDev.setHours(0, 0, 0, 0);
+                    const fechaDev = new Date(p.fecha_devolucion);
+                    fechaDev.setHours(0, 0, 0, 0);
 
-            const vencido = p.estado === 'activo' && fechaDev < hoy;
+                    if (p.estado === 'activo' && fechaDev < hoy) {
 
-            fechaDevolucionHTML = `
-                <span class="${vencido ? 'fecha-alerta' : ''}">
-                    ${p.fecha_devolucion}
-                </span>
-                ${vencido ? '<span class="badge-alerta">ALERTA</span>' : ''}
-            `;
-        }
+                        const diffMs = hoy - fechaDev;
+                        const diasRetraso = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-        // ============================
-        // RENDER DE LA FILA
-        // ============================
-        cont.innerHTML += `
-            <tr>
+                        claseFila = 'fila-alerta';
+
+                        fechaDevolucionHTML = `
+                    <span class="fecha-alerta">
+                        ${p.fecha_devolucion}
+                    </span>
+                    <span class="badge-alerta">ALERTA</span>
+                    <span class="badge-retraso">
+                        ${diasRetraso} día${diasRetraso > 1 ? 's' : ''}
+                        de retraso
+                    </span>
+                `;
+                    } else {
+                        fechaDevolucionHTML = p.fecha_devolucion;
+                    }
+                }
+
+                cont.innerHTML += `
+            <tr class="${claseFila}">
                 <td>${p.tomador_nombre}</td>
 
                 <td>
@@ -809,9 +820,8 @@ $usuario = $_SESSION["usuario"];
                 </td>
             </tr>
         `;
-    });
-}
-
+            });
+        }
         // ===== SIDEBAR =====
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -891,8 +901,37 @@ $usuario = $_SESSION["usuario"];
             }
 
             if (textoBusqueda.length < 2) {
+                actualizarContadorVencidos(prestamosGlobales);
                 renderizarPrestamos(prestamosFiltrados);
                 return;
+            }
+        }
+        function actualizarContadorVencidos(prestamos) {
+
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+
+            let totalVencidos = 0;
+
+            prestamos.forEach(p => {
+                if (p.estado !== 'activo' || !p.fecha_devolucion) return;
+
+                const fechaDev = new Date(p.fecha_devolucion);
+                fechaDev.setHours(0, 0, 0, 0);
+
+                if (fechaDev < hoy) {
+                    totalVencidos++;
+                }
+            });
+
+            const contenedor = document.getElementById('contadorVencidos');
+            const numero = document.getElementById('numeroVencidos');
+
+            if (totalVencidos > 0) {
+                numero.innerText = totalVencidos;
+                contenedor.style.display = 'inline-flex';
+            } else {
+                contenedor.style.display = 'none';
             }
         }
 
