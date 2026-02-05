@@ -1,3 +1,11 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$usuario = $_SESSION['usuario'] ?? null;
+?>
+
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -8,15 +16,21 @@
         <p>Panel Administrativo</p>
     </div>
 
-    <div class="sidebar-user">
-        <div class="user-avatar">
-            <?php echo strtoupper(substr($usuario['nombre'], 0, 1)); ?>
+    <?php if ($usuario): ?>
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                <?= strtoupper(substr($usuario['nombre'], 0, 1)); ?>
+            </div>
+
+            <div class="user-name">
+                <?= htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellido']); ?>
+            </div>
+
+            <div class="user-role">
+                <?= htmlspecialchars($usuario['rol']); ?>
+            </div>
         </div>
-        <div class="user-name">
-            <?php echo htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellido']); ?>
-        </div>
-        <div class="user-role">Administrador</div>
-    </div>
+    <?php endif; ?>
 
     <div class="sidebar-menu">
 
@@ -41,14 +55,13 @@
                 <span>Usuarios</span>
             </a>
 
-            <!-- ELEMENTOS (SOLO TOGGLE) -->
+            <!-- ELEMENTOS -->
             <div class="menu-item has-submenu" id="menu-elementos">
                 <i class="material-icons">inventory_2</i>
                 <span>Elementos</span>
                 <i class="material-icons arrow">expand_more</i>
             </div>
 
-            <!-- SUBMENÚ -->
             <div class="submenu" id="submenu-elementos">
                 <a href="/SII-IETSN/elementos.php" class="submenu-item">
                     <i class="material-icons">list</i>
@@ -83,3 +96,17 @@
         </button>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const menuElementos = document.getElementById('menu-elementos');
+    const submenuElementos = document.getElementById('submenu-elementos');
+
+    if (menuElementos && submenuElementos) {
+        menuElementos.addEventListener('click', () => {
+            menuElementos.classList.toggle('open');
+            submenuElementos.classList.toggle('open');
+        });
+    }
+});
+</script>

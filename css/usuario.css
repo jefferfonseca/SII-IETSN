@@ -309,6 +309,7 @@ body {
   justify-content: center;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
   transition: transform 0.3s;
+  padding: 5px  !important;
 }
 
 .menu-toggle:hover {

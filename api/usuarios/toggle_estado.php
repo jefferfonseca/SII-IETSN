@@ -4,7 +4,7 @@ session_start();
 
 require_once __DIR__ . "/../config/database.php";
 
-// Seguridad
+// 🔐 Seguridad
 if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
     http_response_code(401);
     echo json_encode([
@@ -14,11 +14,11 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
     exit;
 }
 
-// Leer JSON
+// 📥 Leer JSON
 $data = json_decode(file_get_contents("php://input"), true);
-$id_usuario = $data["id_usuario"] ?? null;
+$id_usuario = (int)($data["id_usuario"] ?? 0);
 
-if (!$id_usuario) {
+if ($id_usuario <= 0) {
     echo json_encode([
         "success" => false,
         "message" => "ID inválido"
@@ -27,10 +27,12 @@ if (!$id_usuario) {
 }
 
 try {
-    // Alternar estado
-    $sql = "UPDATE usuarios
-            SET activo = IF(activo = 1, 0, 1)
-            WHERE id_usuario = :id";
+    // 🔁 Alternar estado
+    $sql = "
+        UPDATE usuarios
+        SET activo = IF(activo = 1, 0, 1)
+        WHERE id_usuario = :id
+    ";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute(["id" => $id_usuario]);

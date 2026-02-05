@@ -3,6 +3,22 @@ session_start();
 require_once "../config/database.php";
 
 header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
+// ============================
+// Validar sesión
+// ============================
+if (
+    !isset($_SESSION['usuario']) ||
+    !isset($_SESSION['usuario']['id_usuario'])
+) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Sesión no válida'
+    ]);
+    exit;
+}
 
 // ============================
 // Leer y validar JSON
@@ -17,56 +33,63 @@ if (!is_array($data)) {
     exit;
 }
 
-$id_elemento = $data['id_elemento'] ?? null;
+// 🔑 Identificador genérico (lector físico / QR / futuro)
+$identificador = trim($data['qr_token'] ?? $data['identificador'] ?? '');
 
-if (!$id_elemento) {
+if ($identificador === '') {
     echo json_encode([
         'success' => false,
-        'message' => 'ID de elemento no recibido'
+        'message' => 'Identificador inválido'
     ]);
     exit;
 }
 
-// ============================
-// Consultar elemento
-// ============================
-$stmt = $pdo->prepare("
-    SELECT
-        id_elemento,
-        nombre,
-        codigo,
-        LOWER(TRIM(estado)) AS estado
-    FROM elementos
-    WHERE id_elemento = ?
-");
-$stmt->execute([$id_elemento]);
-$elemento = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
 
-if (!$elemento) {
+    $pdo->beginTransaction();
+
+    // ============================
+    // Consultar elemento por token
+    // ============================
+    $stmt = $pdo->prepare("
+        SELECT
+            id_elemento,
+            nombre,
+            codigo,
+            LOWER(TRIM(estado)) AS estado
+        FROM elementos
+        WHERE qr_token = ?
+        FOR UPDATE
+    ");
+    $stmt->execute([$identificador]);
+    $elemento = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$elemento) {
+        throw new Exception('Elemento no encontrado');
+    }
+
+    // ============================
+    // Validar disponibilidad
+    // ============================
+    if ($elemento['estado'] !== 'disponible') {
+        throw new Exception('Elemento no disponible');
+    }
+
+    $pdo->commit();
+
+    echo json_encode([
+        'success' => true,
+        'data' => $elemento
+    ]);
+
+} catch (Exception $e) {
+
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+
     echo json_encode([
         'success' => false,
-        'message' => 'Elemento no encontrado'
+        'message' => $e->getMessage()
     ]);
-    exit;
 }
-
-
-// ============================
-// Validar disponibilidad
-// ============================
-if ($elemento['estado'] !== 'disponible') {
-    echo json_encode([
-        'success' => false,
-        'message' => 'Elemento no disponible'
-    ]);
-    exit;
-}
-
-// ============================
-// OK
-// ============================
-echo json_encode([
-    'success' => true,
-    'debug_estado' => $elemento['estado'],
-    'data' => $elemento
-]);

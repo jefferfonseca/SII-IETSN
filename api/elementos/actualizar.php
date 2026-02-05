@@ -39,7 +39,7 @@ try {
     }
 
     // 2️⃣ Regla: no editar si está prestado
-    if ($actual['estado'] === "Prestado") {
+    if (strtolower(trim($actual['estado'])) === 'prestado') {
         echo json_encode([
             "success" => false,
             "message" => "No se puede editar un elemento prestado"
@@ -60,7 +60,7 @@ try {
     ]);
 
     // 4️⃣ Bitácora
-    $detalle = "Edición de elemento";
+    $detalle = "Edición de datos del elemento (nombre, categoría u observaciones)";
 
     $pdo->prepare("
         INSERT INTO bitacora (id_elemento, id_usuario, accion, fecha, detalle)

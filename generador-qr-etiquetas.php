@@ -116,13 +116,23 @@ $usuario = $_SESSION["usuario"];
                             <th>Archivo</th>
                             <th>Vista previa</th>
                             <th>Fecha</th>
-                            <th>Abrir</th>
+                            <th>Descargar</th>
                         </tr>
                     </thead>
                     <tbody id="tablaEtiquetas"></tbody>
                 </table>
             </div>
 
+        </div>
+    </div>
+
+    <!-- MODAL VISTA PREVIA -->
+    <div id="modalVistaEtiqueta" class="modal">
+        <div class="modal-content center-align">
+            <img id="imgVistaEtiqueta" src="" style="max-width:100%; max-height:80vh">
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close btn-flat">Cerrar</a>
         </div>
     </div>
 
@@ -135,6 +145,8 @@ $usuario = $_SESSION["usuario"];
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btnZip').disabled = true;
+            const modal = document.getElementById('modalVistaEtiqueta');
+            if (modal) M.Modal.init(modal);
         });
 
 
@@ -157,9 +169,9 @@ $usuario = $_SESSION["usuario"];
                 .replace(/\s+/g, '_')
                 .replace(/[^a-zA-Z0-9_-]/g, '');
 
-            rutaActual = `etiquetas_generadas/${carpeta}`;
+            // 🔑 SOLO el nombre de la carpeta
+            rutaActual = carpeta;
 
-            // 🔹 SOLO leer carpeta
             cargarTablaEtiquetas(rutaActual);
         });
 
@@ -216,7 +228,6 @@ $usuario = $_SESSION["usuario"];
                 descargarZip(); // ZIP automático
             });
 
-            // 👉 LUEGO disparar backend pesado
             fetch(`/SII-IETSN/api/elementos/generar_etiquetas_categoria.php?id_categoria=${id}`)
                 .then(r => r.json())
                 .then(r => {
@@ -225,69 +236,98 @@ $usuario = $_SESSION["usuario"];
                         document.getElementById('progressBox').style.display = 'none';
                         return;
                     }
-
-                    rutaActual = r.data.ruta;
                 });
         }
-
 
         // ================= TABLA =================
         function cargarTablaEtiquetas(ruta) {
-            const tbody = document.getElementById('tablaEtiquetas');
-            const contenedor = document.getElementById('resultado');
-            const contador = document.getElementById('contadorEtiquetas');
-            const btnZip = document.getElementById('btnZip');
 
-            // Reset visual
-            tbody.innerHTML = '';
-            contenedor.style.display = 'none';
-            contador.textContent = '';
-            btnZip.disabled = true;
+    const tbody = document.getElementById('tablaEtiquetas');
+    const contenedor = document.getElementById('resultado');
+    const contador = document.getElementById('contadorEtiquetas');
+    const btnZip = document.getElementById('btnZip');
 
-            fetch(`/SII-IETSN/api/elementos/listar_etiquetas.php?ruta=${encodeURIComponent(ruta)}`)
-                .then(r => r.json())
-                .then(r => {
+    // ================= RESET VISUAL =================
+    tbody.innerHTML = '';
+    contenedor.style.display = 'none';
+    contador.textContent = '';
+    btnZip.disabled = true;
 
-                    // Validación básica
-                    if (!r.success) {
-                        M.toast({ html: r.message || 'No se pudo leer la carpeta', classes: 'red rounded' });
-                        return;
-                    }
+    if (!ruta) {
+        M.toast({ html: 'Ruta inválida', classes: 'red rounded' });
+        return;
+    }
 
-                    // Sin archivos
-                    if (r.total === 0) {
-                        M.toast({ html: 'No hay elementos en esta categoría', classes: 'orange rounded' });
-                        return;
-                    }
+    fetch(`/SII-IETSN/api/elementos/listar_etiquetas.php?ruta=${encodeURIComponent(ruta)}`)
+        .then(res => res.json())
+        .then(res => {
 
-                    // Mostrar resultados
-                    contenedor.style.display = 'block';
-                    btnZip.disabled = false;
-                    contador.textContent = `Total de etiquetas: ${r.total}`;
+            // ================= VALIDACIONES =================
+            if (!res.success) {
+                M.toast({
+                    html: res.message || 'No se pudo leer la carpeta',
+                    classes: 'red rounded'
+                });
+                return;
+            }
 
-                    r.data.forEach(item => {
-                        const url = `/SII-IETSN/${ruta}/${item.archivo}`;
+            if (!Array.isArray(res.data) || res.data.length === 0) {
+                M.toast({
+                    html: 'No hay etiquetas en esta categoría',
+                    classes: 'orange rounded'
+                });
+                return;
+            }
 
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
+            // ================= MOSTRAR RESULTADOS =================
+            contenedor.style.display = 'block';
+            btnZip.disabled = false;
+            contador.textContent = `Total de etiquetas: ${res.total}`;
+
+            res.data.forEach(item => {
+
+                const url = `/SII-IETSN/etiquetas_generadas/${ruta}/${item.archivo}`;
+
+                const tr = document.createElement('tr');
+
+                tr.innerHTML = `
                     <td>${item.archivo}</td>
+
                     <td>
-                        <img src="${url}" style="width:120px;border:1px solid #ccc">
+                        <img
+                            src="${url}"
+                            alt="${item.archivo}"
+                            style="width:120px; cursor:pointer; border:1px solid #ccc"
+                            title="Ver etiqueta"
+                            onclick="verEtiqueta('${url}')"
+                        >
                     </td>
+
                     <td>${item.fecha}</td>
+
                     <td>
-                        <a href="${url}" target="_blank" class="btn-small">
-                            <i class="material-icons">open_in_new</i>
-                        </a>
+                        <button
+                            class="btn-small btn-accion"
+                            title="Descargar etiqueta"
+                            onclick="descargarEtiqueta('${url}', '${item.archivo}')"
+                        >
+                            <i class="material-icons">download</i>
+                        </button>
                     </td>
                 `;
-                        tbody.appendChild(tr);
-                    });
-                })
-                .catch(() => {
-                    M.toast({ html: 'Error al cargar etiquetas', classes: 'red rounded' });
-                });
-        }
+
+                tbody.appendChild(tr);
+            });
+
+        })
+        .catch(err => {
+            console.error(err);
+            M.toast({
+                html: 'Error al cargar etiquetas',
+                classes: 'red rounded'
+            });
+        });
+}
 
 
         function eliminarCarpeta() {
@@ -353,16 +393,35 @@ $usuario = $_SESSION["usuario"];
             window.location.href = url;
         }
 
+
+        const menuElementos = document.getElementById('menu-elementos');
+        const submenuElementos = document.getElementById('submenu-elementos');
+
+        menuElementos.addEventListener('click', () => {
+            menuElementos.classList.toggle('open');
+            submenuElementos.classList.toggle('open');
+        });
+
+        function verEtiqueta(url) {
+            const img = document.getElementById('imgVistaEtiqueta');
+            img.src = url;
+
+            const modal = M.Modal.getInstance(
+                document.getElementById('modalVistaEtiqueta')
+            );
+            modal.open();
+        }
+
+        function descargarEtiqueta(url, nombreArchivo) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = nombreArchivo;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
     </script>
-
-<script>
-const menuElementos = document.getElementById('menu-elementos');
-const submenuElementos = document.getElementById('submenu-elementos');
-
-menuElementos.addEventListener('click', () => {
-  menuElementos.classList.toggle('open');
-  submenuElementos.classList.toggle('open');
-});
-</script>
 </body>
+
 </html>

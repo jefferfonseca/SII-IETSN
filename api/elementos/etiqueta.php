@@ -8,7 +8,7 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
 
 require_once __DIR__ . '/../config/database.php';
 
-$id_elemento = $_GET["id"] ?? null;
+$id_elemento = (int) ($_GET["id"] ?? 0);
 if (!$id_elemento) {
     die("Elemento no especificado");
 }
@@ -20,6 +20,7 @@ $sql = "
 SELECT 
     e.id_elemento,
     e.estado,
+    e.qr_token,
     c.codigo AS codigo_categoria
 FROM elementos e
 INNER JOIN categorias c ON c.id_categoria = e.id_categoria
@@ -37,22 +38,22 @@ if (!$elemento) {
 /* ===============================
    VALIDAR ESTADO
 ================================ */
-if ($elemento["estado"] !== "Disponible") {
+if (strtolower(trim($elemento["estado"])) !== "disponible") {
     die("El elemento no está disponible para generar QR");
 }
 
 /* ===============================
-   CONSTRUIR DATOS
+   VALIDAR TOKEN
+================================ */
+if (!$elemento["qr_token"]) {
+    die("El elemento no tiene QR token asignado");
+}
+
+/* ===============================
+   DATOS VISUALES (NO QR)
 ================================ */
 $codigoCategoria = $elemento["codigo_categoria"];
 $numero = str_pad($elemento["id_elemento"], 2, "0", STR_PAD_LEFT);
-
-$infoqr = json_encode([
-    "tipo" => "elemento",
-    "id_elemento" => $elemento["id_elemento"],
-    "categoria" => $codigoCategoria,
-    "numero" => $numero
-]);
 
 /* ===============================
    CONFIG QR CODE MONKEY
@@ -60,7 +61,7 @@ $infoqr = json_encode([
 $logoUrl = "https://ietsannicolas.edu.co/images/Escudo.png";
 
 $data = [
-    "data" => $infoqr,
+    "data" => $elemento["qr_token"], // 🔑 SOLO EL TOKEN
     "config" => [
         "body" => "circular",
         "eye" => "frame6",
@@ -85,11 +86,12 @@ $data = [
 ];
 
 /* ===============================
-   FUNCIÓN GENERAR QR
+   FUNCIÓN GENERAR QR (TOKEN)
 ================================ */
-function generarQR($data)
+function generarQR(string $qrToken, array $data): string
 {
     $url = "https://api.qrcode-monkey.com/qr/custom";
+
     $jsonData = json_encode($data);
 
     $ch = curl_init($url);
@@ -112,16 +114,19 @@ function generarQR($data)
     return base64_encode($response);
 }
 
-$qrBase64 = generarQR($data);
+$qrBase64 = generarQR($elemento["qr_token"], $data);
 
+/* ===============================
+   RESPUESTA
+================================ */
 echo json_encode([
     "success" => true,
     "data" => [
         "id_elemento" => $elemento["id_elemento"],
-        "codigo_categoria" => $elemento["codigo_categoria"],
+        "codigo_categoria" => $codigoCategoria,
         "numero" => $numero,
+        "qr_token" => $elemento["qr_token"],
         "qr_base64" => $qrBase64
     ]
 ]);
 exit;
-

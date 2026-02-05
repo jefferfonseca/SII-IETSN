@@ -1,5 +1,7 @@
 <?php
+session_start();
 header('Content-Type: application/json');
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/_qr_helper.php';
 
@@ -38,6 +40,7 @@ try {
         SELECT 
             e.id_elemento,
             e.codigo,
+            e.qr_token,
             c.codigo AS tipo,
             c.nombre AS nombre_categoria
         FROM elementos e
@@ -53,7 +56,7 @@ try {
     }
 
     /*************************************************
-     * 2️⃣ CREAR CARPETA DESTINO (NOMBRE REAL)
+     * 2️⃣ CREAR CARPETA DESTINO
      *************************************************/
     $nombreCategoria = $elementos[0]['nombre_categoria'];
     $nombreCategoriaLimpio = preg_replace(
@@ -88,36 +91,36 @@ try {
 
     foreach ($elementos as $index => $el) {
 
-    file_put_contents($progresoFile, json_encode([
-        "activo" => true,
-        "total" => count($elementos),
-        "actual" => $index + 1,
-        "completado" => false
-    ]));
+        file_put_contents($progresoFile, json_encode([
+            "activo" => true,
+            "total" => count($elementos),
+            "actual" => $index + 1,
+            "completado" => false
+        ]));
 
-    // Número = ID REAL
-    $numero = (string) $el['id_elemento'];
+        // 🔑 TOKEN QR (ÚNICO CONTENIDO DEL QR)
+        $qrToken = $el['qr_token'];
+        if (!$qrToken) {
+            throw new Exception("Elemento {$el['codigo']} no tiene qr_token");
+        }
 
-    $payload = [
-        "tipo" => 'elemento',
-        "id_elemento" => $el['id_elemento'],
-        "codigo" => $el['codigo'],
-        "numero" => $numero
-    ];
+        // 👁️ Número visual (solo para la etiqueta)
+        $numero = (string) $el['id_elemento'];
 
-    $qrBin = generarQRMonkey($payload, $logoUrl);
+        // Generar QR SOLO con el token
+        $qrBin = generarQRMonkey($qrToken, $logoUrl);
 
-    generarEtiquetaImagick(
-        $el['id_elemento'],
-        $el['tipo'],
-        $numero,
-        $qrBin,
-        $backgroundPath,
-        $outputDir
-    );
-}
+        // Generar etiqueta
+        generarEtiquetaImagick(
+            $el['id_elemento'],
+            $el['tipo'],
+            $numero,
+            $qrBin,
+            $backgroundPath,
+            $outputDir
+        );
+    }
 
-    $_SESSION['progreso_etiquetas']['completado'] = true;
     file_put_contents($progresoFile, json_encode([
         "activo" => false,
         "total" => count($elementos),
@@ -153,7 +156,6 @@ function generarEtiquetaImagick(
     string $outputDir
 ): void {
 
-    // Fondo base 2847x1425
     $base = new Imagick($backgroundPath);
 
     // TEXTO TIPO
@@ -161,40 +163,20 @@ function generarEtiquetaImagick(
     $drawTipo->setFillColor('#203154');
     $drawTipo->setFont('Arial-Black');
     $drawTipo->setFontSize(580);
+    $base->annotateImage($drawTipo, 750, 820, 0, $tipo);
 
-    $base->annotateImage(
-        $drawTipo,
-        750,
-        820,
-        0,
-        $tipo
-    );
-
-    // TEXTO NÚMERO (ID)
+    // TEXTO NÚMERO
     $drawNum = new ImagickDraw();
     $drawNum->setFillColor('#203154');
     $drawNum->setFont('Arial-Black');
     $drawNum->setFontSize(520);
-
-    $base->annotateImage(
-        $drawNum,
-        1100,
-        1250,
-        0,
-        $numero
-    );
+    $base->annotateImage($drawNum, 1100, 1250, 0, $numero);
 
     // QR
     $qr = new Imagick();
     $qr->readImageBlob($qrBin);
     $qr->resizeImage(920, 920, Imagick::FILTER_LANCZOS, 1);
-
-    $base->compositeImage(
-        $qr,
-        Imagick::COMPOSITE_OVER,
-        1820,
-        430
-    );
+    $base->compositeImage($qr, Imagick::COMPOSITE_OVER, 1820, 430);
 
     // Guardar
     $filename = $outputDir . "/etiqueta_" . $idElemento . ".png";

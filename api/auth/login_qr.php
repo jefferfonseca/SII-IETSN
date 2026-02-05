@@ -4,14 +4,18 @@ session_start();
 
 require_once __DIR__ . "/../config/database.php";
 
+// ============================
 // Leer JSON recibido
+// ============================
 $input = json_decode(file_get_contents("php://input"), true);
 
-// Validar estructura del QR
-$tipo     = $input["tipo"] ?? null;
-$doc_hash = $input["doc_hash"] ?? null;
+// SOLO token plano
+$doc_hash = trim($input["doc_hash"] ?? "");
 
-if ($tipo !== "usuario" || !$doc_hash) {
+// ============================
+// Validar token
+// ============================
+if (!$doc_hash) {
     echo json_encode([
         "success" => false,
         "message" => "QR inválido"
@@ -20,15 +24,19 @@ if ($tipo !== "usuario" || !$doc_hash) {
 }
 
 try {
+    // ============================
     // Buscar usuario por doc_hash
-    $sql = "SELECT id_usuario, nombre, apellido, rol, activo
-            FROM usuarios
-            WHERE doc_hash = :doc_hash
-            LIMIT 1";
+    // ============================
+    $sql = "
+        SELECT id_usuario, nombre, apellido, rol, activo
+        FROM usuarios
+        WHERE doc_hash = :doc_hash
+        LIMIT 1
+    ";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute(["doc_hash" => $doc_hash]);
-    $usuario = $stmt->fetch();
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$usuario) {
         echo json_encode([
@@ -38,7 +46,9 @@ try {
         exit;
     }
 
+    // ============================
     // Usuario activo
+    // ============================
     if ((int)$usuario["activo"] !== 1) {
         echo json_encode([
             "success" => false,
@@ -47,16 +57,9 @@ try {
         exit;
     }
 
-    // Rol permitido
-    if ($usuario["rol"] !== "Admin") {
-        echo json_encode([
-            "success" => false,
-            "message" => "Acceso no autorizado"
-        ]);
-        exit;
-    }
-
+    // ============================
     // Crear sesión (MISMA estructura que login normal)
+    // ============================
     $_SESSION["usuario"] = [
         "id_usuario" => $usuario["id_usuario"],
         "nombre"     => $usuario["nombre"],
@@ -64,7 +67,9 @@ try {
         "rol"        => $usuario["rol"],
     ];
 
-    // Respuesta OK
+    // ============================
+    // OK
+    // ============================
     echo json_encode([
         "success" => true,
         "message" => "Login QR correcto",

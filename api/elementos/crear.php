@@ -54,21 +54,15 @@ try {
     ]);
 
     $id_elemento = $pdo->lastInsertId();
-    // Generar payload del QR (NO imagen)
-    $qrPayload = json_encode([
-        "tipo" => "elemento",
-        "id" => (int) $id_elemento,
-        "codigo" => $codigo,
-        "nombre" => $nombre
-    ], JSON_UNESCAPED_UNICODE);
-
-    // Guardar QR en el elemento
-    $updateQR = $pdo->prepare("
+    // Generar token QR del elemento (opaco)
+    $qr_token = bin2hex(random_bytes(16)); // 32 caracteres
+    $updateToken = $pdo->prepare("
     UPDATE elementos
-    SET qr_code = ?
+    SET qr_token = ?
     WHERE id_elemento = ?
 ");
-    $updateQR->execute([$qrPayload, $id_elemento]);
+    $updateToken->execute([$qr_token, $id_elemento]);
+
 
     // Bitácora
     $detalle = "Elemento creado en estado Disponible";
@@ -82,7 +76,10 @@ try {
                 $detalle
             ]);
 
-    echo json_encode(["success" => true]);
+    echo json_encode([
+        "success" => true,
+        "qr_token" => $qr_token
+    ]);
 
 } catch (Exception $e) {
     echo json_encode([

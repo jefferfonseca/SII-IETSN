@@ -14,16 +14,17 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
 require_once __DIR__ . "/../config/database.php";
 
 // Parámetros
-$rol      = $_GET["rol"] ?? null;
-$buscar   = $_GET["buscar"] ?? null;
+$rol = $_GET["rol"] ?? null;
+$buscar = $_GET["buscar"] ?? null;
 $id_grado = $_GET["id_grado"] ?? null;
-$limit    = isset($_GET["limit"]) ? (int)$_GET["limit"] : 25;
+$limit = isset($_GET["limit"]) ? (int) $_GET["limit"] : 25;
 
 // Base SQL
 $sql = "
 SELECT 
     u.id_usuario,
     u.documento,
+    u.doc_hash,
     u.nombre,
     u.apellido,
     u.rol,
@@ -32,6 +33,7 @@ SELECT
 FROM usuarios u
 LEFT JOIN grados g ON u.id_grado = g.id_grado
 WHERE 1=1
+
 ";
 
 $params = [];

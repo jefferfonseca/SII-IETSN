@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Validar sesión
 if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
     header("Location: index.html");
     exit();
@@ -15,25 +14,22 @@ $usuario = $_SESSION["usuario"];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Usuarios - Sistema de Préstamos</title>
+    <title>Gestión de Usuarios</title>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/SII-IETSN/css/usuario.css">
-
-
 </head>
 
 <body>
-    <!-- Sidebar -->
-    <?php
-    include 'sidebar.php';
-    ?>
 
-    <!-- Main Content -->
+    <?php include 'sidebar.php'; ?>
+
     <div class="main-content" id="mainContent">
-        <!-- Top Bar -->
+
+        <!-- TOP BAR -->
         <div class="top-bar">
-            <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="display:flex;align-items:center;gap:20px;">
                 <button class="menu-toggle" onclick="toggleSidebar()">
                     <i class="material-icons">menu</i>
                 </button>
@@ -48,9 +44,9 @@ $usuario = $_SESSION["usuario"];
                     </div>
                 </div>
             </div>
-            <div class="usuarios-filtros">
 
-                <!-- Rol -->
+            <!-- FILTROS -->
+            <div class="usuarios-filtros">
                 <div class="input-field">
                     <select id="filtroRol">
                         <option value="" selected>Todos</option>
@@ -61,7 +57,6 @@ $usuario = $_SESSION["usuario"];
                     <label>Rol</label>
                 </div>
 
-                <!-- Grado (oculto por defecto) -->
                 <div class="input-field" id="filtroGradoContainer" style="display:none;">
                     <select id="filtroGrado">
                         <option value="" selected>Todos los grados</option>
@@ -69,173 +64,174 @@ $usuario = $_SESSION["usuario"];
                     <label>Grado</label>
                 </div>
 
-                <!-- Buscador -->
                 <div class="input-field">
                     <input id="busquedaUsuario" type="text">
-                    <label for="busquedaUsuario">Buscar</label>
+                    <label>Buscar</label>
                 </div>
-
             </div>
 
-            <a href="#modalNuevoUsuario" class="btn btn-nuevo-usuario waves-effect waves-light modal-trigger">
+            <a href="#modalNuevoUsuario" class="btn btn-nuevo-usuario modal-trigger">
                 <i class="material-icons left">person_add</i>
                 Nuevo Usuario
             </a>
         </div>
 
-        <!-- Usuarios Cards -->
+        <!-- CONTENEDOR -->
         <div class="usuarios-container" id="usuariosContainer"></div>
-
     </div>
 
-    <!-- Modal Nuevo Usuario -->
+    <!-- ================= MODAL NUEVO USUARIO ================= -->
     <div id="modalNuevoUsuario" class="modal">
         <div class="modal-content">
+
             <div class="modal-header">
-                <div class="modal-icon">
-                    <i class="material-icons">person_add</i>
-                </div>
+                <div class="modal-icon"><i class="material-icons">person_add</i></div>
                 <div class="modal-title">
                     <h5>Nuevo Usuario</h5>
-                    <p>Completa la información del usuario</p>
+                    <p>El documento se usará para generar el código QR</p>
                 </div>
             </div>
 
             <div class="row">
                 <div class="input-field col s12">
-                    <label for="nuevo_documento">Documento</label>
-                    <input id="nuevo_documento" type="text" class="validate">
+                    <input id="nuevo_documento" type="text">
+                    <label>Documento (no editable luego)</label>
                 </div>
             </div>
 
             <div class="row">
                 <div class="input-field col s12 m6">
-                    <label for="nuevo_nombre">Nombre</label>
-                    <input id="nuevo_nombre" type="text" class="validate">
+                    <input id="nuevo_nombre" type="text">
+                    <label>Nombre</label>
                 </div>
 
                 <div class="input-field col s12 m6">
-                    <label for="nuevo_apellido">Apellido</label>
-                    <input id="nuevo_apellido" type="text" class="validate">
+                    <input id="nuevo_apellido" type="text">
+                    <label>Apellido</label>
                 </div>
             </div>
 
             <div class="row">
                 <div class="input-field col s12">
-                    <label>Rol</label>
                     <select id="nuevo_rol">
-                        <option value="" disabled selected>Seleccione un rol</option>
+                        <option value="" disabled selected>Seleccione rol</option>
                         <option value="Admin">Admin</option>
+                        <option value="Docente">Docente</option>
+                        <option value="Estudiante">Estudiante</option>
                     </select>
-                </div>
-            </div>
-            <div class="row" id="grupo-grado-nuevo" style="display:none">
-                <div class="input-field col s12">
-                    <label>Grado</label>
-                    <select id="nuevo_id_grado">
-                        <option value="" disabled selected>Seleccione grado</option>
-                    </select>
+                    <label>Rol</label>
                 </div>
             </div>
 
+            <div class="row" id="grupo-grado-nuevo" style="display:none;">
+                <div class="input-field col s12">
+                    <select id="nuevo_id_grado"></select>
+                    <label>Grado</label>
+                </div>
+            </div>
 
             <div class="switch-container">
                 <div class="switch">
                     <label>
-                        <i class="material-icons" style="vertical-align: middle; margin-right: 10px;">check_circle</i>
-                        Usuario Inactivo
+                        Inactivo
                         <input type="checkbox" id="nuevo_estado" checked>
                         <span class="lever"></span>
-                        Usuario Activo
+                        Activo
                     </label>
                 </div>
             </div>
+
         </div>
 
         <div class="modal-footer">
-            <a href="#!" class="modal-close waves-effect btn btn-cancelar">Cancelar</a>
-            <a href="#!" class="waves-effect waves-light btn btn-guardar" onclick="guardarNuevoUsuario()">
-                <i class="material-icons left">save</i>
-                Guardar Usuario
+            <a class="modal-close btn btn-cancelar">Cancelar</a>
+            <a class="btn btn-guardar" onclick="guardarNuevoUsuario()">
+                <i class="material-icons left">save</i>Guardar
             </a>
         </div>
     </div>
 
-    <!-- Modal Editar Usuario -->
+    <!-- ================= MODAL EDITAR USUARIO ================= -->
     <div id="modalEditarUsuario" class="modal">
         <div class="modal-content">
+
             <div class="modal-header">
-                <div class="modal-icon">
-                    <i class="material-icons">edit</i>
-                </div>
+                <div class="modal-icon"><i class="material-icons">edit</i></div>
                 <div class="modal-title">
                     <h5>Editar Usuario</h5>
-                    <p>Actualiza la información del usuario</p>
+                    <p>El código QR identifica al usuario</p>
                 </div>
             </div>
 
+            <!-- HASH -->
             <div class="row">
                 <div class="input-field col s12">
-                    <label for="editar_documento">Documento</label>
-                    <input id="editar_documento" type="text" class="validate">
+                    <input id="editar_doc_hash" type="text" readonly>
+                    <label class="active">Código QR (hash)</label>
+                </div>
+            </div>
+
+            <!-- DOCUMENTO BLOQUEADO -->
+            <div class="row">
+                <div class="input-field col s12">
+                    <input id="editar_documento" type="text" readonly>
+                    <label class="active">Documento (solo lectura)</label>
                 </div>
             </div>
 
             <div class="row">
                 <div class="input-field col s12 m6">
-                    <label for="editar_nombre">Nombre</label>
-                    <input id="editar_nombre" type="text" class="validate">
+                    <input id="editar_nombre" type="text">
+                    <label>Nombre</label>
                 </div>
 
                 <div class="input-field col s12 m6">
-                    <label for="editar_apellido">Apellido</label>
-                    <input id="editar_apellido" type="text" class="validate">
+                    <input id="editar_apellido" type="text">
+                    <label>Apellido</label>
                 </div>
             </div>
 
             <div class="row">
                 <div class="input-field col s12">
+                    <select id="editar_rol"></select>
                     <label>Rol</label>
-                    <select id="editar_rol">
-                        <option value="" disabled>Seleccione un rol</option>
-                        <option value="Admin">Admin</option>
-                    </select>
                 </div>
             </div>
 
-            <div class="row" id="grupo-grado-editar" style="display:none">
+            <div class="row" id="grupo-grado-editar" style="display:none;">
                 <div class="input-field col s12">
+                    <select id="editar_id_grado"></select>
                     <label>Grado</label>
-                    <select id="editar_id_grado">
-                        <option value="" disabled selected>Seleccione grado</option>
-                    </select>
                 </div>
             </div>
 
             <div class="switch-container">
                 <div class="switch">
                     <label>
-                        <i class="material-icons" style="vertical-align: middle; margin-right: 10px;">check_circle</i>
-                        Usuario Inactivo
+                        Inactivo
                         <input type="checkbox" id="editar_estado">
                         <span class="lever"></span>
-                        Usuario Activo
+                        Activo
                     </label>
                 </div>
             </div>
+
         </div>
 
         <div class="modal-footer">
-            <a href="#!" class="modal-close waves-effect btn btn-cancelar">Cancelar</a>
-            <a href="#!" class="waves-effect waves-light btn btn-guardar" onclick="guardarEdicionUsuario()">
-                <i class="material-icons left">save</i>
-                Guardar Cambios
+            <a class="modal-close btn btn-cancelar">Cancelar</a>
+            <a class="btn btn-guardar" onclick="guardarEdicionUsuario()">
+                <i class="material-icons left">save</i>Guardar
             </a>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
     <script>
+        /* ===============================
+           SIDEBAR
+        =============================== */
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
@@ -264,7 +260,7 @@ $usuario = $_SESSION["usuario"];
         /* ===============================
            INIT
         =============================== */
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', () => {
             M.Modal.init(document.querySelectorAll('.modal'));
             M.FormSelect.init(document.querySelectorAll('select'));
             M.updateTextFields();
@@ -302,16 +298,14 @@ $usuario = $_SESSION["usuario"];
         }
 
         /* ===============================
-           LISTAR USUARIOS (FIX DEFINITIVO)
+           LISTAR USUARIOS (BADGES OK)
         =============================== */
         function cargarUsuarios() {
             const rol = document.getElementById("filtroRol").value;
             const buscar = document.getElementById("busquedaUsuario").value.trim();
             const id_grado = document.getElementById("filtroGrado").value;
 
-            const params = new URLSearchParams();
-            params.append("limit", 25);
-
+            const params = new URLSearchParams({ limit: 25 });
             if (rol) params.append("rol", rol);
             if (buscar) params.append("buscar", buscar);
             if (rol === "Estudiante" && id_grado) params.append("id_grado", id_grado);
@@ -364,17 +358,16 @@ $usuario = $_SESSION["usuario"];
                     </div>
 
                     <div class="usuario-badges">
-    <span class="badge-rol ${usuario.rol.toLowerCase()}">
-        <i class="material-icons">admin_panel_settings</i>
-        ${usuario.rol}
-    </span>
+                        <span class="badge-rol ${usuario.rol.toLowerCase()}">
+                            <i class="material-icons">admin_panel_settings</i>
+                            ${usuario.rol}
+                        </span>
 
-    <span class="badge-estado ${estadoClase}">
-        <i class="material-icons">${estadoIcono}</i>
-        ${estadoTexto}
-    </span>
-</div>
-
+                        <span class="badge-estado ${estadoClase}">
+                            <i class="material-icons">${estadoIcono}</i>
+                            ${estadoTexto}
+                        </span>
+                    </div>
                 </div>
 
                 <div class="usuario-acciones">
@@ -386,19 +379,18 @@ $usuario = $_SESSION["usuario"];
                     </a>
 
                     <a href="#"
-                        class="btn btn-accion btn-toggle ${accionClase}"
-                        onclick="toggleEstado(${usuario.id_usuario})">
-                            <i class="material-icons">${accionIcono}</i>
-                            ${accionTexto}
+                       class="btn btn-accion btn-toggle ${accionClase}"
+                       onclick="toggleEstado(${usuario.id_usuario})">
+                        <i class="material-icons">${accionIcono}</i>
+                        ${accionTexto}
                     </a>
 
+                    ${usuario.doc_hash ? `
+                    <a href="/SII-IETSN/qr.php?hash=${usuario.doc_hash}"
+                    class="btn btn-accion teal">
+                    <i class="material-icons">qr_code_2</i> QR
+                    </a>` : ''}
 
-                    <a href="${activo ? `/SII-IETSN/qr/${usuario.id_usuario}` : '#'}"
-                       class="btn btn-accion teal ${activo ? '' : 'disabled'}"
-                       ${activo ? '' : 'onclick="return false;"'}>
-                        <i class="material-icons">qr_code_2</i>
-                        QR
-                    </a>
                 </div>
             </div>`;
                     });
@@ -421,8 +413,14 @@ $usuario = $_SESSION["usuario"];
             document.getElementById('editar_rol').value = usuario.rol;
             document.getElementById('editar_estado').checked = usuario.activo == 1;
 
+            if (usuario.rol === "Estudiante") {
+                document.getElementById('grupo-grado-editar').style.display = "block";
+                document.getElementById('editar_id_grado').value = usuario.id_grado;
+            }
+
             M.updateTextFields();
             M.FormSelect.init(document.getElementById('editar_rol'));
+            M.FormSelect.init(document.getElementById('editar_id_grado'));
         }
 
         /* ===============================
@@ -437,7 +435,6 @@ $usuario = $_SESSION["usuario"];
             } else {
                 contGrado.style.display = "none";
                 document.getElementById("filtroGrado").value = "";
-                M.FormSelect.init(document.getElementById("filtroGrado"));
             }
 
             cargarUsuarios();
@@ -461,18 +458,12 @@ $usuario = $_SESSION["usuario"];
 
                     GRADOS = res.data;
 
-                    const selects = [
-                        "filtroGrado",
-                        "nuevo_id_grado",
-                        "editar_id_grado"
-                    ];
-
-                    selects.forEach(id => {
+                    ["filtroGrado", "nuevo_id_grado", "editar_id_grado"].forEach(id => {
                         const select = document.getElementById(id);
                         if (!select) return;
 
                         select.innerHTML = id === "filtroGrado"
-                            ? '<option value="" selected>Todos los grados</option>'
+                            ? '<option value="">Todos los grados</option>'
                             : '<option value="" disabled selected>Seleccione grado</option>';
 
                         GRADOS.forEach(g => {
@@ -486,54 +477,34 @@ $usuario = $_SESSION["usuario"];
                     });
                 });
         }
+
         function manejarRol(selectRolId, grupoGradoId) {
             const rolSelect = document.getElementById(selectRolId);
             const grupoGrado = document.getElementById(grupoGradoId);
 
-            if (!rolSelect || !grupoGrado) return;
-
             rolSelect.addEventListener("change", () => {
-                if (rolSelect.value === "Estudiante") {
-                    grupoGrado.style.display = "block";
-                } else {
-                    grupoGrado.style.display = "none";
-                    const gradoSelect = grupoGrado.querySelector("select");
-                    if (gradoSelect) gradoSelect.value = "";
-                }
-
-                M.FormSelect.init(grupoGrado.querySelectorAll("select"));
+                grupoGrado.style.display = rolSelect.value === "Estudiante" ? "block" : "none";
             });
         }
+
+        /* ===============================
+           CRUD
+        =============================== */
         function guardarNuevoUsuario() {
-            const documento = document.getElementById('nuevo_documento').value.trim();
-            const nombre = document.getElementById('nuevo_nombre').value.trim();
-            const apellido = document.getElementById('nuevo_apellido').value.trim();
-            const rol = document.getElementById('nuevo_rol').value;
-            const id_grado = document.getElementById('nuevo_id_grado')?.value || null;
-            const activo = document.getElementById('nuevo_estado').checked ? 1 : 0;
-
-            if (!documento || !nombre || !apellido || !rol) {
-                M.toast({ html: 'Completa todos los campos', classes: 'red' });
-                return;
-            }
-
-            if (rol === "Estudiante" && !id_grado) {
-                M.toast({ html: 'Selecciona el grado', classes: 'red' });
-                return;
-            }
+            const payload = {
+                documento: nuevo_documento.value.trim(),
+                nombre: nuevo_nombre.value.trim(),
+                apellido: nuevo_apellido.value.trim(),
+                rol: nuevo_rol.value,
+                id_grado: nuevo_id_grado.value || null,
+                activo: nuevo_estado.checked ? 1 : 0
+            };
 
             fetch("/SII-IETSN/api/usuarios/crear.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "same-origin",
-                body: JSON.stringify({
-                    documento,
-                    nombre,
-                    apellido,
-                    rol,
-                    id_grado,
-                    activo
-                })
+                body: JSON.stringify(payload)
             })
                 .then(res => res.json())
                 .then(res => {
@@ -541,12 +512,40 @@ $usuario = $_SESSION["usuario"];
                         M.toast({ html: res.message, classes: 'red' });
                         return;
                     }
-
                     M.toast({ html: 'Usuario creado correctamente', classes: 'green' });
                     M.Modal.getInstance(document.getElementById('modalNuevoUsuario')).close();
                     cargarUsuarios();
                 });
         }
+
+        function guardarEdicionUsuario() {
+            const payload = {
+                id_usuario: editar_documento.dataset.id,
+                nombre: editar_nombre.value.trim(),
+                apellido: editar_apellido.value.trim(),
+                rol: editar_rol.value,
+                id_grado: editar_id_grado.value || null,
+                activo: editar_estado.checked ? 1 : 0
+            };
+
+            fetch("/SII-IETSN/api/usuarios/actualizar.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify(payload)
+            })
+                .then(res => res.json())
+                .then(res => {
+                    if (!res.success) {
+                        M.toast({ html: res.message, classes: 'red' });
+                        return;
+                    }
+                    M.toast({ html: 'Usuario actualizado correctamente', classes: 'green' });
+                    M.Modal.getInstance(document.getElementById('modalEditarUsuario')).close();
+                    cargarUsuarios();
+                });
+        }
+
         function toggleEstado(id_usuario) {
             fetch("/SII-IETSN/api/usuarios/toggle_estado.php", {
                 method: "POST",
@@ -555,83 +554,20 @@ $usuario = $_SESSION["usuario"];
                 body: JSON.stringify({ id_usuario })
             })
                 .then(res => res.json())
-                .then(res => {
-                    if (!res.success) {
-                        M.toast({
-                            html: `<i class="material-icons left">error</i>${res.message}`,
-                            classes: 'red rounded'
-                        });
-                        return;
-                    }
-
-                    M.toast({
-                        html: '<i class="material-icons left">sync</i>Estado actualizado',
-                        classes: 'blue rounded'
-                    });
-
-                    cargarUsuarios();
-                })
-                .catch(() => {
-                    M.toast({
-                        html: '<i class="material-icons left">error</i>Error de conexión',
-                        classes: 'red rounded'
-                    });
-                });
+                .then(() => cargarUsuarios());
         }
-        function guardarEdicionUsuario() {
-            const id_usuario = document.getElementById('editar_documento').dataset.id;
-            const nombre = document.getElementById('editar_nombre').value.trim();
-            const apellido = document.getElementById('editar_apellido').value.trim();
-            const rol = document.getElementById('editar_rol').value;
-            const id_grado = document.getElementById('editar_id_grado')?.value || null;
-            const activo = document.getElementById('editar_estado').checked ? 1 : 0;
-
-            if (!id_usuario || !nombre || !apellido || !rol) {
-                M.toast({ html: 'Completa todos los campos', classes: 'red' });
-                return;
-            }
-
-            if (rol === "Estudiante" && !id_grado) {
-                M.toast({ html: 'Selecciona el grado', classes: 'red' });
-                return;
-            }
-
-            fetch("/SII-IETSN/api/usuarios/actualizar.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "same-origin",
-                body: JSON.stringify({
-                    id_usuario,
-                    nombre,
-                    apellido,
-                    rol,
-                    id_grado,
-                    activo
-                })
-            })
-                .then(res => res.json())
-                .then(res => {
-                    if (!res.success) {
-                        M.toast({ html: res.message, classes: 'red' });
-                        return;
-                    }
-
-                    M.toast({ html: 'Usuario actualizado correctamente', classes: 'green' });
-                    M.Modal.getInstance(document.getElementById('modalEditarUsuario')).close();
-                    cargarUsuarios();
-                });
-        }
-
     </script>
 
-   <script>
-const menuElementos = document.getElementById('menu-elementos');
-const submenuElementos = document.getElementById('submenu-elementos');
+    <script>
+        const menuElementos = document.getElementById('menu-elementos');
+        const submenuElementos = document.getElementById('submenu-elementos');
 
-menuElementos.addEventListener('click', () => {
-  menuElementos.classList.toggle('open');
-  submenuElementos.classList.toggle('open');
-});
-</script>
+        menuElementos.addEventListener('click', () => {
+            menuElementos.classList.toggle('open');
+            submenuElementos.classList.toggle('open');
+        });
+    </script>
+
 </body>
+
 </html>

@@ -3,11 +3,16 @@ session_start();
 require_once "../config/database.php";
 
 header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
 
 // ============================
 // Validar sesión
 // ============================
-if (!isset($_SESSION['usuario'])) {
+if (
+    !isset($_SESSION['usuario']) ||
+    !isset($_SESSION['usuario']['id_usuario'])
+) {
     echo json_encode([
         'success' => false,
         'message' => 'No autenticado'
@@ -15,15 +20,7 @@ if (!isset($_SESSION['usuario'])) {
     exit;
 }
 
-$id_operador = $_SESSION['usuario']['id'] ?? $_SESSION['usuario']['id_usuario'] ?? null;
-
-if (!$id_operador) {
-    echo json_encode([
-        'success' => false,
-        'message' => 'Operador no identificado'
-    ]);
-    exit;
-}
+$id_operador = $_SESSION['usuario']['id_usuario'];
 
 // ============================
 // Leer JSON
@@ -48,34 +45,32 @@ if (!$id_elemento) {
     exit;
 }
 
-// ============================
-// Buscar préstamo activo
-// ============================
-$stmt = $pdo->prepare("
-    SELECT id
-    FROM prestamos
-    WHERE id_elemento = ?
-      AND estado = 'activo'
-    LIMIT 1
-");
-$stmt->execute([$id_elemento]);
-$prestamo = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$prestamo) {
-    echo json_encode([
-        'success' => false,
-        'message' => 'El elemento no tiene un préstamo activo'
-    ]);
-    exit;
-}
-
-$id_prestamo = $prestamo['id'];
-
 try {
+
     $pdo->beginTransaction();
 
     // ============================
-    // 1. Cerrar préstamo
+    // Buscar préstamo activo (con bloqueo)
+    // ============================
+    $stmt = $pdo->prepare("
+        SELECT id
+        FROM prestamos
+        WHERE id_elemento = ?
+          AND LOWER(TRIM(estado)) = 'activo'
+        FOR UPDATE
+        LIMIT 1
+    ");
+    $stmt->execute([$id_elemento]);
+    $prestamo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$prestamo) {
+        throw new Exception('El elemento no tiene un préstamo activo');
+    }
+
+    $id_prestamo = $prestamo['id'];
+
+    // ============================
+    // Cerrar préstamo
     // ============================
     $stmt = $pdo->prepare("
         UPDATE prestamos
@@ -86,7 +81,7 @@ try {
     $stmt->execute([$id_prestamo]);
 
     // ============================
-    // 2. Liberar elemento
+    // Liberar elemento
     // ============================
     $stmt = $pdo->prepare("
         UPDATE elementos
@@ -96,7 +91,7 @@ try {
     $stmt->execute([$id_elemento]);
 
     // ============================
-    // 3. Registrar bitácora
+    // Bitácora
     // ============================
     $stmt = $pdo->prepare("
         INSERT INTO bitacora (
@@ -105,9 +100,13 @@ try {
             accion,
             detalle,
             fecha
-        ) VALUES (?, ?, 'devolucion', 'Devolución registrada por QR', NOW())
+        ) VALUES (?, ?, 'devolucion', ?, NOW())
     ");
-    $stmt->execute([$id_elemento, $id_operador]);
+    $stmt->execute([
+        $id_elemento,
+        $id_operador,
+        'Devolución registrada'
+    ]);
 
     $pdo->commit();
 
@@ -118,10 +117,12 @@ try {
 
 } catch (Exception $e) {
 
-    $pdo->rollBack();
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
 
     echo json_encode([
         'success' => false,
-        'message' => 'Error al registrar la devolución'
+        'message' => $e->getMessage()
     ]);
 }

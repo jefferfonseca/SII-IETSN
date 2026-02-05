@@ -28,6 +28,7 @@ try {
     $sql = "SELECT 
         e.id_elemento,
         e.codigo,
+        e.qr_token,
         e.nombre,
         e.estado,
         e.id_categoria,

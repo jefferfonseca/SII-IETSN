@@ -1,9 +1,9 @@
 <?php
 
-function generarQRMonkey(array $payload, string $logoUrl): string
+function generarQRMonkey(string $qrToken, string $logoUrl): string
 {
     $data = [
-        "data" => json_encode($payload, JSON_UNESCAPED_UNICODE),
+        "data" => $qrToken,
         "config" => [
             "body" => "circular",
             "eye" => "frame6",
