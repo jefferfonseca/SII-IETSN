@@ -69,7 +69,7 @@ $usuario = $_SESSION["usuario"];
                 <div class="icon">
                     <i class="material-icons">assignment</i>
                 </div>
-                <h3>12</h3>
+                <h3></h3>
                 <p>Préstamos activos</p>
             </div>
 
@@ -77,7 +77,7 @@ $usuario = $_SESSION["usuario"];
                 <div class="icon">
                     <i class="material-icons">inventory_2</i>
                 </div>
-                <h3>48</h3>
+                <h3></h3>
                 <p>Elementos disponibles</p>
             </div>
 
@@ -85,7 +85,7 @@ $usuario = $_SESSION["usuario"];
                 <div class="icon">
                     <i class="material-icons">people</i>
                 </div>
-                <h3>25</h3>
+                <h3></h3>
                 <p>Usuarios registrados</p>
             </div>
         </div>
