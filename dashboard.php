@@ -69,7 +69,7 @@ $usuario = $_SESSION["usuario"];
                 <div class="icon">
                     <i class="material-icons">assignment</i>
                 </div>
-                <h3></h3>
+                <h3>—</h3>
                 <p>Préstamos activos</p>
             </div>
 
@@ -77,7 +77,7 @@ $usuario = $_SESSION["usuario"];
                 <div class="icon">
                     <i class="material-icons">inventory_2</i>
                 </div>
-                <h3></h3>
+                <h3>—</h3>
                 <p>Elementos disponibles</p>
             </div>
 
@@ -85,7 +85,7 @@ $usuario = $_SESSION["usuario"];
                 <div class="icon">
                     <i class="material-icons">people</i>
                 </div>
-                <h3></h3>
+                <h3>—</h3>
                 <p>Usuarios registrados</p>
             </div>
         </div>
@@ -118,7 +118,7 @@ $usuario = $_SESSION["usuario"];
                     <p>Administra el inventario de elementos prestables</p>
                 </a>
 
-                <a href="bitacora.html" class="module-card bitacora">
+                <a href="bitacora.php" class="module-card bitacora">
                     <div class="module-icon">
                         <i class="material-icons">description</i>
                     </div>

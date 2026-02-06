@@ -59,19 +59,7 @@ try {
         $id_elemento
     ]);
 
-    // 4️⃣ Bitácora
-    $detalle = "Edición de datos del elemento (nombre, categoría u observaciones)";
-
-    $pdo->prepare("
-        INSERT INTO bitacora (id_elemento, id_usuario, accion, fecha, detalle)
-        VALUES (?, ?, 'EDITAR_ELEMENTO', NOW(), ?)
-    ")->execute([
-        $id_elemento,
-        $id_usuario,
-        $detalle
-    ]);
-
-    echo json_encode(["success" => true]);
+       echo json_encode(["success" => true]);
 
 } catch (Exception $e) {
     echo json_encode([

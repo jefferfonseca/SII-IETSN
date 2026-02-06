@@ -1,4 +1,8 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+header('Content-Type: application/json');
+
 session_start();
 require_once __DIR__ . '/../config/database.php';
 
@@ -58,19 +62,9 @@ switch ($estadoActual) {
 
 
 // 4️⃣ Actualizar elemento
+$pdo->exec("SET @id_usuario_sistema = " . (int) $_SESSION['usuario']['id_usuario']);
+
 $pdo->prepare("UPDATE elementos SET estado = ? WHERE id_elemento = ?")
     ->execute([$nuevoEstado, $id_elemento]);
-
-// 5️⃣ Registrar en bitácora 🔥
-$detalle = "$estadoActual → $nuevoEstado";
-
-$pdo->prepare("
-    INSERT INTO bitacora (id_elemento, id_usuario, accion, fecha, detalle)
-    VALUES (?, ?, 'CAMBIO_ESTADO', NOW(), ?)
-")->execute([
-    $id_elemento,
-    $id_usuario,
-    $detalle
-]);
 
 echo json_encode(["success" => true]);

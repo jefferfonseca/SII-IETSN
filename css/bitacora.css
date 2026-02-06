@@ -8,6 +8,7 @@
   --color-devolucion: #14b8a6;
   --color-mantenimiento: #f59e0b;
   --color-observacion: #8b5cf6;
+  --color-fuera-servicio: #e53935;
 }
 
 /* ===== ESTADÍSTICAS ===== */
@@ -90,6 +91,15 @@
   --stat-bg: rgba(20, 184, 166, 0.1);
 }
 
+.stat-fuera-servicio {
+  --stat-color: var(--color-fuera-servicio);
+  --stat-bg: rgba(229, 57, 53, 0.15);
+}
+
+.color-fuera-servicio {
+  background-color: #e53935;
+}
+
 .stat-mantenimientos {
   --stat-color: var(--color-mantenimiento);
   --stat-bg: rgba(245, 158, 11, 0.1);
@@ -117,6 +127,7 @@
   justify-content: space-between;
   align-items: center;
   color: white;
+  border-radius: 15px;
 }
 
 .timeline-header h5 {
@@ -177,7 +188,7 @@
 
 .timeline-marker {
   position: absolute;
-  left: 32px;
+  left: 8px;
   top: 4px;
   width: 48px;
   height: 48px;
@@ -208,6 +219,21 @@
 .timeline-marker.color-devolucion {
   background: linear-gradient(135deg, var(--color-devolucion) 0%, #0d9488 100%);
 }
+.timeline-marker.color-fuera-servicio {
+  background: linear-gradient(
+    135deg,
+    var(--color-fuera-servicio) 0%,
+    #b71c1c 100%
+  );
+}
+.badge-fuera_servicio {
+  background: linear-gradient(
+    135deg,
+    var(--color-fuera-servicio) 0%,
+    #b71c1c 100%
+  );
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.4);
+}
 
 .timeline-marker.color-mantenimiento {
   background: linear-gradient(
@@ -227,6 +253,8 @@
 
 /* Contenido del timeline */
 .timeline-content {
+  position: relative;
+  overflow: hidden;
   background: white;
   border: 2px solid #f3f4f6;
   border-radius: 12px;

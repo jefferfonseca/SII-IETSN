@@ -7,6 +7,7 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
     exit();
 }
 
+
 $usuario = $_SESSION["usuario"];
 ?>
 <!DOCTYPE html>
@@ -121,6 +122,16 @@ $usuario = $_SESSION["usuario"];
                 <div class="stat-info">
                     <h6>Total Devoluciones</h6>
                     <h3 id="totalDevoluciones">0</h3>
+                </div>
+            </div>
+
+            <div class="stat-card stat-fuera-servicio">
+                <div class="stat-icon">
+                    <i class="material-icons">block</i>
+                </div>
+                <div class="stat-info">
+                    <h6>Fuera de servicio</h6>
+                    <h3 id="totalFueraServicio">0</h3>
                 </div>
             </div>
 
@@ -245,6 +256,14 @@ $usuario = $_SESSION["usuario"];
         const registrosPorPagina = 20;
         let bitacoraCompleta = [];
         let bitacoraFiltrada = [];
+        let totalPaginas = 1;
+
+
+        const filtroAccion = document.getElementById('filtroAccion');
+        const filtroUsuario = document.getElementById('filtroUsuario');
+        const filtroElemento = document.getElementById('filtroElemento');
+        const fechaInicio = document.getElementById('fechaInicio');
+        const fechaFin = document.getElementById('fechaFin');
 
         document.addEventListener('DOMContentLoaded', () => {
             // Inicializar componentes
@@ -266,103 +285,94 @@ $usuario = $_SESSION["usuario"];
            ===================================================== */
         async function cargarBitacora() {
             try {
-                const response = await fetch('/SII-IETSN/api/bitacora/listar.php');
-                const result = await response.json();
+                const accion = filtroAccion.value;
+                const id_usuario = filtroUsuario.value;
+                const id_elemento = filtroElemento.value;
+                const fecha_inicio = fechaInicio.value;
+                const fecha_fin = fechaFin.value;
 
-                if (!result.success) {
-                    M.toast({ html: 'Error al cargar bitácora', classes: 'red' });
-                    return;
-                }
+                const params = new URLSearchParams({
+                    page: paginaActual,
+                    limit: registrosPorPagina
+                });
 
-                bitacoraCompleta = result.data;
-                bitacoraFiltrada = [...bitacoraCompleta];
+                if (accion) params.append('accion', accion);
+                if (id_usuario) params.append('id_usuario', id_usuario);
+                if (id_elemento) params.append('id_elemento', id_elemento);
+                if (fecha_inicio) params.append('fecha_inicio', fecha_inicio);
+                if (fecha_fin) params.append('fecha_fin', fecha_fin);
 
-                actualizarEstadisticas();
+                const resp = await fetch(
+                    `/SII-IETSN/api/bitacora/listar.php?${params.toString()}`,
+                    { credentials: 'same-origin' }
+                );
+
+                const res = await resp.json();
+                if (!res.success) return;
+
+                bitacoraFiltrada = res.data;
+                totalPaginas = res.pagination.pages;
+
+                actualizarEstadisticas()
                 renderizarTimeline();
                 renderizarPaginacion();
 
-            } catch (error) {
-                console.error(error);
-                M.toast({ html: 'Error de conexión', classes: 'red' });
+            } catch (e) {
+                console.error(e);
+                M.toast({ html: 'Error cargando bitácora', classes: 'red' });
             }
         }
+
+
 
         /* =====================================================
            CARGAR FILTROS DINÁMICOS
            ===================================================== */
         async function cargarFiltros() {
             try {
-                // Cargar usuarios
-                const respUsuarios = await fetch('/SII-IETSN/api/usuarios/listar.php');
-                const usuarios = await respUsuarios.json();
+                const resp = await fetch('/SII-IETSN/api/bitacora/filtros.php', {
+                    credentials: 'same-origin'
+                });
+                const data = await resp.json();
+
+                if (!data.success) return;
 
                 const selectUsuario = document.getElementById('filtroUsuario');
-                usuarios.data.forEach(u => {
-                    const option = document.createElement('option');
-                    option.value = u.id_usuario;
-                    option.textContent = `${u.nombre} ${u.apellido}`;
-                    selectUsuario.appendChild(option);
+                const selectElemento = document.getElementById('filtroElemento');
+
+                // Limpiar
+                selectUsuario.innerHTML = `<option value="" selected>Todos los usuarios</option>`;
+                selectElemento.innerHTML = `<option value="" selected>Todos los elementos</option>`;
+
+                data.usuarios.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.id;
+                    opt.textContent = u.nombre;
+                    selectUsuario.appendChild(opt);
                 });
 
-                // Cargar elementos
-                const respElementos = await fetch('/SII-IETSN/api/elementos/listar.php');
-                const elementos = await respElementos.json();
-
-                const selectElemento = document.getElementById('filtroElemento');
-                elementos.data.forEach(e => {
-                    const option = document.createElement('option');
-                    option.value = e.id_elemento;
-                    option.textContent = `${e.nombre} (${e.codigo})`;
-                    selectElemento.appendChild(option);
+                data.elementos.forEach(e => {
+                    const opt = document.createElement('option');
+                    opt.value = e.id;
+                    opt.textContent = `${e.nombre} (${e.codigo})`;
+                    selectElemento.appendChild(opt);
                 });
 
                 M.FormSelect.init(document.querySelectorAll('select'));
 
-            } catch (error) {
-                console.error(error);
+            } catch (err) {
+                console.error(err);
             }
         }
+
 
         /* =====================================================
            APLICAR FILTROS
            ===================================================== */
         function aplicarFiltros() {
-            const accion = document.getElementById('filtroAccion').value;
-            const usuario = document.getElementById('filtroUsuario').value;
-            const elemento = document.getElementById('filtroElemento').value;
-            const fechaInicio = document.getElementById('fechaInicio').value;
-            const fechaFin = document.getElementById('fechaFin').value;
-
-            bitacoraFiltrada = bitacoraCompleta.filter(registro => {
-                let cumple = true;
-
-                if (accion && registro.accion !== accion) cumple = false;
-                if (usuario && registro.id_usuario != usuario) cumple = false;
-                if (elemento && registro.id_elemento != elemento) cumple = false;
-
-                if (fechaInicio) {
-                    const fechaRegistro = new Date(registro.fecha);
-                    const fechaInicioObj = new Date(fechaInicio);
-                    if (fechaRegistro < fechaInicioObj) cumple = false;
-                }
-
-                if (fechaFin) {
-                    const fechaRegistro = new Date(registro.fecha);
-                    const fechaFinObj = new Date(fechaFin + ' 23:59:59');
-                    if (fechaRegistro > fechaFinObj) cumple = false;
-                }
-
-                return cumple;
-            });
-
             paginaActual = 1;
-            actualizarEstadisticas();
-            renderizarTimeline();
-            renderizarPaginacion();
-
-            M.toast({ html: `${bitacoraFiltrada.length} registros encontrados`, classes: 'blue' });
+            cargarBitacora();
         }
-
         /* =====================================================
            LIMPIAR FILTROS
            ===================================================== */
@@ -371,40 +381,47 @@ $usuario = $_SESSION["usuario"];
             document.getElementById('filtroUsuario').value = '';
             document.getElementById('filtroElemento').value = '';
             document.getElementById('fechaInicio').value = '';
-            document.getElementById('fechaFin').value = new Date().toISOString().split('T')[0];
+            document.getElementById('fechaFin').value =
+                new Date().toISOString().split('T')[0];
 
             M.FormSelect.init(document.querySelectorAll('select'));
 
-            bitacoraFiltrada = [...bitacoraCompleta];
             paginaActual = 1;
-
-            actualizarEstadisticas();
-            renderizarTimeline();
-            renderizarPaginacion();
+            cargarBitacora();
         }
 
         /* =====================================================
            ACTUALIZAR ESTADÍSTICAS
            ===================================================== */
-        function actualizarEstadisticas() {
-            const stats = {
-                prestamo: 0,
-                devolucion: 0,
-                mantenimiento: 0,
-                observacion: 0
-            };
+        async function actualizarEstadisticas() {
+            try {
+                const params = new URLSearchParams();
 
-            bitacoraFiltrada.forEach(r => {
-                if (stats[r.accion] !== undefined) {
-                    stats[r.accion]++;
-                }
-            });
+                if (filtroAccion.value) params.append('accion', filtroAccion.value);
+                if (filtroUsuario.value) params.append('id_usuario', filtroUsuario.value);
+                if (filtroElemento.value) params.append('id_elemento', filtroElemento.value);
+                if (fechaInicio.value) params.append('fecha_inicio', fechaInicio.value);
+                if (fechaFin.value) params.append('fecha_fin', fechaFin.value);
 
-            document.getElementById('totalPrestamos').textContent = stats.prestamo;
-            document.getElementById('totalDevoluciones').textContent = stats.devolucion;
-            document.getElementById('totalMantenimientos').textContent = stats.mantenimiento;
-            document.getElementById('totalObservaciones').textContent = stats.observacion;
+                const resp = await fetch(
+                    `/SII-IETSN/api/bitacora/stats.php?${params.toString()}`,
+                    { credentials: 'same-origin' }
+                );
+
+                const res = await resp.json();
+                if (!res.success) return;
+
+                document.getElementById('totalPrestamos').textContent = res.stats.prestamo;
+                document.getElementById('totalDevoluciones').textContent = res.stats.devolucion;
+                document.getElementById('totalFueraServicio').textContent = res.stats.fuera_servicio;
+                document.getElementById('totalMantenimientos').textContent = res.stats.mantenimiento;
+                document.getElementById('totalObservaciones').textContent = res.stats.observacion;
+
+            } catch (e) {
+                console.error(e);
+            }
         }
+
 
         /* =====================================================
            RENDERIZAR TIMELINE
@@ -412,10 +429,7 @@ $usuario = $_SESSION["usuario"];
         function renderizarTimeline() {
             const timeline = document.getElementById('timelineBitacora');
             timeline.innerHTML = '';
-
-            const inicio = (paginaActual - 1) * registrosPorPagina;
-            const fin = inicio + registrosPorPagina;
-            const registrosPagina = bitacoraFiltrada.slice(inicio, fin);
+            const registrosPagina = bitacoraFiltrada;
 
             if (registrosPagina.length === 0) {
                 timeline.innerHTML = `
@@ -433,7 +447,8 @@ $usuario = $_SESSION["usuario"];
                 const nombreAccion = obtenerNombreAccion(evento.accion);
 
                 timeline.innerHTML += `
-                    <div class="timeline-item" style="animation-delay: ${index * 0.05}s" onclick="verDetalleEvento(${evento.id})">
+                    <div class="timeline-item ${evento.accion === 'fuera_servicio' ? 'fuera-servicio' : ''}"
+                    style="animation-delay: ${index * 0.05}s" onclick="verDetalleEvento(${evento.id})">
                         <div class="timeline-marker ${colorAccion}">
                             <i class="material-icons">${iconoAccion}</i>
                         </div>
@@ -463,46 +478,43 @@ $usuario = $_SESSION["usuario"];
            RENDERIZAR PAGINACIÓN
            ===================================================== */
         function renderizarPaginacion() {
-            const totalPaginas = Math.ceil(bitacoraFiltrada.length / registrosPorPagina);
-            const paginacion = document.getElementById('paginacion');
-            paginacion.innerHTML = '';
+            const pag = document.getElementById('paginacion');
+            pag.innerHTML = '';
 
             if (totalPaginas <= 1) return;
 
-            // Botón anterior
-            paginacion.innerHTML += `
-                <li class="${paginaActual === 1 ? 'disabled' : 'waves-effect'}">
-                    <a href="#!" onclick="${paginaActual > 1 ? 'cambiarPagina(' + (paginaActual - 1) + ')' : 'return false'}">
-                        <i class="material-icons">chevron_left</i>
-                    </a>
-                </li>
-            `;
+            pag.innerHTML += `
+        <li class="${paginaActual === 1 ? 'disabled' : 'waves-effect'}">
+            <a href="#!" onclick="cambiarPagina(${paginaActual - 1})">
+                <i class="material-icons">chevron_left</i>
+            </a>
+        </li>
+    `;
 
-            // Números de página
             for (let i = 1; i <= totalPaginas; i++) {
-                paginacion.innerHTML += `
-                    <li class="${i === paginaActual ? 'active' : 'waves-effect'}">
-                        <a href="#!" onclick="cambiarPagina(${i})">${i}</a>
-                    </li>
-                `;
+                pag.innerHTML += `
+            <li class="${i === paginaActual ? 'active' : 'waves-effect'}">
+                <a href="#!" onclick="cambiarPagina(${i})">${i}</a>
+            </li>
+        `;
             }
 
-            // Botón siguiente
-            paginacion.innerHTML += `
-                <li class="${paginaActual === totalPaginas ? 'disabled' : 'waves-effect'}">
-                    <a href="#!" onclick="${paginaActual < totalPaginas ? 'cambiarPagina(' + (paginaActual + 1) + ')' : 'return false'}">
-                        <i class="material-icons">chevron_right</i>
-                    </a>
-                </li>
-            `;
+            pag.innerHTML += `
+        <li class="${paginaActual === totalPaginas ? 'disabled' : 'waves-effect'}">
+            <a href="#!" onclick="cambiarPagina(${paginaActual + 1})">
+                <i class="material-icons">chevron_right</i>
+            </a>
+        </li>
+    `;
         }
 
-        function cambiarPagina(pagina) {
-            paginaActual = pagina;
-            renderizarTimeline();
-            renderizarPaginacion();
+        function cambiarPagina(p) {
+            if (p < 1 || p > totalPaginas) return;
+            paginaActual = p;
+            cargarBitacora();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+
 
         /* =====================================================
            VER DETALLE DE EVENTO
@@ -515,7 +527,7 @@ $usuario = $_SESSION["usuario"];
             document.getElementById('modalTitulo').textContent = `Evento #${evento.id}`;
             document.getElementById('modalFecha').textContent = formatearFecha(evento.fecha);
 
-            document.getElementById('detalle_usuario_nombre').textContent = 
+            document.getElementById('detalle_usuario_nombre').textContent =
                 `${evento.usuario_nombre} ${evento.usuario_apellido}`;
             document.getElementById('detalle_usuario_rol').textContent = evento.usuario_rol;
 
@@ -543,31 +555,35 @@ $usuario = $_SESSION["usuario"];
            ===================================================== */
         function obtenerIconoAccion(accion) {
             const iconos = {
-                'prestamo': 'swap_horiz',
-                'devolucion': 'assignment_return',
-                'mantenimiento': 'build',
-                'observacion': 'comment'
+                prestamo: 'swap_horiz',
+                devolucion: 'assignment_return',
+                mantenimiento: 'build',
+                fuera_servicio: 'block',
+                observacion: 'comment'
             };
+
             return iconos[accion] || 'info';
         }
-
         function obtenerColorAccion(accion) {
             const colores = {
-                'prestamo': 'color-prestamo',
-                'devolucion': 'color-devolucion',
-                'mantenimiento': 'color-mantenimiento',
-                'observacion': 'color-observacion'
+                prestamo: 'color-prestamo',
+                devolucion: 'color-devolucion',
+                mantenimiento: 'color-mantenimiento',
+                fuera_servicio: 'color-fuera-servicio',
+                observacion: 'color-observacion'
             };
             return colores[accion] || 'color-default';
         }
 
         function obtenerNombreAccion(accion) {
             const nombres = {
-                'prestamo': 'Préstamo',
-                'devolucion': 'Devolución',
-                'mantenimiento': 'Mantenimiento',
-                'observacion': 'Observación'
+                prestamo: 'Préstamo',
+                devolucion: 'Devolución',
+                mantenimiento: 'Mantenimiento',
+                fuera_servicio: 'Fuera de servicio',
+                observacion: 'Observación'
             };
+
             return nombres[accion] || accion;
         }
 
@@ -608,7 +624,7 @@ $usuario = $_SESSION["usuario"];
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `bitacora_${new Date().getTime()}.xlsx`;
+                a.download = `bitacora_${new Date().getTime()}.csv`;
                 a.click();
 
                 M.toast({ html: 'Reporte descargado', classes: 'green' });

@@ -27,10 +27,10 @@ $id_operador = $_SESSION['usuario']['id_usuario'];
 // ============================
 $data = json_decode(file_get_contents('php://input'), true);
 
-$id_tomador       = $data['id_tomador'] ?? null;
-$id_elemento      = $data['id_elemento'] ?? null;
+$id_tomador = $data['id_tomador'] ?? null;
+$id_elemento = $data['id_elemento'] ?? null;
 $fecha_devolucion = $data['fecha_devolucion'] ?? null;
-$observacion      = $data['observacion'] ?? null;
+$observacion = $data['observacion'] ?? null;
 
 if (!$id_tomador || !$id_elemento) {
     echo json_encode([
@@ -92,32 +92,13 @@ try {
     // ============================
     // Actualizar estado del elemento
     // ============================
+
     $stmt = $pdo->prepare("
         UPDATE elementos
         SET estado = 'prestado'
         WHERE id_elemento = ?
     ");
     $stmt->execute([$id_elemento]);
-
-    // ============================
-    // Bitácora
-    // ============================
-    $stmt = $pdo->prepare("
-        INSERT INTO bitacora (
-            id_elemento,
-            id_usuario,
-            accion,
-            detalle,
-            fecha
-        ) VALUES (
-            ?, ?, 'prestamo', ?, NOW()
-        )
-    ");
-    $stmt->execute([
-        $id_elemento,
-        $id_operador,
-        'Préstamo registrado'
-    ]);
 
     $pdo->commit();
 

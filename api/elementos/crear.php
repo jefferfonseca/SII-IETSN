@@ -63,19 +63,6 @@ try {
 ");
     $updateToken->execute([$qr_token, $id_elemento]);
 
-
-    // Bitácora
-    $detalle = "Elemento creado en estado Disponible";
-
-    $pdo->prepare("
-        INSERT INTO bitacora (id_elemento, id_usuario, accion, fecha, detalle)
-        VALUES (?, ?, 'CREAR_ELEMENTO', NOW(), ?)
-    ")->execute([
-                $id_elemento,
-                $id_usuario,
-                $detalle
-            ]);
-
     echo json_encode([
         "success" => true,
         "qr_token" => $qr_token

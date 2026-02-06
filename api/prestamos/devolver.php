@@ -90,24 +90,6 @@ try {
     ");
     $stmt->execute([$id_elemento]);
 
-    // ============================
-    // Bitácora
-    // ============================
-    $stmt = $pdo->prepare("
-        INSERT INTO bitacora (
-            id_elemento,
-            id_usuario,
-            accion,
-            detalle,
-            fecha
-        ) VALUES (?, ?, 'devolucion', ?, NOW())
-    ");
-    $stmt->execute([
-        $id_elemento,
-        $id_operador,
-        'Devolución registrada'
-    ]);
-
     $pdo->commit();
 
     echo json_encode([

@@ -39,10 +39,4 @@ $pdo->prepare("
   WHERE id_elemento = ?
 ")->execute([$id]);
 
-// Bitácora
-$pdo->prepare("
-  INSERT INTO bitacora (id_elemento, id_usuario, accion, fecha, detalle)
-  VALUES (?, ?, 'MANTENIMIENTO', NOW(), 'Elemento enviado a mantenimiento')
-")->execute([$id, $id_usuario]);
-
 echo json_encode(["success" => true]);
