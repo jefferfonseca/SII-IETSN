@@ -13,7 +13,7 @@ try {
     $stmt = $pdo->query("
         SELECT id_categoria, codigo, nombre
         FROM categorias
-        ORDER BY nombre ASC
+        ORDER BY id_categoria ASC
     ");
 
     echo json_encode([

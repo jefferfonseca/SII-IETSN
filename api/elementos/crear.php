@@ -12,13 +12,17 @@ if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['rol'] !== 'Admin') {
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-$codigo = trim($data['codigo'] ?? '');
-$nombre = trim($data['nombre'] ?? '');
+$codigo       = trim($data['codigo'] ?? '');
+$serial       = trim($data['serial'] ?? '');
+$nombre       = trim($data['nombre'] ?? '');
 $id_categoria = (int) ($data['id_categoria'] ?? 0);
-$obs = trim($data['observaciones_generales'] ?? '');
+$obs          = trim($data['observaciones_generales'] ?? '');
 
 if (!$codigo || !$nombre || !$id_categoria) {
-    echo json_encode(["success" => false, "message" => "Datos incompletos"]);
+    echo json_encode([
+        "success" => false,
+        "message" => "Datos incompletos"
+    ]);
     exit;
 }
 
@@ -29,24 +33,46 @@ $estado = "Disponible";
 $id_usuario = $_SESSION['usuario']['id_usuario'];
 
 try {
-    // Validar código único
-    $check = $pdo->prepare("SELECT id_elemento FROM elementos WHERE codigo = ?");
-    $check->execute([$codigo]);
+    $pdo->beginTransaction();
 
-    if ($check->fetch()) {
-        echo json_encode(["success" => false, "message" => "El código ya existe"]);
-        exit;
+    // ============================
+    // Validar código único
+    // ============================
+    $stmt = $pdo->prepare("
+        SELECT 1 FROM elementos WHERE codigo = ?
+    ");
+    $stmt->execute([$codigo]);
+
+    if ($stmt->fetch()) {
+        throw new Exception("El código del elemento ya existe");
     }
 
+    // ============================
+    // Validar serial único (si existe)
+    // ============================
+    if ($serial !== '') {
+        $stmt = $pdo->prepare("
+            SELECT 1 FROM elementos WHERE serial = ?
+        ");
+        $stmt->execute([$serial]);
+
+        if ($stmt->fetch()) {
+            throw new Exception("El serial ya está registrado");
+        }
+    }
+
+    // ============================
     // Insertar elemento
+    // ============================
     $stmt = $pdo->prepare("
         INSERT INTO elementos
-        (codigo, nombre, estado, id_categoria, observaciones_generales, created_at)
-        VALUES (?, ?, ?, ?, ?, NOW())
+        (codigo, serial, nombre, estado, id_categoria, observaciones_generales, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, NOW())
     ");
 
     $stmt->execute([
         $codigo,
+        $serial ?: null,
         $nombre,
         $estado,
         $id_categoria,
@@ -54,14 +80,23 @@ try {
     ]);
 
     $id_elemento = $pdo->lastInsertId();
-    // Generar token QR del elemento (opaco)
-    $qr_token = bin2hex(random_bytes(16)); // 32 caracteres
-    $updateToken = $pdo->prepare("
-    UPDATE elementos
-    SET qr_token = ?
-    WHERE id_elemento = ?
-");
-    $updateToken->execute([$qr_token, $id_elemento]);
+
+    // ============================
+    // Generar token QR opaco
+    // ============================
+    $qr_token = bin2hex(random_bytes(16));
+
+    $stmt = $pdo->prepare("
+        UPDATE elementos
+        SET qr_token = ?
+        WHERE id_elemento = ?
+    ");
+    $stmt->execute([$qr_token, $id_elemento]);
+
+    // ============================
+    // Commit
+    // ============================
+    $pdo->commit();
 
     echo json_encode([
         "success" => true,
@@ -69,8 +104,12 @@ try {
     ]);
 
 } catch (Exception $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+
     echo json_encode([
         "success" => false,
-        "message" => "Error al crear elemento"
+        "message" => $e->getMessage()
     ]);
 }

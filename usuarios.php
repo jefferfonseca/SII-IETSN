@@ -18,6 +18,7 @@ $usuario = $_SESSION["usuario"];
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
     <link rel="stylesheet" href="/SII-IETSN/css/usuario.css">
 </head>
 
@@ -69,11 +70,12 @@ $usuario = $_SESSION["usuario"];
                     <label>Buscar</label>
                 </div>
             </div>
-
-            <a href="#modalNuevoUsuario" class="btn btn-nuevo-usuario modal-trigger">
-                <i class="material-icons left">person_add</i>
-                Nuevo Usuario
-            </a>
+            <div>
+                <a href="#modalNuevoUsuario" class="btn btn-accion btn-nuevo-usuario modal-trigger">
+                    <i class="material-icons left">person_add</i>
+                    Nuevo Usuario
+                </a>
+            </div>
         </div>
 
         <!-- CONTENEDOR -->
@@ -144,8 +146,8 @@ $usuario = $_SESSION["usuario"];
         </div>
 
         <div class="modal-footer">
-            <a class="modal-close btn btn-cancelar">Cancelar</a>
-            <a class="btn btn-guardar" onclick="guardarNuevoUsuario()">
+            <a class="modal-close btn btn-accion btn-cancelar">Cancelar</a>
+            <a class="btn btn-accion btn-guardar" onclick="guardarNuevoUsuario()">
                 <i class="material-icons left">save</i>Guardar
             </a>
         </div>
@@ -219,8 +221,8 @@ $usuario = $_SESSION["usuario"];
         </div>
 
         <div class="modal-footer">
-            <a class="modal-close btn btn-cancelar">Cancelar</a>
-            <a class="btn btn-guardar" onclick="guardarEdicionUsuario()">
+            <a class="modal-close btn btn-accion btn-cancelar">Cancelar</a>
+            <a class="btn btn-guardar btn-accion" onclick="guardarEdicionUsuario()">
                 <i class="material-icons left">save</i>Guardar
             </a>
         </div>
@@ -557,17 +559,6 @@ $usuario = $_SESSION["usuario"];
                 .then(() => cargarUsuarios());
         }
     </script>
-
-    <script>
-        const menuElementos = document.getElementById('menu-elementos');
-        const submenuElementos = document.getElementById('submenu-elementos');
-
-        menuElementos.addEventListener('click', () => {
-            menuElementos.classList.toggle('open');
-            submenuElementos.classList.toggle('open');
-        });
-    </script>
-
 </body>
 
 </html>

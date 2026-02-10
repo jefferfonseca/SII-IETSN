@@ -56,22 +56,27 @@ $usuario = $_SESSION['usuario'] ?? null;
             </a>
 
             <!-- ELEMENTOS -->
-            <div class="menu-item has-submenu" id="menu-elementos">
-                <i class="material-icons">inventory_2</i>
-                <span>Elementos</span>
-                <i class="material-icons arrow">expand_more</i>
+            <div class="has-children" id="menu-elementos">
+
+                <div class="menu-parent">
+                    <i class="material-icons">inventory_2</i>
+                    <span>Elementos</span>
+                    <i class="material-icons arrow">expand_more</i>
+                </div>
+
+                <div class="submenu" id="submenu-elementos">
+                    <a href="/SII-IETSN/elementos.php" class="submenu-item">
+                        <i class="material-icons">list</i>
+                        <span>Listado</span>
+                    </a>
+                    <a href="/SII-IETSN/generador-qr-etiquetas.php" class="submenu-item">
+                        <i class="material-icons">qr_code_2</i>
+                        <span>Generador QR</span>
+                    </a>
+                </div>
+
             </div>
 
-            <div class="submenu" id="submenu-elementos">
-                <a href="/SII-IETSN/elementos.php" class="submenu-item">
-                    <i class="material-icons">list</i>
-                    <span>Listado</span>
-                </a>
-                <a href="/SII-IETSN/generador-qr-etiquetas.php" class="submenu-item">
-                    <i class="material-icons">qr_code_2</i>
-                    <span>Generador QR</span>
-                </a>
-            </div>
         </div>
 
         <div class="menu-section">
@@ -98,15 +103,16 @@ $usuario = $_SESSION['usuario'] ?? null;
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const menuElementos = document.getElementById('menu-elementos');
-    const submenuElementos = document.getElementById('submenu-elementos');
+    document.addEventListener('DOMContentLoaded', () => {
+        const menuElementos = document.getElementById('menu-elementos');
 
-    if (menuElementos && submenuElementos) {
-        menuElementos.addEventListener('click', () => {
-            menuElementos.classList.toggle('open');
-            submenuElementos.classList.toggle('open');
-        });
-    }
-});
+        if (menuElementos) {
+            const parent = menuElementos.querySelector('.menu-parent');
+
+            parent.addEventListener('click', () => {
+                menuElementos.classList.toggle('open');
+                menuElementos.classList.toggle('menu-item');
+            });
+        }
+    });
 </script>

@@ -29,6 +29,7 @@ try {
         e.id_elemento,
         e.codigo,
         e.qr_token,
+        e.serial,
         e.nombre,
         e.estado,
         e.id_categoria,

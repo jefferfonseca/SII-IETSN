@@ -34,6 +34,7 @@ if ($el['estado'] !== "Disponible") {
 }
 
 // Actualizar estado
+$pdo->exec("SET @id_usuario_sistema = " . (int) $_SESSION['usuario']['id_usuario']);
 $pdo->prepare("
   UPDATE elementos SET estado = 'Mantenimiento'
   WHERE id_elemento = ?

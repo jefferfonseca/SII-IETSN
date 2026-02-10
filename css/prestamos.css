@@ -5,12 +5,24 @@
 /* Modal de Préstamos */
 .modal-prestamo {
   max-width: 800px !important;
-  max-height: 90% !important;
+  max-height: 90vh !important;
+  overflow: hidden;
 }
+
 
 /* ==========================
    SECCIONES DEL MODAL
    ========================== */
+.modal-prestamo .modal-footer {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  z-index: 10;
+}
+.modal-prestamo .modal-content {
+  max-height: calc(90vh - 70px); /* deja espacio para footer */
+  overflow-y: auto;
+}
 
 .prestamo-seccion {
   margin-bottom: 30px;
@@ -75,8 +87,8 @@
   border-radius: 12px;
 }
 #readerDevolucion video {
-    width: 100% !important;
-    border-radius: 12px;
+  width: 100% !important;
+  border-radius: 12px;
 }
 
 /* Placeholder QR */
@@ -95,7 +107,8 @@
   margin: 0;
   font-size: 14px;
 }
-.btn-nuevo-prestamo, .btn-devolver {
+.btn-nuevo-prestamo,
+.btn-devolver {
   background: linear-gradient(
     135deg,
     var(--primary) 0%,
@@ -111,7 +124,8 @@
   transition: all 0.3s;
 }
 
-.btn-nuevo-prestamo:hover, .btn-devolver:hover {
+.btn-nuevo-prestamo:hover,
+.btn-devolver:hover {
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
   transform: translateY(-2px);
 }

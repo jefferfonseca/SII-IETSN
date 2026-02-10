@@ -19,6 +19,7 @@ $usuario = $_SESSION["usuario"];
     <title>Bitácora del Sistema - Sistema de Préstamos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
     <link rel="stylesheet" href="/SII-IETSN/css/usuario.css">
     <link rel="stylesheet" href="/SII-IETSN/css/bitacora.css">
 </head>
@@ -78,7 +79,7 @@ $usuario = $_SESSION["usuario"];
                     </select>
                     <label>Elemento</label>
                 </div>
-
+<br>
                 <!-- Rango de fechas -->
                 <div class="input-field">
                     <input id="fechaInicio" type="date">
@@ -90,13 +91,7 @@ $usuario = $_SESSION["usuario"];
                     <label for="fechaFin" class="active">Hasta</label>
                 </div>
 
-                <!-- Botones de acción -->
-                <button class="btn waves-effect waves-light" onclick="aplicarFiltros()">
-                    <i class="material-icons left">search</i>
-                    Filtrar
-                </button>
-
-                <button class="btn btn-flat" onclick="limpiarFiltros()">
+                <button class="btn btn-accion btn-flat" onclick="limpiarFiltros()">
                     <i class="material-icons left">clear</i>
                     Limpiar
                 </button>
@@ -265,11 +260,45 @@ $usuario = $_SESSION["usuario"];
         const fechaInicio = document.getElementById('fechaInicio');
         const fechaFin = document.getElementById('fechaFin');
 
+
         document.addEventListener('DOMContentLoaded', () => {
             // Inicializar componentes
             M.FormSelect.init(document.querySelectorAll('select'));
             M.Modal.init(document.querySelectorAll('.modal'));
             M.updateTextFields();
+            // ===============================
+            // FILTROS REACTIVOS (SIN BOTÓN)
+            // ===============================
+
+            // Selects
+            filtroAccion.addEventListener('change', () => {
+                paginaActual = 1;
+                cargarBitacora();
+            });
+
+            filtroUsuario.addEventListener('change', () => {
+                paginaActual = 1;
+                cargarBitacora();
+            });
+
+            filtroElemento.addEventListener('change', () => {
+                paginaActual = 1;
+                cargarBitacora();
+            });
+
+            // Fechas (con pequeño debounce)
+            let debounceFecha = null;
+
+            function onFechaChange() {
+                clearTimeout(debounceFecha);
+                debounceFecha = setTimeout(() => {
+                    paginaActual = 1;
+                    cargarBitacora();
+                }, 300);
+            }
+
+            fechaInicio.addEventListener('change', onFechaChange);
+            fechaFin.addEventListener('change', onFechaChange);
 
             // Establecer fecha de hoy como máximo
             const hoy = new Date().toISOString().split('T')[0];
@@ -284,6 +313,7 @@ $usuario = $_SESSION["usuario"];
            CARGAR BITÁCORA
            ===================================================== */
         async function cargarBitacora() {
+            document.body.classList.add('loading');
             try {
                 const accion = filtroAccion.value;
                 const id_usuario = filtroUsuario.value;
@@ -320,6 +350,8 @@ $usuario = $_SESSION["usuario"];
             } catch (e) {
                 console.error(e);
                 M.toast({ html: 'Error cargando bitácora', classes: 'red' });
+            } finally {
+                document.body.classList.remove('loading');
             }
         }
 

@@ -393,15 +393,6 @@ $usuario = $_SESSION["usuario"];
             window.location.href = url;
         }
 
-
-        const menuElementos = document.getElementById('menu-elementos');
-        const submenuElementos = document.getElementById('submenu-elementos');
-
-        menuElementos.addEventListener('click', () => {
-            menuElementos.classList.toggle('open');
-            submenuElementos.classList.toggle('open');
-        });
-
         function verEtiqueta(url) {
             const img = document.getElementById('imgVistaEtiqueta');
             img.src = url;

@@ -16,7 +16,9 @@ $usuario = $_SESSION["usuario"];
   <title>Elementos - Sistema de Préstamos</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
   <link rel="stylesheet" href="/SII-IETSN/css/usuario.css">
+  <link rel="stylesheet" href="/SII-IETSN/css/elementos.css">
 </head>
 
 <body>
@@ -44,20 +46,20 @@ $usuario = $_SESSION["usuario"];
 
       <div class="elementos-filtros" style="display:flex; gap:15px; flex-wrap:wrap; margin-bottom:20px">
 
-        <div class="input-field" style="flex:2">
+        <div class="input-field">
           <input id="buscarElemento" type="text">
           <label for="buscarElemento">Buscar</label>
         </div>
 
-        <div class="input-field" style="flex:1">
-          <select id="filtroCategoria">
-            <option value="">Todas las categorías</option>
+        <div class="input-field" style="fle:1">
+          <select id="filtroCategoria" style=" height: 20px; width:90%;" >
+            <option style=" height: 20px; width:90%;" value="">Todas las categorías</option>
           </select>
           <label>Categoría</label>
         </div>
 
         <div class="input-field" style="flex:1">
-          <select id="filtroEstado">
+          <select id="filtroEstado" style=" height: fit-content; width:90%;" >
             <option value="" selected>Todos</option>
             <option value="Disponible">Disponible</option>
             <option value="Prestado">Prestado</option>
@@ -77,7 +79,7 @@ $usuario = $_SESSION["usuario"];
     </div>
 
     <!-- CONTENEDOR DE ELEMENTOS -->
-    <div class="usuarios-container" id="elementosContainer"></div>
+    <div class="elementos-lista" id="elementosContainer"></div>
 
     <!-- Modal Crear / Editar Elemento -->
     <div id="modalElemento" class="modal">
@@ -116,6 +118,13 @@ $usuario = $_SESSION["usuario"];
               <label for="codigo">Código del elemento *</label>
             </div>
           </div>
+          <!-- Serial -->
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="serial" type="text">
+              <label for="serial">Serial del equipo</label>
+            </div>
+          </div>
 
           <!-- Nombre -->
           <div class="row">
@@ -148,7 +157,7 @@ $usuario = $_SESSION["usuario"];
 
         <!-- Footer (DENTRO del form) -->
         <div class="modal-footer">
-          <a href="#!" class="modal-close btn btn-cancelar">Cancelar</a>
+          <a href="#!" class="modal-close btn btn-accion btn-cancelar">Cancelar</a>
 
           <button type="submit" id="btnGuardarElemento" class="btn btn-guardar">
             <i class="material-icons left">save</i>
@@ -205,197 +214,161 @@ $usuario = $_SESSION["usuario"];
       /* ===============================
          LISTAR ELEMENTOS
       =============================== */
-      function cargarElementos() {
-        const buscar = document.getElementById("buscarElemento")?.value.trim() || "";
-        const id_categoria = document.getElementById("filtroCategoria")?.value || "";
-        const estado = document.getElementById("filtroEstado")?.value || "";
+  function cargarElementos() {
+  const buscar = document.getElementById("buscarElemento")?.value.trim() || "";
+  const id_categoria = document.getElementById("filtroCategoria")?.value || "";
+  const estado = document.getElementById("filtroEstado")?.value || "";
 
-        const params = new URLSearchParams();
-        if (buscar) params.append("buscar", buscar);
-        if (id_categoria) params.append("id_categoria", id_categoria);
-        if (estado) params.append("estado", estado);
+  const params = new URLSearchParams();
+  if (buscar) params.append("buscar", buscar);
+  if (id_categoria) params.append("id_categoria", id_categoria);
+  if (estado) params.append("estado", estado);
 
-        fetch("/SII-IETSN/api/elementos/listar.php?" + params.toString(), {
-          credentials: "same-origin"
-        })
-          .then(res => res.json())
-          .then(res => {
-            if (!res.success) {
-              M.toast({ html: "Error cargando elementos", classes: "red" });
-              return;
-            }
-
-            const cont = document.getElementById("elementosContainer");
-            cont.innerHTML = "";
-            elementosCache = {};
-
-            if (res.data.length === 0) {
-              cont.innerHTML = `<p style="opacity:.6">No hay elementos para mostrar</p>`;
-              return;
-            }
-
-
-
-
-            res.data.forEach(el => {
-              elementosCache[el.id_elemento] = el;
-
-              const estado = el.estado; // estado real desde DB
-              const puedeCambiar = estado !== "Prestado";
-              /* ===============================
-                 ACCIÓN (Activar / Desactivar)
-              =============================== */
-              let accionTexto = "";
-              let accionIcono = "";
-
-              if (estado === "Disponible") {
-                accionTexto = "Desactivar";
-                accionIcono = "sync";
-              } else if (estado === "Fuera de servicio" || estado === "Mantenimiento") {
-                accionTexto = "Activar";
-                accionIcono = "lock_open";
-              }
-              /* ===============================
-                 BADGE SUPERIOR (Disponible / No disponible)
-              =============================== */
-              let disponibilidadTexto = "";
-              let disponibilidadClase = "";
-
-              if (estado === "Disponible") {
-                disponibilidadTexto = "Disponible";
-                disponibilidadClase = "badge-activo";
-              } else {
-                disponibilidadTexto = "No disponible";
-                disponibilidadClase = "badge-inactivo";
-              }
-
-              /* ===============================
-                 BADGE INFERIOR (Condición)
-              =============================== */
-              let condicionTexto = "";
-              let condicionClase = "";
-
-              if (estado === "Disponible") {
-                condicionTexto = "Almacenado";
-                condicionClase = "badge-almacenado";
-              } else if (estado === "Prestado") {
-                condicionTexto = "Prestado";
-                condicionClase = "badge-prestado";
-              } else if (estado === "Mantenimiento") {
-                condicionTexto = "Mantenimiento";
-                condicionClase = "badge-mantenimiento";
-              } else {
-                condicionTexto = "Fuera de servicio";
-                condicionClase = "badge-inactivo";
-              }
-
-
-              const qrHabilitado = disponibilidadTexto === "Disponible";
-
-              let btnMantenimiento = "";
-              let btnToggle = "";
-
-              // ===== BOTÓN MANTENIMIENTO =====
-              if (estado === "Disponible") {
-                btnMantenimiento = `
-    <a href="#"
-      class="btn btn-accion orange"
-      onclick="event.stopPropagation(); confirmarAccion(
-  'Enviar a mantenimiento',
-  'El elemento quedará no disponible hasta que se reactive. ¿Continuar?',
-  () => ponerMantenimiento(${el.id_elemento})
-)">
-      <i class="material-icons">build</i>
-      Mantenim.
-    </a>`;
-              }
-
-              // ===== BOTÓN ACTIVAR / DESACTIVAR =====
-              if (estado === "Disponible") {
-                btnToggle = `
-    <a href="#"
-      class="btn btn-accion red"
-      onclick="event.stopPropagation(); confirmarAccion(
-  'Confirmar cambio de estado',
-  '¿Seguro que deseas cambiar el estado de este elemento?',
-  () => toggleEstado(${el.id_elemento})
-)">
-      <i class="material-icons">sync</i>
-      Desactivar
-    </a>`;
-              }
-
-              if (estado === "Mantenimiento" || estado === "Fuera de servicio") {
-                btnToggle = `
-    <a href="#"
-      class="btn btn-accion green"
-      onclick="event.stopPropagation(); confirmarAccion(
-  'Confirmar cambio de estado',
-  '¿Seguro que deseas cambiar el estado de este elemento?',
-  () => toggleEstado(${el.id_elemento})
-)">
-      <i class="material-icons">lock_open</i>
-      Activar
-    </a>`;
-              }
-
-
-
-              cont.innerHTML += `
-              <div class="usuario-card clickable-card"
-              onclick="editarElemento(${el.id_elemento})">
-
-            <div class="usuario-header">
-              <div class="usuario-info">
-                <h3 class="usuario-nombre">${el.nombre}</h3>
-
-                <div class="usuario-documento">
-                  <i class="material-icons">qr_code</i>
-                  ${el.codigo}
-                </div>
-
-                <div class="usuario-documento">
-                  <i class="material-icons">category</i>
-                  ${el.categoria_codigo} - ${el.categoria_nombre}
-                </div>
-
-
-              </div>
-
-              <div class="usuario-badges">
-                <span class="badge-rol ${disponibilidadClase}">
-                  ${disponibilidadTexto}
-                </span>
-
-                <span class="badge-estado ${condicionClase}">
-                  ${condicionTexto}
-                </span>
-
-              </div>
-            </div>
-
-            <div class="usuario-acciones">
-              ${btnMantenimiento}
-              ${btnToggle}
-
-             <a href="/SII-IETSN/qr-elementos.php?id=${el.id_elemento}"
-              class="btn btn-accion teal ${qrHabilitado ? '' : 'disabled'}"
-              ${qrHabilitado ? 'target=""' : 'onclick="event.stopPropagation(); return false;"'}>
-              <i class="material-icons">qr_code_2</i>
-              QR
-            </a>
-
-
-            </div>
-          </div>`;
-            });
-          })
-          .catch(err => {
-            console.error(err);
-            M.toast({ html: "Error de conexión", classes: "red" });
-          });
+  fetch("/SII-IETSN/api/elementos/listar.php?" + params.toString(), {
+    credentials: "same-origin"
+  })
+    .then(res => res.json())
+    .then(res => {
+      if (!res.success) {
+        M.toast({ html: "Error cargando elementos", classes: "red" });
+        return;
       }
 
+      const cont = document.getElementById("elementosContainer");
+      
+      // ===== ESTADO VACÍO =====
+      if (!res.data || res.data.length === 0) {
+        cont.innerHTML = `
+          <div class="empty-state">
+            <i class="material-icons">inventory_2</i>
+            <h5>No se encontraron elementos</h5>
+            <p>Intenta ajustar los filtros o agrega un nuevo elemento</p>
+          </div>
+        `;
+        return;
+      }
+
+      // ===== CABECERA DE LA TABLA =====
+      let html = `
+        <div class="elementos-header">
+          <div>Elemento</div>
+          <div>Código / Serial</div>
+          <div>Categoría</div>
+          <div>Estado</div>
+          <div>Acciones</div>
+        </div>
+      `;
+
+      // Limpiar caché
+      elementosCache = {};
+
+      // ===== FILAS DE ELEMENTOS =====
+      res.data.forEach((el, index) => {
+        elementosCache[el.id_elemento] = el;
+
+        const estado = el.estado;
+        const qrHabilitado = estado === "Disponible";
+
+        // Determinar clase del badge
+        let badgeClass = "badge-disponible";
+        if (estado === "Prestado") badgeClass = "badge-prestado";
+        else if (estado === "Mantenimiento") badgeClass = "badge-mantenimiento";
+        else if (estado === "Fuera de servicio") badgeClass = "badge-fuera";
+
+        // Botones según estado
+        let btnMantenimiento = "";
+        let btnToggle = "";
+
+        if (estado === "Disponible") {
+          btnMantenimiento = `
+            <button class="btn-accion btn-mantenimiento" 
+                    onclick="event.stopPropagation(); confirmarAccion(
+                      'Enviar a mantenimiento',
+                      'El elemento quedará no disponible hasta que se reactive. ¿Continuar?',
+                      () => ponerMantenimiento(${el.id_elemento})
+                    )"
+                    title="Marcar como en mantenimiento">
+              <i class="material-icons icon-mant">build</i>
+            </button>`;
+        }
+
+        if (estado === "Disponible") {
+          btnToggle = `
+            <button class="btn-accion btn-eliminar" 
+                    onclick="event.stopPropagation(); confirmarAccion(
+                      'Confirmar cambio de estado',
+                      '¿Seguro que deseas cambiar el estado de este elemento?',
+                      () => toggleEstado(${el.id_elemento})
+                    )"
+                    title="Desactivar elemento">
+              <i class="material-icons">block</i>
+            </button>`;
+        } else if (estado === "Mantenimiento" || estado === "Fuera de servicio") {
+          btnToggle = `
+            <button class="btn-accion btn-ver" 
+                    onclick="event.stopPropagation(); confirmarAccion(
+                      'Confirmar cambio de estado',
+                      '¿Seguro que deseas cambiar el estado de este elemento?',
+                      () => toggleEstado(${el.id_elemento})
+                    )"
+                    title="Reactivar elemento">
+              <i class="material-icons icon-ok">check_circle</i>
+            </button>`;
+        }
+
+        html += `
+          <div class="elemento-item" onclick="editarElemento(${el.id_elemento})" style="animation-delay: ${index * 0.05}s">
+            
+            <!-- COLUMNA 1: Nombre -->
+            <div data-label="Elemento">
+              <div class="elemento-nombre">${el.nombre}</div>
+              <span class="elemento-meta">${el.observaciones_generales || 'Sin observaciones'}</span>
+            </div>
+
+            <!-- COLUMNA 2: Código/Serial -->
+            <div data-label="Código / Serial">
+              <div class="elemento-codigo">${el.codigo}</div>
+              ${el.serial ? `<span class="elemento-meta" style="margin-top: 6px; display: block;">SN: ${el.serial}</span>` : ''}
+            </div>
+
+            <!-- COLUMNA 3: Categoría -->
+            <div class="elemento-categoria" data-label="Categoría">
+              <span class="categoria-nombre">${el.categoria_nombre}</span>
+              <span class="categoria-codigo">${el.categoria_codigo}</span>
+            </div>
+
+            <!-- COLUMNA 4: Estado -->
+            <div data-label="Estado">
+              <span class="elemento-badge ${badgeClass}">
+                ${estado}
+              </span>
+            </div>
+
+            <!-- COLUMNA 5: Acciones -->
+            <div class="elemento-acciones" data-label="Acciones" onclick="event.stopPropagation()">
+              ${btnMantenimiento}
+              ${btnToggle}
+              
+              <a href="/SII-IETSN/qr-elementos.php?id=${el.id_elemento}"
+                 class="btn-accion ${qrHabilitado ? 'btn-ver' : 'disabled'}"
+                 style="text-decoration: none;"
+                 ${!qrHabilitado ? 'onclick="return false;"' : ''}
+                 title="Ver código QR">
+                <i class="material-icons">qr_code_2</i>
+              </a>
+            </div>
+
+          </div>
+        `;
+      });
+
+      cont.innerHTML = html;
+    })
+    .catch(err => {
+      console.error(err);
+      M.toast({ html: "Error de conexión", classes: "red" });
+    });
+}
       /* ===============================
          TOGGLE ESTADO
       =============================== */
@@ -443,43 +416,66 @@ $usuario = $_SESSION["usuario"];
          ABRIR MODAL - MODO CREAR
       =============================== */
       function abrirModalCrearElemento() {
-        document.getElementById("codigo").removeAttribute("disabled");
         const modalEl = document.getElementById("modalElemento");
-
         if (!modalEl) {
           console.error("modalElemento no existe");
           return;
         }
 
-        // Limpiar formulario
-        document.getElementById("formElemento").reset();
-        document.getElementById("id_elemento").value = "";
+        // 🔹 Habilitar código (por si venía deshabilitado en edición)
+        const inputCodigo = document.getElementById("codigo");
+        inputCodigo.removeAttribute("disabled");
 
-        // Textos
+        // 🔹 Limpiar formulario
+        const form = document.getElementById("formElemento");
+        form.reset();
+        document.getElementById("id_elemento").value = "";
+        // 🔹 Serial editable en creación
+        const inputSerial = document.getElementById("serial");
+        inputSerial.removeAttribute("disabled");
+        inputSerial.value = "";
+
+        // 🔹 Textos de la modal
         document.getElementById("tituloModalElemento").innerText = "Nuevo Elemento";
         document.getElementById("subtituloModalElemento").innerText =
           "Completa la información del elemento";
 
-        cargarCategoriasModal();
-
-        // Botón modo CREAR
+        // 🔹 Botón en modo CREAR
         const btn = document.getElementById("btnGuardarElemento");
         btn.innerHTML = `
-  <i class="material-icons left">save</i>
-  Guardar Elemento
-`;
+        <i class="material-icons left">save</i>
+        Guardar Elemento
+    `;
 
-        M.updateTextFields();
-        M.FormSelect.init(modalEl.querySelectorAll("select"));
+        // 🔹 Cargar categorías (select)
+        cargarCategoriasModal();
 
-        // Obtener o crear instancia
+        // 🔹 Inicializar / obtener modal
         let instancia = M.Modal.getInstance(modalEl);
         if (!instancia) {
           instancia = M.Modal.init(modalEl);
         }
 
         instancia.open();
+
+        // ⏳ Esperar a que Materialize renderice selects
+        setTimeout(() => {
+          M.updateTextFields();
+          M.FormSelect.init(modalEl.querySelectorAll("select"));
+
+          // 🔥 Obtener categoría seleccionada
+          const selectCategoria = document.getElementById("id_categoria");
+          if (selectCategoria && selectCategoria.value) {
+            sugerirCodigoPorCategoria(selectCategoria.value);
+          }
+
+        }, 100);
       }
+      document.getElementById("id_categoria").addEventListener("change", function () {
+        document.getElementById("codigo").value = "";
+        sugerirCodigoPorCategoria(this.value);
+      });
+
 
 
       /* ===============================
@@ -493,6 +489,7 @@ $usuario = $_SESSION["usuario"];
         const nombre = document.getElementById("nombre").value.trim();
         const id_categoria = document.getElementById("id_categoria").value;
         const observaciones = document.getElementById("observaciones_generales").value.trim();
+        const serial = document.getElementById("serial").value.trim() || null;
 
         if (!codigo || !nombre || !id_categoria) {
           M.toast({ html: "Completa los campos obligatorios", classes: "red" });
@@ -506,11 +503,11 @@ $usuario = $_SESSION["usuario"];
         const payload = {
           id_elemento,
           codigo,
+          serial,
           nombre,
           id_categoria,
           observaciones_generales: observaciones
         };
-
 
         const btn = this.querySelector("button[type='submit']");
         const txt = btn.innerHTML;
@@ -581,6 +578,13 @@ $usuario = $_SESSION["usuario"];
         document.getElementById("tituloModalElemento").innerText = "Editar Elemento";
         document.getElementById("subtituloModalElemento").innerText =
           "Actualiza la información del elemento";
+        //document.getElementById("serial").value = el.serial || "";
+        //document.getElementById("serial").setAttribute("disabled", true);
+        // 🔒 Bloquear código en edición
+        document.getElementById("codigo").setAttribute("disabled", true);
+
+        // 🔒 Bloquear serial en edición
+        //  document.getElementById("serial").setAttribute("disabled", true);
 
         document.getElementById("id_elemento").value = el.id_elemento;
         document.getElementById("codigo").value = el.codigo;
@@ -688,18 +692,56 @@ $usuario = $_SESSION["usuario"];
             }
           });
       }
+      document.getElementById("id_categoria")?.addEventListener("change", async function () {
+        const idCategoria = this.value;
+        if (!idCategoria) return;
+
+        try {
+          const resp = await fetch(
+            `/SII-IETSN/api/elementos/sugerir_codigo.php?id_categoria=${idCategoria}`,
+            { credentials: "same-origin" }
+          );
+
+          const res = await resp.json();
+          if (!res.success) return;
+
+          const inputCodigo = document.getElementById("codigo");
+
+          // Solo autocompletar si está vacío o en modo crear
+          if (!inputCodigo.value || inputCodigo.dataset.autogen === "true") {
+            inputCodigo.value = res.codigo;
+            inputCodigo.dataset.autogen = "true";
+            M.updateTextFields();
+          }
+
+        } catch (e) {
+          console.error("Error generando código:", e);
+        }
+      });
+      async function sugerirCodigoPorCategoria(idCategoria) {
+        if (!idCategoria) return;
+
+        try {
+          const resp = await fetch(
+            `/SII-IETSN/api/elementos/sugerir_codigo.php?id_categoria=${idCategoria}`,
+            { credentials: 'same-origin' }
+          );
+
+          const res = await resp.json();
+          if (!res.success) return;
+
+          const inputCodigo = document.getElementById("codigo");
+          if (inputCodigo && !inputCodigo.value) {
+            inputCodigo.value = res.codigo;
+            M.updateTextFields();
+          }
+
+        } catch (e) {
+          console.error("Error sugiriendo código", e);
+        }
+      }
 
     </script>
-
-
-<script>
-const menuElementos = document.getElementById('menu-elementos');
-const submenuElementos = document.getElementById('submenu-elementos');
-
-menuElementos.addEventListener('click', () => {
-  menuElementos.classList.toggle('open');
-  submenuElementos.classList.toggle('open');
-});
-</script>
 </body>
+
 </html>

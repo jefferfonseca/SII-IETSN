@@ -20,6 +20,7 @@ $usuario = $_SESSION["usuario"];
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
+    <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
     <link rel="stylesheet" href="/SII-IETSN/css/usuario.css">
     <link rel="stylesheet" href="/SII-IETSN/css/prestamos.css">
     <link rel="stylesheet" href="/SII-IETSN/css/prestamos-tabla-styles.css">
@@ -69,7 +70,7 @@ $usuario = $_SESSION["usuario"];
         </div>
 
         <div class="center">
-            <a href="#modalNuevoPrestamo" class="btn btn-nuevo-usuario modal-trigger">
+            <a href="#modalNuevoPrestamo" class="btn btn-accion btn-nuevo-usuario modal-trigger">
                 <i class="material-icons left">add_circle</i>
                 Nuevo Préstamo
             </a>
@@ -163,8 +164,8 @@ $usuario = $_SESSION["usuario"];
     </div>
 
     <div class="modal-footer">
-        <a href="#!" class="modal-close btn btn-cancelar">Cancelar</a>
-        <a href="#!" id="btnGuardarPrestamo" class="btn btn-guardar">
+        <a href="#!" class="modal-close btn btn-accion btn-cancelar">Cancelar</a>
+        <a href="#!" id="btnGuardarPrestamo" class="btn btn-guardar btn-accion">
             <i class="material-icons left">save</i>
             Registrar Préstamo
         </a>
@@ -197,7 +198,7 @@ $usuario = $_SESSION["usuario"];
     </div>
 
     <div class="modal-footer">
-        <a href="#!" class="modal-close btn btn-cancelar">Cerrar</a>
+        <a href="#!" class="modal-close btn btn-accion btn-cancelar">Cerrar</a>
     </div>
 </div>
 

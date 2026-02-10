@@ -221,11 +221,7 @@ $usuario = $_SESSION["usuario"];
         sidebar.classList.toggle('hidden');
         mainContent.classList.toggle('expanded');
       }
-    } const menuElementos = document.getElementById('menu-elementos'); const
-      submenuElementos = document.getElementById('submenu-elementos'); menuElementos.addEventListener('click', () => {
-        menuElementos.classList.toggle('open');
-        submenuElementos.classList.toggle('open');
-      });
+    } 
   </script>
 </body>
 
