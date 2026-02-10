@@ -70,13 +70,17 @@ foreach ($archivos as $archivo) {
 
     $lista[] = [
         "archivo" => $archivo,
-        "fecha"   => date("Y-m-d H:i:s", filemtime($path))
+        "numero" => (int) preg_replace('/\D/', '', $archivo),
+        "fecha" => date("Y-m-d H:i:s", filemtime($path))
     ];
 }
+usort($lista, function ($a, $b) {
+    return $a['numero'] <=> $b['numero'];
+});
 
 // ✅ Respuesta
 echo json_encode([
     "success" => true,
-    "data"    => $lista,
-    "total"   => count($lista)
+    "data" => $lista,
+    "total" => count($lista)
 ]);

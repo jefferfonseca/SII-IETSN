@@ -22,6 +22,7 @@ $usuario = $_SESSION["usuario"];
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <!-- Estilos del sistema -->
+    <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
     <link rel="stylesheet" href="/SII-IETSN/css/qr.css">
 </head>
 

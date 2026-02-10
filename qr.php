@@ -121,7 +121,9 @@ $resultado = generarQR($data);
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
     <link rel="stylesheet" href="/SII-IETSN/css/qr.css">
+
 </head>
 
 <body>
