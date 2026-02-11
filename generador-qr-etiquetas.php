@@ -24,6 +24,7 @@ $usuario = $_SESSION["usuario"];
     <!-- Estilos del sistema -->
     <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
     <link rel="stylesheet" href="/SII-IETSN/css/qr.css">
+    <link rel="stylesheet" href="/SII-IETSN/css/usuario-qr.css">
 </head>
 
 <body>

@@ -4,6 +4,8 @@ header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../elementos/_qr_helper.php';
+$qrExistentes = 0;
+$qrNuevos = 0;
 
 /* 🔐 Seguridad */
 if (
@@ -29,7 +31,8 @@ if (!$id_grado) {
 }
 
 /* 🧹 Función para limpiar nombre del grado (seguro para carpetas) */
-function limpiarNombreGrado($texto) {
+function limpiarNombreGrado($texto)
+{
     $texto = trim($texto);
     $texto = str_replace(' ', '_', $texto);
     return preg_replace('/[^A-Za-z0-9_-]/', '', $texto);
@@ -90,25 +93,32 @@ foreach ($estudiantes as $est) {
     $rutaFinal = $dirQR . "/" . $nombreArchivo;
 
     // Generar QR solo si no existe
-    if (!file_exists($rutaFinal)) {
+    if (file_exists($rutaFinal)) {
+        $qrExistentes++;
+    } else {
         $qrBinary = generarQRMonkey(
             $est["doc_hash"],
             "https://ietsannicolas.edu.co/images/Escudo.png"
         );
         file_put_contents($rutaFinal, $qrBinary);
+        $qrNuevos++;
     }
 
+
     $resultado[] = [
-        "id"        => $est["id_usuario"],
-        "nombre"    => $est["nombre"] . " " . $est["apellido"],
+        "id" => $est["id_usuario"],
+        "nombre" => $est["nombre"] . " " . $est["apellido"],
         "documento" => $est["documento"],
-        "qr"        => "qr_estudiantes/grado_" . $nombreGrado . "/" . $nombreArchivo
+        "qr" => "qr_estudiantes/grado_" . $nombreGrado . "/" . $nombreArchivo
     ];
 }
 
 /* ✅ Respuesta final */
 echo json_encode([
     "success" => true,
-    "data"    => $resultado,
-    "total"   => count($resultado)
+    "data" => $resultado,
+    "total" => count($resultado),
+    "existentes" => $qrExistentes,
+    "nuevos" => $qrNuevos
 ]);
+

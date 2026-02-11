@@ -50,10 +50,27 @@ $usuario = $_SESSION['usuario'] ?? null;
                 <span>Préstamos</span>
             </a>
 
-            <a href="/SII-IETSN/usuarios.php" class="menu-item">
-                <i class="material-icons">people</i>
-                <span>Usuarios</span>
-            </a>
+            <!-- USUARIOS CON SUBMENÚ -->
+            <div class="has-children" id="menu-usuarios">
+
+                <div class="menu-parent">
+                    <i class="material-icons">people</i>
+                    <span>Usuarios</span>
+                    <i class="material-icons arrow">expand_more</i>
+                </div>
+
+                <div class="submenu" id="submenu-usuarios">
+                    <a href="/SII-IETSN/usuarios.php" class="submenu-item">
+                        <i class="material-icons">list</i>
+                        <span>Listar Usuarios</span>
+                    </a>
+                    <a href="/SII-IETSN/generar-qr-grado.php" class="submenu-item">
+                        <i class="material-icons">qr_code_2</i>
+                        <span>Generar QR Masivos</span>
+                    </a>
+                </div>
+
+            </div>
 
             <!-- ELEMENTOS -->
             <div class="has-children" id="menu-elementos">
@@ -104,14 +121,23 @@ $usuario = $_SESSION['usuario'] ?? null;
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // Menú Elementos
         const menuElementos = document.getElementById('menu-elementos');
-
         if (menuElementos) {
-            const parent = menuElementos.querySelector('.menu-parent');
-
-            parent.addEventListener('click', () => {
+            const parentElementos = menuElementos.querySelector('.menu-parent');
+            parentElementos.addEventListener('click', () => {
                 menuElementos.classList.toggle('open');
                 menuElementos.classList.toggle('menu-item');
+            });
+        }
+
+        // Menú Usuarios (NUEVO)
+        const menuUsuarios = document.getElementById('menu-usuarios');
+        if (menuUsuarios) {
+            const parentUsuarios = menuUsuarios.querySelector('.menu-parent');
+            parentUsuarios.addEventListener('click', () => {
+                menuUsuarios.classList.toggle('open');
+                menuUsuarios.classList.toggle('menu-item');
             });
         }
     });
