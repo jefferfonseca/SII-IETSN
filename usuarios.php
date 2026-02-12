@@ -583,3 +583,4 @@ $usuario = $_SESSION["usuario"];
 </body>
 
 </html>
+oki doki, los cambios se han guardado correctamente. Si necesitas algo más, no dudes en pedirlo.
