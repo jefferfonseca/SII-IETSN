@@ -141,4 +141,14 @@ $usuario = $_SESSION['usuario'] ?? null;
             });
         }
     });
+          /* ===============================
+         LOGOUT
+      =============================== */
+      function cerrarSesion() {
+        fetch('/SII-IETSN/api/auth/logout.php', {
+          method: 'POST',
+          credentials: 'same-origin'
+        })
+          .then(() => location.href = "/SII-IETSN/index.html");
+      }
 </script>

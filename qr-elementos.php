@@ -25,6 +25,7 @@ $usuario = $_SESSION["usuario"];
   $imagen_base64 = 'data:image/png;base64,' . $imagen_data;
   ?>
   <link rel="stylesheet" href="/SII-IETSN/css/qr-elementos.css">
+  <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
   <link rel="stylesheet" href="/SII-IETSN/css/qr.css">
 
   <style>
@@ -155,7 +156,8 @@ $usuario = $_SESSION["usuario"];
 
       // Pintar QR (YA GENERADO)
       document.getElementById("qrcode").src =
-        `data:image/svg+xml;base64,${datos.qr_base64}`;
+        `data:image/png;base64,${datos.qr_base64}`;
+
 
     }
     function imprimirEtiqueta() {

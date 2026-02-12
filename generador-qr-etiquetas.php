@@ -23,8 +23,7 @@ $usuario = $_SESSION["usuario"];
 
     <!-- Estilos del sistema -->
     <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
-    <link rel="stylesheet" href="/SII-IETSN/css/qr.css">
-    <link rel="stylesheet" href="/SII-IETSN/css/usuario-qr.css">
+    <link rel="stylesheet" href="/SII-IETSN/css/qr-elementos.css">
 </head>
 
 <body>
@@ -39,17 +38,19 @@ $usuario = $_SESSION["usuario"];
 
         <!-- TOP BAR -->
         <div class="top-bar">
-            <button class="menu-toggle" onclick="toggleSidebar()">
-                <i class="material-icons">menu</i>
-            </button>
+            <div style="display: flex; align-items: center;">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="material-icons">menu</i>
+                </button>
 
-            <div class="page-title">
-                <div class="page-title-icon">
-                    <i class="material-icons">qr_code_2</i>
-                </div>
-                <div>
-                    <h4>Generador de Etiquetas QR</h4>
-                    <p>Generación masiva por categoría</p>
+                <div class="page-title" style="margin-left: 10px;">
+                    <div class="page-title-icon">
+                        <i class="material-icons">qr_code_2</i>
+                    </div>
+                    <div>
+                        <h4>Generador de Etiquetas QR</h4>
+                        <p>Generación masiva por categoría</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -58,13 +59,13 @@ $usuario = $_SESSION["usuario"];
         <div class="qr-container qr-stack">
 
             <!-- Selección -->
-            <div class="qr-card qr-full" style="width:100%">
+            <div class="qr-card qr-full" style="width:100%; position: relative; overflow: hidden;">
                 <h5>
                     <i class="material-icons">category</i>
                     Seleccione una categoría
                 </h5>
 
-                <div class="row">
+                <div class="row" style="margin-bottom: 0;">
                     <div class="input-field col s12 m6">
                         <select id="categoriaSelect">
                             <option value="" disabled selected>Seleccione categoría</option>
@@ -72,44 +73,45 @@ $usuario = $_SESSION["usuario"];
                         <label>Categoría</label>
                     </div>
 
-                    <div class="input-field col s12 m6" style="margin-top:25px">
-                        <button class="btn btn-accion waves-effect" onclick="generarEtiquetas()">
+                    <div class="input-field col s12 m6">
+                        <button class="btn btn-accion waves-effect waves-light" onclick="generarEtiquetas()">
                             <i class="material-icons left">qr_code</i>
-                            Generar Etiquetas
+                            Generar
                         </button>
                     </div>
-                    <div id="progressBox" style="display:none;margin-top:20px">
-                        <div class="progress">
-                            <div class="determinate" id="progressBar" style="width:0%"></div>
-                        </div>
-                        <span id="progressText"></span>
-                    </div>
-
                 </div>
+
+                <!-- Progress Box -->
+                <div id="progressBox" style="display:none;">
+                    <div class="progress">
+                        <div class="determinate" id="progressBar" style="width:0%"></div>
+                    </div>
+                    <span id="progressText"></span>
+                </div>
+
             </div>
 
             <!-- Resultados -->
-            <div class="qr-card qr-full" id="resultado" style="width:100%; display:none">
-                <p id="contadorEtiquetas" style="font-weight:600; margin-bottom:10px"></p>
+            <div class="qr-card qr-full" id="resultado"
+                style="width:100%; display:none; position: relative; overflow: hidden;">
+                <p id="contadorEtiquetas"></p>
+
                 <h5>
-                    <i class="material-icons">list</i>
+                    <i class="material-icons">view_list</i>
                     Etiquetas generadas
                 </h5>
-                <div style="display:flex; justify-content:flex-end; margin-bottom:15px">
-                    <div class="row">
-                        <div class="col s6">
-                            <button class="btn btn-accion waves-effect" id="btnZip" onclick="descargarZip()" disabled>
-                                <i class="material-icons left">archive</i>
-                                Descargar todo (.zip)
-                            </button>
-                        </div>
-                        <div class="col s6">
-                            <button class="btn  btn-accion waves-effect red" onclick="eliminarCarpeta()">
-                                <i class="material-icons left">delete</i>
-                                Eliminar carpeta
-                            </button>
-                        </div>
-                    </div>
+
+                <div class="download-section">
+                    <button class="btn btn-accion waves-effect waves-light" id="btnZip" onclick="descargarZip()"
+                        disabled>
+                        <i class="material-icons left">archive</i>
+                        Descargar todo (.zip)
+                    </button>
+
+                    <button class="btn btn-accion red waves-effect waves-light" onclick="eliminarCarpeta()">
+                        <i class="material-icons left">delete_forever</i>
+                        Eliminar carpeta
+                    </button>
                 </div>
 
                 <table class="highlight responsive-table">
@@ -117,8 +119,8 @@ $usuario = $_SESSION["usuario"];
                         <tr>
                             <th>Archivo</th>
                             <th>Vista previa</th>
-                            <th>Fecha</th>
-                            <th>Descargar</th>
+                            <th>Fecha de creación</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tablaEtiquetas"></tbody>
@@ -131,10 +133,13 @@ $usuario = $_SESSION["usuario"];
     <!-- MODAL VISTA PREVIA -->
     <div id="modalVistaEtiqueta" class="modal">
         <div class="modal-content center-align">
-            <img id="imgVistaEtiqueta" src="" style="max-width:100%; max-height:80vh">
+            <img id="imgVistaEtiqueta" src="" style="max-width:100%; max-height:70vh">
         </div>
         <div class="modal-footer">
-            <a href="#!" class="modal-close btn-flat">Cerrar</a>
+            <a href="#!" class="modal-close btn-flat waves-effect waves-light">
+                <i class="material-icons left">close</i>
+                Cerrar
+            </a>
         </div>
     </div>
 
@@ -150,8 +155,6 @@ $usuario = $_SESSION["usuario"];
             const modal = document.getElementById('modalVistaEtiqueta');
             if (modal) M.Modal.init(modal);
         });
-
-
 
         document.getElementById('categoriaSelect').addEventListener('change', () => {
             const select = document.getElementById('categoriaSelect');
@@ -171,13 +174,10 @@ $usuario = $_SESSION["usuario"];
                 .replace(/\s+/g, '_')
                 .replace(/[^a-zA-Z0-9_-]/g, '');
 
-            // 🔑 SOLO el nombre de la carpeta
             rutaActual = carpeta;
 
             cargarTablaEtiquetas(rutaActual);
         });
-
-
 
         // Sidebar
         function toggleSidebar() {
@@ -215,26 +215,24 @@ $usuario = $_SESSION["usuario"];
         function generarEtiquetas() {
             const id = document.getElementById('categoriaSelect').value;
             if (!id) {
-                M.toast({ html: 'Seleccione una categoría', classes: 'red rounded' });
+                M.toast({ html: '⚠️ Seleccione una categoría', classes: 'orange rounded' });
                 return;
             }
 
-            // Mostrar progress
             document.getElementById('progressBox').style.display = 'block';
             document.getElementById('progressBar').style.width = '0%';
-            document.getElementById('progressText').textContent = 'Iniciando...';
+            document.getElementById('progressText').textContent = 'Iniciando generación...';
 
-            // 👉 ARRANCAR POLLING ANTES
             iniciarPollingProgreso(() => {
                 cargarTablaEtiquetas(rutaActual);
-                descargarZip(); // ZIP automático
+                descargarZip();
             });
 
             fetch(`/SII-IETSN/api/elementos/generar_etiquetas_categoria.php?id_categoria=${id}`)
                 .then(r => r.json())
                 .then(r => {
                     if (!r.success) {
-                        M.toast({ html: r.message, classes: 'red rounded' });
+                        M.toast({ html: '❌ ' + r.message, classes: 'red rounded' });
                         document.getElementById('progressBox').style.display = 'none';
                         return;
                     }
@@ -243,99 +241,87 @@ $usuario = $_SESSION["usuario"];
 
         // ================= TABLA =================
         function cargarTablaEtiquetas(ruta) {
+            const tbody = document.getElementById('tablaEtiquetas');
+            const contenedor = document.getElementById('resultado');
+            const contador = document.getElementById('contadorEtiquetas');
+            const btnZip = document.getElementById('btnZip');
 
-    const tbody = document.getElementById('tablaEtiquetas');
-    const contenedor = document.getElementById('resultado');
-    const contador = document.getElementById('contadorEtiquetas');
-    const btnZip = document.getElementById('btnZip');
+            tbody.innerHTML = '';
+            contenedor.style.display = 'none';
+            contador.textContent = '';
+            btnZip.disabled = true;
 
-    // ================= RESET VISUAL =================
-    tbody.innerHTML = '';
-    contenedor.style.display = 'none';
-    contador.textContent = '';
-    btnZip.disabled = true;
-
-    if (!ruta) {
-        M.toast({ html: 'Ruta inválida', classes: 'red rounded' });
-        return;
-    }
-
-    fetch(`/SII-IETSN/api/elementos/listar_etiquetas.php?ruta=${encodeURIComponent(ruta)}`)
-        .then(res => res.json())
-        .then(res => {
-
-            // ================= VALIDACIONES =================
-            if (!res.success) {
-                M.toast({
-                    html: res.message || 'No se pudo leer la carpeta',
-                    classes: 'red rounded'
-                });
+            if (!ruta) {
+                M.toast({ html: '⚠️ Ruta inválida', classes: 'orange rounded' });
                 return;
             }
 
-            if (!Array.isArray(res.data) || res.data.length === 0) {
-                M.toast({
-                    html: 'No hay etiquetas en esta categoría',
-                    classes: 'orange rounded'
+            fetch(`/SII-IETSN/api/elementos/listar_etiquetas.php?ruta=${encodeURIComponent(ruta)}`)
+                .then(res => res.json())
+                .then(res => {
+                    if (!res.success) {
+                        M.toast({
+                            html: '❌ ' + (res.message || 'No se pudo leer la carpeta'),
+                            classes: 'red rounded'
+                        });
+                        return;
+                    }
+
+                    if (!Array.isArray(res.data) || res.data.length === 0) {
+                        M.toast({
+                            html: 'ℹ️ No hay etiquetas en esta categoría',
+                            classes: 'blue rounded'
+                        });
+                        return;
+                    }
+
+                    contenedor.style.display = 'block';
+                    btnZip.disabled = false;
+                    contador.textContent = `${res.total} etiquetas generadas`;
+
+                    res.data.forEach(item => {
+                        const url = `/SII-IETSN/etiquetas_generadas/${ruta}/${item.archivo}`;
+                        const tr = document.createElement('tr');
+
+                        tr.innerHTML = `
+                            <td><strong>${item.archivo}</strong></td>
+                            <td class="center-align">
+                                <img
+                                    src="${url}"
+                                    alt="${item.archivo}"
+                                    style="width:120px; cursor:pointer;"
+                                    title="Click para ampliar"
+                                    onclick="verEtiqueta('${url}')"
+                                >
+                            </td>
+                            <td>${item.fecha}</td>
+                            <td class="center-align">
+                                <button
+                                    class="btn-small btn-accion waves-effect waves-light"
+                                    title="Descargar etiqueta"
+                                    onclick="descargarEtiqueta('${url}', '${item.archivo}')"
+                                >
+                                    <i class="material-icons">file_download</i>
+                                </button>
+                            </td>
+                        `;
+
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    M.toast({
+                        html: '❌ Error al cargar etiquetas',
+                        classes: 'red rounded'
+                    });
                 });
-                return;
-            }
-
-            // ================= MOSTRAR RESULTADOS =================
-            contenedor.style.display = 'block';
-            btnZip.disabled = false;
-            contador.textContent = `Total de etiquetas: ${res.total}`;
-
-            res.data.forEach(item => {
-
-                const url = `/SII-IETSN/etiquetas_generadas/${ruta}/${item.archivo}`;
-
-                const tr = document.createElement('tr');
-
-                tr.innerHTML = `
-                    <td>${item.archivo}</td>
-
-                    <td>
-                        <img
-                            src="${url}"
-                            alt="${item.archivo}"
-                            style="width:120px; cursor:pointer; border:1px solid #ccc"
-                            title="Ver etiqueta"
-                            onclick="verEtiqueta('${url}')"
-                        >
-                    </td>
-
-                    <td>${item.fecha}</td>
-
-                    <td>
-                        <button
-                            class="btn-small btn-accion"
-                            title="Descargar etiqueta"
-                            onclick="descargarEtiqueta('${url}', '${item.archivo}')"
-                        >
-                            <i class="material-icons">download</i>
-                        </button>
-                    </td>
-                `;
-
-                tbody.appendChild(tr);
-            });
-
-        })
-        .catch(err => {
-            console.error(err);
-            M.toast({
-                html: 'Error al cargar etiquetas',
-                classes: 'red rounded'
-            });
-        });
-}
-
+        }
 
         function eliminarCarpeta() {
             if (!rutaActual) return;
 
-            if (!confirm('¿Eliminar todas las etiquetas de esta categoría?')) return;
+            if (!confirm('⚠️ ¿Está seguro de eliminar todas las etiquetas de esta categoría?\n\nEsta acción no se puede deshacer.')) return;
 
             fetch('/SII-IETSN/api/elementos/eliminar_etiquetas.php', {
                 method: 'POST',
@@ -345,13 +331,13 @@ $usuario = $_SESSION["usuario"];
                 .then(r => r.json())
                 .then(r => {
                     if (!r.success) {
-                        M.toast({ html: r.message, classes: 'red rounded' });
+                        M.toast({ html: '❌ ' + r.message, classes: 'red rounded' });
                         return;
                     }
 
                     document.getElementById('resultado').style.display = 'none';
                     document.getElementById('btnZip').disabled = true;
-                    M.toast({ html: 'Carpeta eliminada', classes: 'green rounded' });
+                    M.toast({ html: '✅ Carpeta eliminada correctamente', classes: 'green rounded' });
                     cargarTablaEtiquetas(rutaActual);
                 });
         }
@@ -361,38 +347,40 @@ $usuario = $_SESSION["usuario"];
                 fetch('/SII-IETSN/api/elementos/progreso_etiquetas.php')
                     .then(r => r.json())
                     .then(p => {
-
-                        // 🔑 NO bloquear el estado final
                         if (!p.activo && !p.completado) return;
 
                         if (p.total > 0) {
                             const porcentaje = Math.round((p.actual / p.total) * 100);
                             document.getElementById('progressBar').style.width = porcentaje + '%';
                             document.getElementById('progressText')
-                                .textContent = `Generando ${p.actual} de ${p.total}`;
+                                .textContent = `Generando etiqueta ${p.actual} de ${p.total} (${porcentaje}%)`;
                         }
 
                         if (p.completado) {
                             clearInterval(interval);
+                            document.getElementById('progressText').textContent = '✅ Generación completada';
 
-                            document.getElementById('progressText').textContent = 'Completado ✔';
-                            document.getElementById('progressBox').style.display = 'none';
+                            setTimeout(() => {
+                                document.getElementById('progressBox').style.display = 'none';
+                            }, 2000);
 
                             if (typeof onFinish === 'function') {
-                                onFinish(); // 👈 AQUÍ se carga la tabla
+                                onFinish();
                             }
                         }
                     });
             }, 500);
         }
+
         function descargarZip() {
             if (!rutaActual) {
-                M.toast({ html: 'No hay etiquetas para descargar', classes: 'orange rounded' });
+                M.toast({ html: '⚠️ No hay etiquetas para descargar', classes: 'orange rounded' });
                 return;
             }
 
             const url = `/SII-IETSN/api/elementos/descargar_zip_etiquetas.php?ruta=${encodeURIComponent(rutaActual)}`;
             window.location.href = url;
+            M.toast({ html: '⬇️ Descargando archivo ZIP...', classes: 'blue rounded' });
         }
 
         function verEtiqueta(url) {
@@ -412,6 +400,7 @@ $usuario = $_SESSION["usuario"];
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
+            M.toast({ html: '⬇️ Descargando ' + nombreArchivo, classes: 'blue rounded' });
         }
 
     </script>

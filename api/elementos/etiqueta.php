@@ -7,6 +7,7 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
 }
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../elementos/_qr_helper.php';
 
 $id_elemento = (int) ($_GET["id"] ?? 0);
 if (!$id_elemento) {
@@ -50,71 +51,22 @@ if (!$elemento["qr_token"]) {
 }
 
 /* ===============================
-   DATOS VISUALES (NO QR)
+   DATOS VISUALES
 ================================ */
 $codigoCategoria = $elemento["codigo_categoria"];
 $numero = str_pad($elemento["id_elemento"], 2, "0", STR_PAD_LEFT);
 
 /* ===============================
-   CONFIG QR CODE MONKEY
+   GENERAR QR LOCAL
 ================================ */
-$logoUrl = "https://ietsannicolas.edu.co/images/Escudo.png";
+$logoPath = __DIR__ . "/../../assets/images/Escudo.png";
 
-$data = [
-    "data" => $elemento["qr_token"], // 🔑 SOLO EL TOKEN
-    "config" => [
-        "body" => "circular",
-        "eye" => "frame6",
-        "eyeBall" => "ball6",
-        "bodyColor" => "#ffffff",
-        "bgColor" => "#ffffff",
-        "eye1Color" => "#191938",
-        "eye2Color" => "#a3071a",
-        "eye3Color" => "#a3071a",
-        "eyeBall1Color" => "#a3071a",
-        "eyeBall2Color" => "#191938",
-        "eyeBall3Color" => "#191938",
-        "gradientColor1" => "#191938",
-        "gradientColor2" => "#191938",
-        "gradientType" => "radial",
-        "gradientOnEyes" => false,
-        "logo" => $logoUrl
-    ],
-    "size" => 300,
-    "download" => false,
-    "file" => "svg"
-];
-
-/* ===============================
-   FUNCIÓN GENERAR QR (TOKEN)
-================================ */
-function generarQR(string $qrToken, array $data): string
-{
-    $url = "https://api.qrcode-monkey.com/qr/custom";
-
-    $jsonData = json_encode($data);
-
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
-        CURLOPT_HTTPHEADER => ["Content-Type: application/json"],
-        CURLOPT_POSTFIELDS => $jsonData
-    ]);
-
-    $response = curl_exec($ch);
-
-    if ($response === false) {
-        $error = curl_error($ch);
-        curl_close($ch);
-        die("Error al generar QR: " . $error);
-    }
-
-    curl_close($ch);
-    return base64_encode($response);
+try {
+    $qrBinario = generarQRLocal($elemento["qr_token"], $logoPath);
+    $qrBase64 = base64_encode($qrBinario);
+} catch (Exception $e) {
+    die("Error al generar QR: " . $e->getMessage());
 }
-
-$qrBase64 = generarQR($elemento["qr_token"], $data);
 
 /* ===============================
    RESPUESTA

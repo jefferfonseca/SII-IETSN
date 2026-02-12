@@ -401,16 +401,6 @@ $usuario = $_SESSION["usuario"];
           mainContent.classList.toggle('expanded');
         }
       }
-      /* ===============================
-         LOGOUT
-      =============================== */
-      function cerrarSesion() {
-        fetch('/SII-IETSN/api/auth/logout.php', {
-          method: 'POST',
-          credentials: 'same-origin'
-        })
-          .then(() => location.href = "/SII-IETSN/index.html");
-      }
 
       /* ===============================
          ABRIR MODAL - MODO CREAR

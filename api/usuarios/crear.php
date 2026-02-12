@@ -13,7 +13,7 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
     exit;
 }
 
-require_once "../config/database.php";
+require_once __DIR__ . "/../config/database.php";
 
 // ============================
 // Leer JSON
@@ -21,11 +21,11 @@ require_once "../config/database.php";
 $data = json_decode(file_get_contents("php://input"), true);
 
 $documento = trim($data["documento"] ?? '');
-$nombre    = trim($data["nombre"] ?? '');
-$apellido  = trim($data["apellido"] ?? '');
-$rol       = trim($data["rol"] ?? '');
-$id_grado  = $data["id_grado"] ?? null;
-$activo    = isset($data["activo"]) ? (int)$data["activo"] : 1;
+$nombre = trim($data["nombre"] ?? '');
+$apellido = trim($data["apellido"] ?? '');
+$rol = trim($data["rol"] ?? '');
+$id_grado = $data["id_grado"] ?? null;
+$activo = isset($data["activo"]) ? (int) $data["activo"] : 1;
 
 // ============================
 // Validaciones
@@ -98,19 +98,19 @@ $sql = "
 $stmt = $pdo->prepare($sql);
 $stmt->execute([
     "documento" => $documento,
-    "doc_hash"  => $doc_hash,
-    "nombre"    => $nombre,
-    "apellido"  => $apellido,
-    "rol"       => $rol,
-    "id_grado"  => $id_grado,
-    "activo"    => $activo
+    "doc_hash" => $doc_hash,
+    "nombre" => $nombre,
+    "apellido" => $apellido,
+    "rol" => $rol,
+    "id_grado" => $id_grado,
+    "activo" => $activo
 ]);
 
 // ============================
 // OK
 // ============================
 echo json_encode([
-    "success"  => true,
-    "message"  => "Usuario creado correctamente",
+    "success" => true,
+    "message" => "Usuario creado correctamente",
     "doc_hash" => $doc_hash
 ]);

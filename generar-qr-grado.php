@@ -29,31 +29,47 @@ if (
     <?php include 'sidebar.php'; ?>
 
     <div class="main-content" id="mainContent">
-        <!-- Header -->
-        <div class="page-header">
-            <h4>
-                <i class="material-icons">qr_code_2</i>
-                Generación de Códigos QR por Grado
-            </h4>
+
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <div style="display: flex; align-items: center;">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="material-icons">menu</i>
+                </button>
+
+                <div class="page-title" style="margin-left: 10px;">
+                    <div class="page-title-icon">
+                        <i class="material-icons">qr_code_2</i>
+                    </div>
+                    <div>
+                        <h4>Generación de Códigos QR por Grado</h4>
+                        <p>Genera QR para todos los estudiantes de un grado</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Card Principal -->
-        <div class="card">
-            <div class="card-content">
-                <div class="row">
+        <!-- CONTENIDO -->
+        <div class="qr-container qr-stack">
+
+            <!-- Card de Selección -->
+            <div class="qr-card qr-full">
+                <h5>
+                    <i class="material-icons">school</i>
+                    Seleccione un grado
+                </h5>
+
+                <div class="row" style="margin-bottom: 0;">
                     <div class="input-field col s12 m6">
-                        <select id="grado" onchange="cargarPorGrado()">
+                        <select id="gradoSelect" onchange="generarQR()">
                             <option value="" disabled selected>Seleccione un grado</option>
                         </select>
-                        <label>
-                            <i class="material-icons tiny">school</i>
-                            Grado
-                        </label>
+                        <label>Grado</label>
                     </div>
 
-                    <div class="col s12 m6" style="display: flex; align-items: flex-end;">
+                    <div class="input-field col s12 m6">
                         <button class="btn btn-primary waves-effect waves-light" onclick="generarQR()">
-                            <i class="material-icons left">add_circle</i>
+                            <i class="material-icons left">qr_code</i>
                             Generar Códigos QR
                         </button>
                     </div>
@@ -77,29 +93,33 @@ if (
 
                 <!-- Botón descarga ZIP -->
                 <div class="button-group">
-                    <button class="btn btn-success waves-effect waves-light" id="btnZip" onclick="descargarZIP()"
-                        style="display:none">
+                    <button class="btn btn-success btn-accion waves-effect waves-light" id="btnZip"
+                        onclick="descargarZIP()" style="display:none; width: auto !important; min-width: 250px;">
                         <i class="material-icons left">cloud_download</i>
                         Descargar ZIP del Grado
                     </button>
                 </div>
 
                 <!-- Loader -->
-                <div class="progress" id="loader" style="display:none;">
-                    <div class="indeterminate"></div>
+                <div id="progressContainer" style="display:none;">
+                    <div class="progress">
+                        <div id="progressBar" class="determinate" style="width: 0%"></div>
+                    </div>
+                    <div style="text-align:center; margin-top: 12px;">
+                        <span id="progressText" style="font-weight: 600; color: #667eea; font-size: 14px;">0%</span>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Card de resultados -->
-        <div class="card" id="resultado" style="display:none;">
-            <div class="card-content">
-                <span class="card-title">
+            </div>
+
+            <!-- Card de resultados -->
+            <div class="qr-card qr-full" id="resultado" style="display:none;">
+                <h5>
                     <i class="material-icons">people</i>
                     Estudiantes del Grado
-                </span>
+                </h5>
 
-                <table class="striped highlight responsive-table">
+                <table class="highlight responsive-table">
                     <thead>
                         <tr>
                             <th>Nombre del Estudiante</th>
@@ -120,30 +140,43 @@ if (
             <h5 id="tituloQR">Código QR del Estudiante</h5>
             <h6 id="subtituloQR"></h6>
             <img id="imgVistaQR" src=""
-                style="max-width:100%; max-height:60vh; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
+                style="max-width:100%; max-height:60vh; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border: 5px solid white;">
         </div>
         <div class="modal-footer">
             <a id="btnDescargarQR" href="#" download class="btn btn-download waves-effect waves-light">
                 <i class="material-icons left">download</i>
                 Descargar QR
             </a>
-            <a href="#!" class="modal-close btn-flat waves-effect">Cerrar</a>
+            <a href="#!" class="modal-close btn-flat waves-effect">
+                <i class="material-icons left">close</i>
+                Cerrar
+            </a>
         </div>
     </div>
 
     <!-- JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
+
+        let gradoActual = null;
+        let rutaActual = null;
+        let nombreGradoActual = null;
+
+        // Sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const main = document.getElementById('mainContent');
+            sidebar.classList.toggle('hidden');
+            main.classList.toggle('expanded');
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
-            // Inicializar selects
+
             M.FormSelect.init(document.querySelectorAll("select"));
 
-            // Inicializar modal QR
             const modalQR = document.getElementById("modalVistaQR");
             if (modalQR) {
                 M.Modal.init(modalQR);
-            } else {
-                console.error("No se encontró el modal para vista previa de QR");
             }
 
             cargarGrados();
@@ -154,8 +187,8 @@ if (
             fetch("api/grados/listar.php")
                 .then(r => r.json())
                 .then(data => {
-                    const select = document.getElementById("grado");
 
+                    const select = document.getElementById("gradoSelect");
                     select.innerHTML = '<option value="" disabled selected>Seleccione un grado</option>';
 
                     data.data.forEach(g => {
@@ -169,124 +202,219 @@ if (
                 });
         }
 
-        /* ================= ESTADO ÚNICO ================= */
-        let gradoActual = null;
-        let rutaActual = null;
-        let nombreGradoActual = null;
-
         /* ================= GENERAR QR ================= */
-        function generarQR() {
-            cargarPorGrado();
-        }
+        async function generarQR() {
 
-        /* ================= EVENTO AL SELECCIONAR ================= */
-        function cargarPorGrado() {
-            const select = document.getElementById("grado");
+            const select = document.getElementById("gradoSelect");
+            if (!select) return;
+
             const grado = select.value;
 
             if (!grado) {
-                M.toast({ html: '<i class="material-icons left">warning</i> Por favor seleccione un grado', classes: 'rounded' });
+                M.toast({
+                    html: '<i class="material-icons left">warning</i> Seleccione un grado',
+                    classes: 'rounded orange'
+                });
                 return;
             }
 
-            gradoActual = grado;
-            nombreGradoActual = select.options[select.selectedIndex].text;
-
-            document.getElementById("loader").style.display = "block";
-            document.getElementById("resultado").style.display = "none";
-            document.getElementById("btnZip").style.display = "none";
+            // Reset visual
             document.getElementById("badgeQR").style.display = "none";
+            document.getElementById("badgeExistentes").textContent = "0";
+            document.getElementById("badgeNuevos").textContent = "0";
 
-            fetch(`api/usuarios/generar_qr_estudiantes_grado.php?id_grado=${grado}`)
-                .then(r => r.json())
-                .then(r => {
-                    document.getElementById("loader").style.display = "none";
+            bloquearInterfaz(true);
 
-                    if (!r.success) {
-                        M.toast({ html: `<i class="material-icons left">error</i> ${r.message}`, classes: 'rounded red' });
-                        return;
-                    }
+            M.toast({
+                html: '<i class="material-icons left">hourglass_top</i> Generando códigos QR...',
+                classes: 'rounded blue'
+            });
 
-                    if (r.total === 0) {
-                        M.toast({ html: '<i class="material-icons left">info</i> No hay estudiantes en este grado', classes: 'rounded orange' });
-                        return;
-                    }
+            try {
 
-                    // Mostrar badges
-                    const badgeBox = document.getElementById("badgeQR");
-                    const badgeExist = document.getElementById("badgeExistentes");
-                    const badgeNew = document.getElementById("badgeNuevos");
+                const response = await fetch(
+                    `api/usuarios/generar_qr_estudiantes_grado.php?id_grado=${grado}`
+                );
 
-                    badgeExist.textContent = r.existentes;
-                    badgeNew.textContent = r.nuevos;
-                    badgeBox.style.display = "flex";
+                const data = await response.json();
 
-                    // Derivar ruta desde el primer QR
-                    const partes = r.data[0].qr.split('/');
-                    rutaActual = partes[1];
+                if (!data.success) {
+                    bloquearInterfaz(false);
+                    M.toast({
+                        html: `<i class="material-icons left">info</i> ${data.message}`,
+                        classes: 'rounded orange'
+                    });
+                    return;
+                }
 
-                    M.toast({ html: `<i class="material-icons left">check_circle</i> ${r.total} códigos QR generados exitosamente`, classes: 'rounded green' });
+                gradoActual = grado;
+                nombreGradoActual = select.options[select.selectedIndex].text;
 
-                    cargarTablaEstudiantes();
+                if (data.data.length > 0) {
+                    rutaActual = data.data[0].ruta;
+                }
+
+                renderTabla(data.data);
+
+                // 🔥 Mostrar contadores inteligentes
+                document.getElementById("badgeQR").style.display = "flex";
+                document.getElementById("badgeExistentes").textContent = data.existentes;
+                document.getElementById("badgeNuevos").textContent = data.nuevos;
+
+                M.toast({
+                    html: `<i class="material-icons left">check_circle</i> ${data.nuevos} nuevos | ${data.existentes} existentes`,
+                    classes: 'rounded green'
                 });
+
+                bloquearInterfaz(false);
+
+            } catch (error) {
+                bloquearInterfaz(false);
+                console.error("Error:", error);
+                M.toast({
+                    html: '<i class="material-icons left">error</i> Error al generar códigos QR',
+                    classes: 'rounded red'
+                });
+            }
         }
 
-        /* ================= LISTAR ================= */
-        function cargarTablaEstudiantes() {
-            if (!rutaActual) return;
+        /* ================= POLLING REAL ================= */
+        function iniciarPollingGrado(onFinish) {
 
-            const tbody = document.getElementById("tabla");
-            tbody.innerHTML = "";
+            const interval = setInterval(() => {
 
-            fetch(`api/usuarios/listar_qr_estudiantes_grado.php?ruta=${encodeURIComponent(rutaActual)}`)
-                .then(res => res.json())
-                .then(res => {
-                    if (!res.success || res.total === 0) {
-                        M.toast({ html: '<i class="material-icons left">warning</i> No hay códigos QR para mostrar', classes: 'rounded orange' });
-                        return;
-                    }
+                fetch("api/usuarios/progreso_qr_grado.php")
+                    .then(r => r.json())
+                    .then(p => {
 
-                    res.data.forEach(item => {
-                        const url = `qr_estudiantes/${rutaActual}/${item.archivo}`;
+                        if (!p.total) return;
 
-                        const tr = document.createElement("tr");
-                        tr.innerHTML = `
-                            <td style="font-weight: 500;">${item.nombre}</td>
-                            <td>${item.documento}</td>
-                            <td class="center-align">
-                                <div class="qr-actions">
-                                    <img
-                                        src="${url}"
-                                        width="80"
-                                        class="qr-preview"
-                                        onclick="verQR('${url}', '${item.nombre}', '${nombreGradoActual}')"
-                                        alt="QR de ${item.nombre}"
-                                    >
-                                    <a href="${url}" download>
-                                        <i class="material-icons tiny">download</i> Descargar
-                                    </a>
-                                </div>
-                            </td>
-                            <td>${item.fecha}</td>
-                        `;
-                        tbody.appendChild(tr);
+                        const porcentaje = Math.round((p.actual / p.total) * 100);
+
+                        actualizarProgreso(porcentaje);
+
+                        document.getElementById("progressText").textContent =
+                            `Generando ${p.actual} de ${p.total} (${porcentaje}%)`;
+
+                        if (p.completado) {
+
+                            clearInterval(interval);
+
+                            document.getElementById("progressText").textContent =
+                                "✅ Completado";
+
+                            setTimeout(() => {
+                                if (typeof onFinish === "function") {
+                                    onFinish();
+                                }
+                            }, 400);
+                        }
                     });
 
-                    document.getElementById("resultado").style.display = "block";
-                    document.getElementById("btnZip").style.display = "inline-flex";
+            }, 400);
+        }
+
+        /* ================= TABLA ================= */
+        function renderTabla(estudiantes) {
+
+            const tbody = document.getElementById("tabla");
+            if (!tbody) return;
+
+            tbody.innerHTML = "";
+
+            if (!estudiantes || estudiantes.length === 0) {
+                M.toast({
+                    html: '<i class="material-icons left">warning</i> No hay registros',
+                    classes: 'rounded orange'
                 });
+                return;
+            }
+
+            estudiantes.forEach(est => {
+
+                const url = `${est.ruta}/${est.archivo}`;
+
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+            <td style="font-weight: 600; color: #2c3e50;">${est.nombre}</td>
+            <td>${est.documento}</td>
+            <td class="center-align">
+                <div class="qr-actions">
+                    <img
+                        src="${url}"
+                        width="80"
+                        class="qr-preview"
+                        onclick="verQR('${url}', '${est.nombre}', '${nombreGradoActual}')"
+                        alt="QR de ${est.nombre}"
+                        title="Click para ampliar"
+                    >
+                    <a href="${url}" download>
+                        <i class="material-icons tiny">download</i> Descargar
+                    </a>
+                </div>
+            </td>
+            <td>${new Date().toLocaleDateString()}</td>
+        `;
+
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById("resultado").style.display = "block";
+            document.getElementById("btnZip").style.display = "inline-flex";
+            document.querySelector("#resultado h5").innerHTML = `
+        <i class="material-icons">people</i>
+        Estudiantes del Grado ${nombreGradoActual}°
+    `;
         }
 
         /* ================= ZIP ================= */
         function descargarZIP() {
+
             if (!gradoActual) {
-                M.toast({ html: '<i class="material-icons left">warning</i> Seleccione un grado primero', classes: 'rounded orange' });
+                M.toast({
+                    html: '<i class="material-icons left">warning</i> Seleccione un grado primero',
+                    classes: 'rounded orange'
+                });
                 return;
             }
 
-            M.toast({ html: '<i class="material-icons left">cloud_download</i> Descargando archivo ZIP...', classes: 'rounded blue' });
+            window.location.href =
+                `api/usuarios/descargar_zip_qr_estudiantes_grado.php?id_grado=${gradoActual}`;
 
-            window.location.href = `api/usuarios/descargar_zip_qr_estudiantes_grado.php?id_grado=${gradoActual}`;
+            M.toast({
+                html: '<i class="material-icons left">cloud_download</i> Descargando archivo ZIP...',
+                classes: 'rounded blue'
+            });
+        }
+
+        /* ================= BLOQUEO UI ================= */
+        function bloquearInterfaz(bloquear = true) {
+
+            const btn = document.querySelector("button[onclick='generarQR()']");
+            const select = document.getElementById("gradoSelect");
+
+            btn.disabled = bloquear;
+            select.disabled = bloquear;
+
+            M.FormSelect.init(select);
+
+            if (bloquear) {
+                document.getElementById("progressContainer").style.display = "block";
+                actualizarProgreso(0);
+            } else {
+                document.getElementById("progressContainer").style.display = "none";
+            }
+        }
+
+        /* ================= PROGRESO ================= */
+        function actualizarProgreso(porcentaje) {
+
+            const barra = document.getElementById("progressBar");
+            const texto = document.getElementById("progressText");
+
+            barra.style.width = porcentaje + "%";
+            texto.textContent = porcentaje + "%";
         }
 
         /* ================= MODAL QR ================= */
@@ -298,21 +426,24 @@ if (
 
             img.src = url;
             titulo.textContent = "Código QR del Estudiante";
-            subtitulo.textContent = `${grado} – ${nombre}`;
+            subtitulo.textContent = `${grado} — ${nombre}`;
 
-            // Limpiar nombre para archivo
             const nombreArchivo = nombre
                 .trim()
-                .replace(/\s+/g, ' ')
-                .replace(/[^a-zA-Z0-9_-]/g, ' ');
+                .replace(/\s+/g, '_')
+                .replace(/[^a-zA-Z0-9_-]/g, '');
 
             btnDescargar.href = url;
             btnDescargar.download = nombreArchivo + ".png";
 
-            const modal = M.Modal.getInstance(document.getElementById("modalVistaQR"));
+            const modal = M.Modal.getInstance(
+                document.getElementById("modalVistaQR")
+            );
             modal.open();
         }
+
     </script>
+
 </body>
 
 </html>

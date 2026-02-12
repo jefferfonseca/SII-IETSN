@@ -17,7 +17,6 @@ require_once __DIR__ . "/../config/database.php";
 $rol = $_GET["rol"] ?? null;
 $buscar = $_GET["buscar"] ?? null;
 $id_grado = $_GET["id_grado"] ?? null;
-$limit = isset($_GET["limit"]) ? (int) $_GET["limit"] : 25;
 
 // Base SQL
 $sql = "
@@ -66,7 +65,6 @@ ORDER BY
     u.activo DESC,
     u.apellido ASC,
     u.nombre ASC
-LIMIT :limit
 ";
 
 try {
@@ -76,8 +74,6 @@ try {
     foreach ($params as $key => $value) {
         $stmt->bindValue(":" . $key, $value);
     }
-
-    $stmt->bindValue(":limit", $limit, PDO::PARAM_INT);
 
     $stmt->execute();
 

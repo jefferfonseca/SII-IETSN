@@ -20,6 +20,7 @@ $usuario = $_SESSION["usuario"];
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
     <link rel="stylesheet" href="/SII-IETSN/css/usuario.css">
+    <link rel="stylesheet" href="/SII-IETSN/css/tabla-usuarios-styles.css">
 </head>
 
 <body>
@@ -79,7 +80,26 @@ $usuario = $_SESSION["usuario"];
         </div>
 
         <!-- CONTENEDOR -->
-        <div class="usuarios-container" id="usuariosContainer"></div>
+        <div class="card-panel">
+
+            <table class="highlight responsive-table centered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Documento</th>
+                        <th>Grado</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody id="usuariosContainer"></tbody>
+            </table>
+
+        </div>
+
     </div>
 
     <!-- ================= MODAL NUEVO USUARIO ================= -->
@@ -176,7 +196,7 @@ $usuario = $_SESSION["usuario"];
             <!-- DOCUMENTO BLOQUEADO -->
             <div class="row">
                 <div class="input-field col s12">
-                    <input id="editar_documento" type="text" readonly>
+                    <input id="editar_documento" type="text">
                     <label class="active">Documento (solo lectura)</label>
                 </div>
             </div>
@@ -326,75 +346,75 @@ $usuario = $_SESSION["usuario"];
                     contenedor.innerHTML = "";
                     usuariosCache = {};
 
-                    res.data.forEach(usuario => {
+                    res.data.forEach((usuario, index) => {
+
                         usuariosCache[usuario.id_usuario] = usuario;
 
-                        const inicial = usuario.nombre.charAt(0).toUpperCase();
                         const activo = usuario.activo == 1;
 
-                        const estadoClase = activo ? "badge-activo" : "badge-inactivo";
                         const estadoTexto = activo ? "Activo" : "Inactivo";
+                        const estadoColor = activo ? "green" : "red";
                         const estadoIcono = activo ? "check_circle" : "cancel";
 
                         const accionTexto = activo ? "Desactivar" : "Activar";
                         const accionIcono = activo ? "lock" : "lock_open";
-                        const accionClase = activo ? "" : "activar";
 
                         contenedor.innerHTML += `
-            <div class="usuario-card">
-                <div class="usuario-header">
-                    <div class="usuario-info">
-                        <div class="usuario-avatar">${inicial}</div>
-                        <h3 class="usuario-nombre">${usuario.nombre} ${usuario.apellido}</h3>
+        <tr>
+            <td>${index + 1}</td>
+            <td>${usuario.nombre} ${usuario.apellido}</td>
+            <td>${usuario.documento}</td>
+            <td>${usuario.grado ?? "-"}</td>
+            <td>
+                <span class="new badge blue" data-badge-caption="">
+                    ${usuario.rol}
+                </span>
+            </td>
+            <td>
+                <span class="new badge ${estadoColor}" data-badge-caption="">
+                    <i class="material-icons tiny">${estadoIcono}</i>
+                    ${estadoTexto}
+                </span>
+            </td>
+           <td>
 
-                        <div class="usuario-documento">
-                            <i class="material-icons">badge</i>
-                            ${usuario.documento}
-                        </div>
+    <!-- EDITAR -->
+    <a href="#modalEditarUsuario"
+       class="btn-small blue modal-trigger"
+       onclick="cargarUsuario(${usuario.id_usuario})"
+       title="Editar usuario">
+        <i class="material-icons">edit</i>
+    </a>
 
-                        ${usuario.grado ? `
-                        <div class="usuario-grado">
-                            <i class="material-icons">school</i>
-                            ${usuario.grado}
-                        </div>` : ``}
-                    </div>
+    <!-- ACTIVAR / DESACTIVAR -->
+    <a href="#"
+       class="btn-small ${activo ? 'red' : 'green'}"
+       onclick="toggleEstado(${usuario.id_usuario})"
+       title="${accionTexto}">
+        <i class="material-icons">${accionIcono}</i>
+    </a>
 
-                    <div class="usuario-badges">
-                        <span class="badge-rol ${usuario.rol.toLowerCase()}">
-                            <i class="material-icons">admin_panel_settings</i>
-                            ${usuario.rol}
-                        </span>
+    <!-- GENERAR / VER QR -->
+    ${usuario.doc_hash ? `
+        <a href="/SII-IETSN/qr.php?hash=${usuario.doc_hash}"
+           class="btn-small teal"
+           target="_blank"
+           title="Ver código QR">
+            <i class="material-icons">qr_code_2</i>
+        </a>
+    ` : `
+        <a href="#"
+           class="btn-small grey"
+           onclick="generarQR(${usuario.id_usuario})"
+           title="Generar código QR">
+            <i class="material-icons">qr_code_2</i>
+        </a>
+    `}
 
-                        <span class="badge-estado ${estadoClase}">
-                            <i class="material-icons">${estadoIcono}</i>
-                            ${estadoTexto}
-                        </span>
-                    </div>
-                </div>
+</td>
 
-                <div class="usuario-acciones">
-                    <a href="#modalEditarUsuario"
-                       class="btn btn-accion btn-editar modal-trigger"
-                       onclick="cargarUsuario(${usuario.id_usuario})">
-                        <i class="material-icons">edit</i>
-                        Editar
-                    </a>
-
-                    <a href="#"
-                       class="btn btn-accion btn-toggle ${accionClase}"
-                       onclick="toggleEstado(${usuario.id_usuario})">
-                        <i class="material-icons">${accionIcono}</i>
-                        ${accionTexto}
-                    </a>
-
-                    ${usuario.doc_hash ? `
-                    <a href="/SII-IETSN/qr.php?hash=${usuario.doc_hash}"
-                    class="btn btn-accion teal">
-                    <i class="material-icons">qr_code_2</i> QR
-                    </a>` : ''}
-
-                </div>
-            </div>`;
+        </tr>
+    `;
                     });
                 });
         }
@@ -557,7 +577,8 @@ $usuario = $_SESSION["usuario"];
             })
                 .then(res => res.json())
                 .then(() => cargarUsuarios());
-        }
+        }      
+       
     </script>
 </body>
 

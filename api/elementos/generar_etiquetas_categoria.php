@@ -8,8 +8,8 @@ require_once __DIR__ . '/_qr_helper.php';
 /*************************************************
  * CONFIGURACIÓN GENERAL
  *************************************************/
-$logoUrl = "https://ietsannicolas.edu.co/images/Escudo.png";
 $backgroundPath = __DIR__ . "/../../etiqueta-base.png";
+$logoPath = __DIR__ . "/../../assets/images/Escudo.png";
 
 /*************************************************
  * RESPUESTA BASE
@@ -73,13 +73,8 @@ try {
     }
 
     /*************************************************
-     * 3️⃣ GENERAR ETIQUETAS
+     * 3️⃣ PROGRESO
      *************************************************/
-    $_SESSION['progreso_etiquetas'] = [
-        'total' => count($elementos),
-        'actual' => 0
-    ];
-
     $progresoFile = __DIR__ . '/_progreso_etiquetas.json';
 
     file_put_contents($progresoFile, json_encode([
@@ -89,37 +84,56 @@ try {
         "completado" => false
     ]));
 
+    /*************************************************
+     * 4️⃣ GENERAR ETIQUETAS
+     *************************************************/
+    $nuevos = 0;
+    $existentes = 0;
+    $total = count($elementos);
+
     foreach ($elementos as $index => $el) {
 
         file_put_contents($progresoFile, json_encode([
             "activo" => true,
-            "total" => count($elementos),
+            "total" => $total,
             "actual" => $index + 1,
             "completado" => false
         ]));
 
-        // 🔑 TOKEN QR (ÚNICO CONTENIDO DEL QR)
-        $qrToken = $el['qr_token'];
-        if (!$qrToken) {
-            throw new Exception("Elemento {$el['codigo']} no tiene qr_token");
+        $filename = $outputDir . "/etiqueta_" . $el['id_elemento'] . ".png";
+
+        if (file_exists($filename) && filesize($filename) > 0) {
+
+            $existentes++;
+
+        } else {
+
+            $qrToken = $el['qr_token'];
+            if (!$qrToken) {
+                throw new Exception("Elemento {$el['codigo']} no tiene qr_token");
+            }
+
+            $numero = (string) $el['id_elemento'];
+
+            $qrBin = generarQRLocal($qrToken, $logoPath);
+
+            generarEtiquetaImagick(
+                $el['id_elemento'],
+                $el['tipo'],
+                $numero,
+                $qrBin,
+                $backgroundPath,
+                $outputDir
+            );
+
+            if (!file_exists($filename) || filesize($filename) === 0) {
+                throw new Exception("Error generando etiqueta {$el['codigo']}");
+            }
+
+            $nuevos++;
         }
-
-        // 👁️ Número visual (solo para la etiqueta)
-        $numero = (string) $el['id_elemento'];
-
-        // Generar QR SOLO con el token
-        $qrBin = generarQRMonkey($qrToken, $logoUrl);
-
-        // Generar etiqueta
-        generarEtiquetaImagick(
-            $el['id_elemento'],
-            $el['tipo'],
-            $numero,
-            $qrBin,
-            $backgroundPath,
-            $outputDir
-        );
     }
+
 
     file_put_contents($progresoFile, json_encode([
         "activo" => false,
@@ -128,21 +142,22 @@ try {
         "completado" => true
     ]));
 
-    /*************************************************
-     * RESPUESTA OK
-     *************************************************/
     $response["success"] = true;
-    $response["message"] = "Etiquetas generadas correctamente";
+    $response["message"] = "Etiquetas procesadas correctamente";
     $response["data"] = [
-        "total" => count($elementos),
+        "total" => $total,
+        "nuevos" => $nuevos,
+        "existentes" => $existentes,
         "ruta" => "etiquetas_generadas/$nombreCarpeta"
     ];
+
 
 } catch (Exception $e) {
     $response["message"] = $e->getMessage();
 }
 
 echo json_encode($response);
+
 
 /*************************************************
  * FUNCIÓN: GENERAR ETIQUETA CON IMAGICK

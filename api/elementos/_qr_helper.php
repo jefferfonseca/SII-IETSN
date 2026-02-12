@@ -1,49 +1,32 @@
 <?php
 
-function generarQRMonkey(string $qrToken, string $logoUrl): string
+require_once __DIR__ . "/../../vendor/autoload.php";
+
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\Color\Color;
+
+function generarQRLocal(string $token, string $logoPath): string
 {
-    $data = [
-        "data" => $qrToken,
-        "config" => [
-            "body" => "circular",
-            "eye" => "frame6",
-            "eyeBall" => "ball6",
-            "bodyColor" => "#ffffff",
-            "bgColor" => "#ffffff",
-            "eye1Color" => "#191938",
-            "eye2Color" => "#a3071a",
-            "eye3Color" => "#a3071a",
-            "eyeBall1Color" => "#a3071a",
-            "eyeBall2Color" => "#191938",
-            "eyeBall3Color" => "#191938",
-            "gradientColor1" => "#191938",
-            "gradientColor2" => "#191938",
-            "gradientType" => "radial",
-            "gradientOnEyes" => false,
-            "logo" => $logoUrl
-        ],
-        "size" => 300,
-        "download" => false,
-        "file" => "png"
-    ];
-
-    $ch = curl_init("https://api.qrcode-monkey.com/qr/custom");
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
-        CURLOPT_HTTPHEADER => ["Content-Type: application/json"],
-        CURLOPT_POSTFIELDS => json_encode($data)
-    ]);
-
-    $response = curl_exec($ch);
-
-    if ($response === false) {
-        $error = curl_error($ch);
-        curl_close($ch);
-        throw new Exception("QR Monkey error: $error");
+    if (!file_exists($logoPath)) {
+        throw new Exception("Logo no encontrado: " . $logoPath);
     }
 
-    curl_close($ch);
+    $result = Builder::create()
+        ->writer(new PngWriter())
+        ->data($token) // 🔥 ahora es string plano
+        ->encoding(new Encoding('UTF-8'))
+        ->errorCorrectionLevel(ErrorCorrectionLevel::High)
+        ->size(340)
+        ->margin(20)
+        ->foregroundColor(new Color(10, 20, 80))
+        ->backgroundColor(new Color(245, 246, 250))
+        ->logoPath($logoPath)
+        ->logoResizeToWidth(80)
+        ->logoPunchoutBackground(true)
+        ->build();
 
-    return $response; // BINARIO REAL
+    return $result->getString();
 }
