@@ -113,7 +113,7 @@ try {
                 throw new Exception("Elemento {$el['codigo']} no tiene qr_token");
             }
 
-            $numero = (string) $el['id_elemento'];
+            $numero = str_pad($index + 1, 2, "0", STR_PAD_LEFT);
 
             $qrBin = generarQRLocal($qrToken, $logoPath);
 
