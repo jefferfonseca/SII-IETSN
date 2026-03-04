@@ -1,6 +1,6 @@
 <?php
 
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
 header("Content-Type: application/json");
@@ -18,6 +18,64 @@ function limpiarNombreArchivo($texto)
     return strtolower($texto);
 }
 
+/* ================= AGREGAR NOMBRE AL QR ================= */
+function agregarNombreAlQR($qrBinary, $apellidos, $nombres)
+{
+    if (!extension_loaded('gd')) {
+        throw new Exception("Extensión GD no habilitada");
+    }
+
+    $qrImage = imagecreatefromstring($qrBinary);
+    if (!$qrImage) {
+        throw new Exception("No se pudo crear imagen desde QR binario");
+    }
+
+    $qrWidth = imagesx($qrImage);
+    $qrHeight = imagesy($qrImage);
+
+    // 🔥 Reducimos espacio inferior
+    $extraHeight = 55;
+
+    $finalImage = imagecreatetruecolor($qrWidth, $qrHeight + $extraHeight);
+
+    $white = imagecolorallocate($finalImage, 255, 255, 255);
+    imagefill($finalImage, 0, 0, $white);
+
+    imagecopy($finalImage, $qrImage, 0, 0, 0, 0, $qrWidth, $qrHeight);
+
+    $black = imagecolorallocate($finalImage, 0, 0, 0);
+
+    $fontPath = "C:/Windows/Fonts/arial.ttf"; // usa la que ya te funciona
+
+    $fontSize = 16;
+
+    // ---- APELLIDOS ----
+    $bbox1 = imagettfbbox($fontSize, 0, $fontPath, $apellidos);
+    $textWidth1 = $bbox1[2] - $bbox1[0];
+    $x1 = ($qrWidth - $textWidth1) / 2;
+    $y1 = $qrHeight + 22;
+
+    imagettftext($finalImage, $fontSize, 0, $x1, $y1, $black, $fontPath, $apellidos);
+
+    // ---- NOMBRES ----
+    $bbox2 = imagettfbbox($fontSize, 0, $fontPath, $nombres);
+    $textWidth2 = $bbox2[2] - $bbox2[0];
+    $x2 = ($qrWidth - $textWidth2) / 2;
+    $y2 = $qrHeight + 45;
+
+    imagettftext($finalImage, $fontSize, 0, $x2, $y2, $black, $fontPath, $nombres);
+
+    ob_start();
+    imagepng($finalImage);
+    $finalBinary = ob_get_clean();
+
+    imagedestroy($qrImage);
+    imagedestroy($finalImage);
+
+    return $finalBinary;
+}
+
+/* ================= VALIDAR ID GRADO ================= */
 $id_grado = $_GET['id_grado'] ?? null;
 
 if (!$id_grado) {
@@ -60,7 +118,7 @@ try {
     $stmt->execute([$id_grado]);
     $estudiantes = $stmt->fetchAll();
 
-    if (!$estudiantes || count($estudiantes) === 0) {
+    if (!$estudiantes) {
         echo json_encode([
             "success" => false,
             "message" => "No hay estudiantes activos en este grado"
@@ -87,8 +145,10 @@ try {
 
     /* ================= GENERAR QR ================= */
     foreach ($estudiantes as $index => $est) {
-
         $nombreCompleto = $est['nombre'] . " " . $est['apellido'];
+        $apellidos = strtoupper(trim($est['apellido']));
+        $nombres = strtoupper(trim($est['nombre']));
+
         $nombreArchivo = limpiarNombreArchivo($nombreCompleto) . ".png";
         $rutaCompleta = $carpetaFisica . "/" . $nombreArchivo;
 
@@ -105,10 +165,11 @@ try {
 
         } else {
 
-            $token = $est['doc_hash'];
+            // 🔥 DEFINIR TOKEN CORRECTAMENTE
+            $token = isset($est['doc_hash']) ? trim($est['doc_hash']) : null;
 
             if (!$token) {
-                throw new Exception("Usuario {$nombreCompleto} no tiene doc_hash");
+                throw new Exception("Usuario {$nombreCompleto} no tiene doc_hash válido");
             }
 
             $qrImage = generarQRLocal($token, $logoPath);
@@ -117,7 +178,9 @@ try {
                 throw new Exception("No se pudo generar QR para {$nombreCompleto}");
             }
 
-            file_put_contents($rutaCompleta, $qrImage);
+            $qrFinal = agregarNombreAlQR($qrImage, $apellidos, $nombres);
+
+            file_put_contents($rutaCompleta, $qrFinal);
 
             if (!file_exists($rutaCompleta) || filesize($rutaCompleta) === 0) {
                 throw new Exception("Archivo QR vacío para {$nombreCompleto}");
@@ -145,7 +208,7 @@ try {
     echo json_encode([
         "success" => true,
         "data" => $generados,
-        "total" => count($generados),
+        "total" => $total,
         "nuevos" => $nuevos,
         "existentes" => $existentes
     ]);

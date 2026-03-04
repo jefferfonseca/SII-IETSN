@@ -134,7 +134,6 @@ try {
         }
     }
 
-
     file_put_contents($progresoFile, json_encode([
         "activo" => false,
         "total" => count($elementos),

@@ -20,7 +20,7 @@ function generarQRLocal(string $token, string $logoPath): string
         ->encoding(new Encoding('UTF-8'))
         ->errorCorrectionLevel(ErrorCorrectionLevel::High)
         ->size(340)
-        ->margin(20)
+        ->margin(1)
         ->foregroundColor(new Color(10, 20, 80))
         ->backgroundColor(new Color(245, 246, 250))
         ->logoPath($logoPath)
