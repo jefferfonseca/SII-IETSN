@@ -116,6 +116,7 @@ try {
             $numero = str_pad($index + 1, 2, "0", STR_PAD_LEFT);
 
             $qrBin = generarQRLocal($qrToken, $logoPath);
+            $fontPath = __DIR__ . "/../../assets/fonts/arial.ttf"; // usa la que ya te funciona
 
             generarEtiquetaImagick(
                 $el['id_elemento'],
@@ -123,7 +124,8 @@ try {
                 $numero,
                 $qrBin,
                 $backgroundPath,
-                $outputDir
+                $outputDir,
+                $fontPath
             );
 
             if (!file_exists($filename) || filesize($filename) === 0) {
@@ -161,13 +163,17 @@ echo json_encode($response);
 /*************************************************
  * FUNCIÓN: GENERAR ETIQUETA CON IMAGICK
  *************************************************/
+$fontPath = __DIR__ . "/../../assets/fonts/arial.ttf"; // usa la que ya te funciona
+
 function generarEtiquetaImagick(
     int $idElemento,
     string $tipo,
     string $numero,
     string $qrBin,
     string $backgroundPath,
-    string $outputDir
+    string $outputDir,
+    string $fontPath
+
 ): void {
 
     $base = new Imagick($backgroundPath);
@@ -175,14 +181,14 @@ function generarEtiquetaImagick(
     // TEXTO TIPO
     $drawTipo = new ImagickDraw();
     $drawTipo->setFillColor('#203154');
-    $drawTipo->setFont('Arial-Black');
+    $drawTipo->setFont($fontPath);
     $drawTipo->setFontSize(580);
     $base->annotateImage($drawTipo, 750, 820, 0, $tipo);
 
     // TEXTO NÚMERO
     $drawNum = new ImagickDraw();
     $drawNum->setFillColor('#203154');
-    $drawNum->setFont('Arial-Black');
+    $drawNum->setFont($fontPath);
     $drawNum->setFontSize(520);
     $base->annotateImage($drawNum, 1100, 1250, 0, $numero);
 
