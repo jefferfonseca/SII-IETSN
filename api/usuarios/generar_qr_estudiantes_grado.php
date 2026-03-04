@@ -45,7 +45,7 @@ function agregarNombreAlQR($qrBinary, $apellidos, $nombres)
 
     $black = imagecolorallocate($finalImage, 0, 0, 0);
 
-    $fontPath = "C:/Windows/Fonts/arial.ttf"; // usa la que ya te funciona
+    $fontPath = __DIR__ . "/../../assets/fonts/arial.ttf"; // usa la que ya te funciona
 
     $fontSize = 16;
 
