@@ -16,6 +16,13 @@ if (is_array($data) && !empty($data['doc_hash'])) {
 } else {
     // Token plano (pistola / input)
     $doc_hash = $raw;
+
+// Normalización fuerte
+$doc_hash = trim($doc_hash);
+$doc_hash = strtolower($doc_hash);
+
+// Eliminar TODO lo que no sea hexadecimal
+$doc_hash = preg_replace('/[^a-f0-9]/', '', $doc_hash);
 }
 
 if (!$doc_hash) {
@@ -29,6 +36,7 @@ if (!$doc_hash) {
 // ============================
 // Buscar usuario por hash
 // ============================
+
 $stmt = $pdo->prepare("
     SELECT 
         id_usuario,

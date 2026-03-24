@@ -7,37 +7,55 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
 // ============================
-// Validar sesión
+// RESPUESTA
+// ============================
+function responder($success, $message, $data = []) {
+    echo json_encode([
+        "success" => $success,
+        "message" => $message,
+        "data" => $data
+    ]);
+    exit;
+}
+
+// ============================
+// VALIDAR SESIÓN
 // ============================
 if (
     !isset($_SESSION['usuario']) ||
     !isset($_SESSION['usuario']['id_usuario'])
 ) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Sesión no válida"
-    ]);
-    exit;
+    responder(false, "Sesión no válida");
 }
 
 $id_operador = $_SESSION['usuario']['id_usuario'];
 
-// ============================
-// Leer JSON
-// ============================
-$data = json_decode(file_get_contents('php://input'), true);
+if (!$id_operador) {
+    responder(false, "Operador no válido");
+}
 
-$id_tomador = $data['id_tomador'] ?? null;
-$id_elemento = $data['id_elemento'] ?? null;
-$fecha_devolucion = $data['fecha_devolucion'] ?? null;
-$observacion = $data['observacion'] ?? null;
+// ============================
+// LEER JSON
+// ============================
+$input = json_decode(file_get_contents('php://input'), true);
 
-if (!$id_tomador || !$id_elemento) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Datos incompletos"
-    ]);
-    exit;
+if (!$input) {
+    responder(false, "JSON inválido");
+}
+
+// ============================
+// CAMPOS
+// ============================
+$qr_token = $input['qr_token'] ?? null;
+$id_tomador = $input['id_tomador'] ?? null;
+$fecha_devolucion = $input['fecha_devolucion'] ?? null;
+$observacion = $input['observacion'] ?? null;
+
+// ============================
+// VALIDACIÓN
+// ============================
+if (!$qr_token || !$id_tomador) {
+    responder(false, "Datos incompletos");
 }
 
 try {
@@ -45,28 +63,30 @@ try {
     $pdo->beginTransaction();
 
     // ============================
-    // Validar elemento
+    // OBTENER ELEMENTO
     // ============================
     $stmt = $pdo->prepare("
-        SELECT estado
+        SELECT id_elemento, estado
         FROM elementos
-        WHERE id_elemento = ?
+        WHERE qr_token = ?
         FOR UPDATE
     ");
-    $stmt->execute([$id_elemento]);
+    $stmt->execute([$qr_token]);
     $elemento = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$elemento) {
         throw new Exception("Elemento no encontrado");
     }
 
-    $estado = strtolower(trim($elemento['estado']));
-    if ($estado !== 'disponible') {
+    $id_elemento = $elemento['id_elemento'];
+    $estado_actual = trim($elemento['estado']);
+
+    if (strtolower($estado_actual) !== 'disponible') {
         throw new Exception("Elemento no disponible");
     }
 
     // ============================
-    // Crear préstamo
+    // INSERT PRESTAMO
     // ============================
     $stmt = $pdo->prepare("
         INSERT INTO prestamos (
@@ -81,6 +101,7 @@ try {
             ?, ?, ?, NOW(), ?, 'activo', ?
         )
     ");
+
     $stmt->execute([
         $id_tomador,
         $id_elemento,
@@ -90,9 +111,8 @@ try {
     ]);
 
     // ============================
-    // Actualizar estado del elemento
+    // UPDATE ELEMENTO
     // ============================
-
     $stmt = $pdo->prepare("
         UPDATE elementos
         SET estado = 'prestado'
@@ -100,21 +120,51 @@ try {
     ");
     $stmt->execute([$id_elemento]);
 
-    $pdo->commit();
+    // ============================
+    // BITACORA
+    // ============================
+    $estado_anterior = $estado_actual;
+    $estado_nuevo = 'Prestado';
 
-    echo json_encode([
-        "success" => true,
-        "message" => "Préstamo registrado correctamente"
+    $hash_anterior = hash('sha256', $id_elemento . $estado_anterior . microtime(true));
+    $hash_actual = hash('sha256', $id_elemento . $estado_nuevo . microtime(true));
+
+    $stmt = $pdo->prepare("
+        INSERT INTO bitacora (
+            id_elemento,
+            id_usuario,
+            accion,
+            detalle,
+            fecha,
+            estado_anterior,
+            estado_nuevo,
+            hash_anterior,
+            hash_actual
+        ) VALUES (
+            ?, ?, ?, ?, NOW(), ?, ?, ?, ?
+        )
+    ");
+
+    $stmt->execute([
+        $id_elemento,
+        $id_operador,
+        'prestamo',
+        'Préstamo registrado',
+        $estado_anterior,
+        $estado_nuevo,
+        $hash_anterior,
+        $hash_actual
     ]);
 
-} catch (Exception $e) {
+    $pdo->commit();
+
+    responder(true, "Préstamo registrado correctamente");
+
+} catch (Throwable $e) {
 
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
 
-    echo json_encode([
-        "success" => false,
-        "message" => $e->getMessage()
-    ]);
+    responder(false, $e->getMessage());
 }

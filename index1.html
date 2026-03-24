@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FarmaPrice — Comparador de Medicamentos</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F4F2EE;
+    --surface: #FFFFFF;
+    --surface2: #EDEBE6;
+    --ink: #1A1714;
+    --ink-muted: #7A7670;
+    --accent: #1B6B3A;
+    --accent-light: #E8F4ED;
+    --accent2: #C84B31;
+    --accent2-light: #FDECEA;
+    --border: #DDD9D1;
+    --best: #1B6B3A;
+    --worst: #C84B31;
+    --tag-bg: #F0EDE6;
+    --shadow: 0 2px 12px rgba(26,23,20,0.07);
+    --shadow-md: 0 4px 24px rgba(26,23,20,0.10);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    padding: 18px 20px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: #6EE89A; }
+  .header-tag {
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── SEARCH BAR ── */
+  .search-zone {
+    background: var(--ink);
+    padding: 0 20px 24px;
+  }
+  .search-wrap {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  }
+  .search-icon {
+    padding: 0 14px;
+    color: var(--ink-muted);
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .search-wrap input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    padding: 14px 0;
+    color: var(--ink);
+    background: transparent;
+  }
+  .search-wrap input::placeholder { color: #AAA; }
+  .search-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 14px 18px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background 0.2s;
+  }
+  .search-btn:hover { background: #155630; }
+
+  /* ── MAIN CONTAINER ── */
+  .container { max-width: 520px; margin: 0 auto; padding: 0 16px; }
+
+  /* ── PRODUCT CARD ── */
+  .product-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .product-icon {
+    width: 54px;
+    height: 54px;
+    background: var(--accent-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+  }
+  .product-info { flex: 1; }
+  .product-brand {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 3px;
+  }
+  .product-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+  .product-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    background: var(--tag-bg);
+    color: var(--ink-muted);
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── DATE SELECTOR ── */
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-muted);
+    margin: 22px 0 10px;
+  }
+  .date-chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .date-chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    color: var(--ink-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .chip.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* ── PRICE SUMMARY BAR ── */
+  .summary-bar {
+    background: var(--accent-light);
+    border: 1.5px solid #B8DCCA;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .summary-icon { font-size: 1.1rem; }
+  .summary-text { font-size: 0.82rem; color: #1A5230; font-weight: 500; line-height: 1.4; }
+  .summary-text strong { font-weight: 700; }
+
+  /* ── STORE CARDS ── */
+  .stores-list { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+  .store-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px 18px 16px;
+    box-shadow: var(--shadow);
+    border: 1.5px solid transparent;
+    transition: box-shadow 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .store-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .store-card.best {
+    border-color: var(--best);
+    background: #fff;
+  }
+  .store-card.best::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--best);
+    border-radius: 2px 2px 0 0;
+  }
+  .store-card.worst {
+    opacity: 0.82;
+  }
+
+  .store-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+
+  .store-identity { display: flex; align-items: center; gap: 10px; }
+  .store-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    font-family: 'Syne', sans-serif;
+    flex-shrink: 0;
+  }
+  .logo-cv { background: #E8F0FD; color: #1A56C4; }
+  .logo-ft { background: #FEF0E6; color: #E05F00; }
+  .logo-ex { background: #FDF5E0; color: #C49B00; }
+  .logo-jm { background: #EDFAF0; color: #177A3A; }
+
+  .store-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .store-url { font-size: 0.7rem; color: var(--ink-muted); margin-top: 1px; }
+
+  /* badge best/worst */
+  .badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .badge-best { background: var(--accent-light); color: var(--best); }
+  .badge-worst { background: var(--accent2-light); color: var(--worst); }
+
+  .store-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .price-block {}
+  .price-label { font-size: 0.68rem; color: var(--ink-muted); font-weight: 400; margin-bottom: 2px; }
+  .price-main {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.55rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .price-main.best-price { color: var(--best); }
+  .price-main.worst-price { color: var(--worst); }
+
+  .price-diff {
+    font-size: 0.72rem;
+    font-weight: 500;
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .diff-more { color: var(--worst); }
+  .diff-less { color: var(--best); }
+  .diff-same { color: var(--ink-muted); }
+
+  .visit-btn {
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.18s, transform 0.15s;
+    flex-shrink: 0;
+  }
+  .visit-btn:hover { background: #3a3530; transform: scale(1.02); }
+  .store-card.best .visit-btn {
+    background: var(--best);
+  }
+  .store-card.best .visit-btn:hover { background: #155630; }
+
+  /* stock indicator */
+  .stock-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .stock-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .stock-dot.in { background: var(--best); }
+  .stock-dot.low { background: #E0960B; }
+  .stock-dot.out { background: var(--worst); }
+  .stock-text { font-size: 0.7rem; color: var(--ink-muted); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 22px 0 0;
+  }
+  .divider-line { flex: 1; height: 1px; background: var(--border); }
+  .divider-label { font-size: 0.68rem; color: var(--ink-muted); white-space: nowrap; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* ── SAVINGS CALLOUT ── */
+  .savings-callout {
+    background: var(--ink);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .savings-left {}
+  .savings-eyebrow { font-size: 0.68rem; color: rgba(255,255,255,0.5); font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .savings-amount {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #6EE89A;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+  .savings-sub { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 4px; }
+  .savings-pill {
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .savings-pill-label { font-size: 0.66rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.08em; }
+  .savings-pill-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: #fff; margin-top: 2px; }
+
+  /* ── FOOTER NOTE ── */
+  .footer-note {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    line-height: 1.6;
+    padding: 0 8px;
+  }
+  .footer-note a { color: var(--accent); text-decoration: none; }
+
+  /* ── RESPONSIVE DESKTOP HINT ── */
+  @media (min-width: 600px) {
+    .container { padding: 0 24px; }
+    .product-card { padding: 24px; }
+    .store-card { padding: 20px; }
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .store-card {
+    animation: fadeUp 0.35s ease both;
+  }
+  .store-card:nth-child(1) { animation-delay: 0.05s; }
+  .store-card:nth-child(2) { animation-delay: 0.12s; }
+  .store-card:nth-child(3) { animation-delay: 0.19s; }
+  .store-card:nth-child(4) { animation-delay: 0.26s; }
+  .product-card { animation: fadeUp 0.3s ease both; }
+  .savings-callout { animation: fadeUp 0.4s 0.3s ease both; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">Farma<span>Price</span></div>
+  <span class="header-tag">Colombia · 2026</span>
+</header>
+
+<!-- ── SEARCH ── -->
+<div class="search-zone">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="Buscar medicamento, principio activo…" value="Dolex Forte">
+    <button class="search-btn">Buscar</button>
+  </div>
+</div>
+
+<!-- ── CONTENT ── -->
+<div class="container">
+
+  <!-- PRODUCT INFO -->
+  <div class="product-card">
+    <div class="product-icon">💊</div>
+    <div class="product-info">
+      <div class="product-brand">GlaxoSmithKline</div>
+      <div class="product-name">Dolex Forte</div>
+      <div class="product-meta">
+        <span class="tag">Caja × 10 tabletas</span>
+        <span class="tag">500mg + 65mg</span>
+        <span class="tag">Analgésico</span>
+        <span class="tag">Venta libre</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATE SELECTOR -->
+  <div class="section-label">Ver precios de</div>
+  <div class="date-chips">
+    <div class="chip active" onclick="selectChip(this)">Hoy</div>
+    <div class="chip" onclick="selectChip(this)">Ayer</div>
+    <div class="chip" onclick="selectChip(this)">Hace 2 días</div>
+    <div class="chip" onclick="selectChip(this)">Hace una semana</div>
+  </div>
+
+  <!-- SUMMARY BAR -->
+  <div class="summary-bar">
+    <span class="summary-icon">🏷️</span>
+    <div class="summary-text">
+      El precio más bajo de hoy es en <strong>Cruz Verde</strong>.
+      Ahorra hasta <strong>$3.800</strong> frente al más caro.
+    </div>
+  </div>
+
+  <!-- STORES LIST -->
+  <div class="section-label" style="margin-top:20px">Comparación de tiendas</div>
+  <div class="stores-list">
+
+    <!-- BEST: Cruz Verde -->
+    <div class="store-card best">
+      <div class="store-header">
+        <div class="store-identity">
+          <div class="store-logo logo-cv">CV</div>
+          <div>
+            <div class="store-name">Cruz Verde</div>
+            <div class="store-url">cruzverde.com.co</div>
+          </div>
+        </div>
+        <span class="badge badge-best">✓ Más barato</span>
+      </div>
+      <div class="store-footer">
+        <div class="price-block">
+          <div class="price-label">Precio unidad</div>
+          <div class="price-main best-price">$8.900</div>
+          <div class="price-diff diff-less">↓ Precio más bajo hoy</div>
+        </div>
+        <a href="#" class="visit-btn">Ir a tienda →</a>
+      </div>
+      <div class="stock-row">
+        <span class="stock-dot in"></span>
+        <span class="stock-text">Disponible para envío inmediato</span>
+      </div>
+    </div>
+
+    <!-- Farmatodo -->
+    <div class="store-card">
+      <div class="store-header">
+        <div class="store-identity">
+          <div class="store-logo logo-ft">FT</div>
+          <div>
+            <div class="store-name">Farmatodo</div>
+            <div class="store-url">farmatodo.com.co</div>
+          </div>
+        </div>
+      </div>
+      <div class="store-footer">
+        <div class="price-block">
+          <div class="price-label">Precio unidad</div>
+          <div class="price-main">$10.200</div>
+          <div class="price-diff diff-more">↑ $1.300 más que Cruz Verde</div>
+        </div>
+        <a href="#" class="visit-btn">Ir a tienda →</a>
+      </div>
+      <div class="stock-row">
+        <span class="stock-dot in"></span>
+        <span class="stock-text">Disponible · Despacho en 24h</span>
+      </div>
+    </div>
+
+    <!-- Éxito -->
+    <div class="store-card">
+      <div class="store-header">
+        <div class="store-identity">
+          <div class="store-logo logo-ex">ÉX</div>
+          <div>
+            <div class="store-name">Éxito</div>
+            <div class="store-url">exito.com</div>
+          </div>
+        </div>
+      </div>
+      <div class="store-footer">
+        <div class="price-block">
+          <div class="price-label">Precio unidad</div>
+          <div class="price-main">$11.500</div>
+          <div class="price-diff diff-more">↑ $2.600 más que Cruz Verde</div>
+        </div>
+        <a href="#" class="visit-btn">Ir a tienda →</a>
+      </div>
+      <div class="stock-row">
+        <span class="stock-dot low"></span>
+        <span class="stock-text">Pocas unidades disponibles</span>
+      </div>
+    </div>
+
+    <!-- WORST: Jumbo -->
+    <div class="store-card worst">
+      <div class="store-header">
+        <div class="store-identity">
+          <div class="store-logo logo-jm">JB</div>
+          <div>
+            <div class="store-name">Jumbo</div>
+            <div class="store-url">tiendasjumbo.co</div>
+          </div>
+        </div>
+        <span class="badge badge-worst">Más costoso</span>
+      </div>
+      <div class="store-footer">
+        <div class="price-block">
+          <div class="price-label">Precio unidad</div>
+          <div class="price-main worst-price">$12.700</div>
+          <div class="price-diff diff-more">↑ $3.800 más que Cruz Verde</div>
+        </div>
+        <a href="#" class="visit-btn">Ir a tienda →</a>
+      </div>
+      <div class="stock-row">
+        <span class="stock-dot in"></span>
+        <span class="stock-text">Disponible · Recoge en tienda</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SAVINGS CALLOUT -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">Tu ahorro potencial</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="savings-callout">
+    <div class="savings-left">
+      <div class="savings-eyebrow">Si compras en Cruz Verde</div>
+      <div class="savings-amount">$3.800</div>
+      <div class="savings-sub">vs. Jumbo (precio más alto)</div>
+    </div>
+    <div class="savings-pill">
+      <div class="savings-pill-label">Descuento</div>
+      <div class="savings-pill-val">30%</div>
+    </div>
+  </div>
+
+  <!-- FOOTER NOTE -->
+  <div class="footer-note">
+    Precios consultados el 4 de marzo de 2026 · Pueden variar.<br>
+    FarmaPrice no vende medicamentos directamente.<br>
+    <a href="#">¿Precio desactualizado? Repórtalo aquí</a>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  function selectChip(el) {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+</script>
+</body>
+</html>
