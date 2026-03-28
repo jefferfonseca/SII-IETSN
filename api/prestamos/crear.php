@@ -9,7 +9,8 @@ ini_set('display_errors', 0);
 // ============================
 // RESPUESTA
 // ============================
-function responder($success, $message, $data = []) {
+function responder($success, $message, $data = [])
+{
     echo json_encode([
         "success" => $success,
         "message" => $message,
@@ -157,7 +158,26 @@ try {
     ]);
 
     $pdo->commit();
+    // ============================
+// REGISTRAR ASISTENCIA (NO BLOQUEANTE)
+// ============================
+    try {
 
+        require_once __DIR__ . "/../helpers/asistencia.php";
+
+        // obtener id_grado del usuario
+        $stmt = $pdo->prepare("SELECT id_grado FROM usuarios WHERE id_usuario = ?");
+        $stmt->execute([$id_tomador]);
+        $id_grado = $stmt->fetchColumn();
+
+        if ($id_grado) {
+            registrarAsistencia($pdo, $id_tomador, $id_grado, 'prestamo');
+        }
+
+    } catch (Throwable $e) {
+        // 🔥 NO romper el flujo del préstamo por asistencia
+        error_log("Error asistencia: " . $e->getMessage());
+    }
     responder(true, "Préstamo registrado correctamente");
 
 } catch (Throwable $e) {

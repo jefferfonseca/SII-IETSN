@@ -1,0 +1,115 @@
+/* ===== CONTENEDOR ===== */
+.tareas-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* ===== COLUMNA ===== */
+.columna {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.columna h6 {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+/* ===== LISTA ===== */
+.lista {
+  min-height: 150px;
+}
+
+/* ===== ITEM ===== */
+.tarea-item {
+  background: #f9fafb;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: grab;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tarea-item:hover {
+  background: #eef2ff;
+}
+
+/* ===== BOTÓN CHECK ===== */
+.btn-check {
+  background: #4caf50;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+}
+
+.asistencia-container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.asistencia-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.asistencia-lista {
+  display: grid;
+  gap: 10px;
+}
+
+.asistencia-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+  transition: 0.2s;
+}
+
+.asistencia-item:hover {
+  background: #eef2ff;
+}
+
+/* BADGES */
+.badge-presente {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+}
+
+.badge-manual {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-ausente {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* BOTÓN */
+.btn-asistencia {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
