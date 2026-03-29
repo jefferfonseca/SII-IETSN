@@ -1,18 +1,43 @@
 <?php
-require_once "../config/database.php";
+require_once __DIR__ . "/../config/database.php";
+
+header("Content-Type: application/json");
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-foreach ($data as $item) {
-
-    $stmt = $conn->prepare("
-        UPDATE tareas_aseo 
-        SET actividad=?, orden=? 
-        WHERE id=?
-    ");
-
-    $stmt->bind_param("sii", $item['actividad'], $item['orden'], $item['id']);
-    $stmt->execute();
+if (!$data) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Datos inválidos"
+    ]);
+    exit;
 }
 
-echo json_encode(["success" => true]);
+try {
+
+    foreach ($data as $item) {
+
+        $stmt = $pdo->prepare("
+            UPDATE tareas_aseo 
+            SET actividad = ?, orden = ? 
+            WHERE id = ?
+        ");
+
+        $stmt->execute([
+            $item['actividad'],
+            $item['orden'],
+            $item['id']
+        ]);
+    }
+
+    echo json_encode([
+        "success" => true
+    ]);
+
+} catch (Exception $e) {
+
+    echo json_encode([
+        "success" => false,
+        "message" => $e->getMessage()
+    ]);
+}

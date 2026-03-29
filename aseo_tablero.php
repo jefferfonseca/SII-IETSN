@@ -72,6 +72,12 @@ session_start();
         .check {
             font-size: 20px;
         }
+
+        .ausente {
+            background: #dc2626 !important;
+            color: white;
+            font-weight: bold;
+        }
     </style>
 
 </head>
@@ -165,7 +171,8 @@ session_start();
                                 const item = document.createElement("div");
 
                                 item.className = "tarea " +
-                                    (t.estado === "completado" ? "completado" : "");
+                                    (t.estado === "completado" ? "completado" : "") +
+                                    (t.estado === "ausente" ? " ausente" : "");
 
                                 item.innerHTML = `
                         <span class="nombre">${t.nombre} ${t.apellido}</span>

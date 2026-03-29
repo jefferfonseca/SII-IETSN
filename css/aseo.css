@@ -33,6 +33,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-weight: 500;
 }
 
 .tarea-item:hover {
@@ -71,9 +72,12 @@
   display: grid;
   gap: 10px;
 }
-
+#lista-asistencia .row:hover {
+    background: #f5f5f5;
+}
 .asistencia-item {
   display: flex;
+  width: 550px;
   justify-content: space-between;
   align-items: center;
   padding: 12px;
@@ -112,4 +116,52 @@
   border-radius: 8px;
   padding: 6px 12px;
   cursor: pointer;
+}
+
+.acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-check {
+  background: #22c55e;
+  color: white;
+  border-radius: 50%;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.btn-ausente {
+  background: #dc2626;
+  color: white;
+  border-radius: 50%;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.texto-completado {
+  color: #fff; /* gris suave */
+  text-decoration: line-through;
+  background-color: #065f4662;
+  padding: 15px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.texto-ausente {
+  color: #fff; /* gris más claro */
+  background-color: #dc7b2662;
+  padding: 15px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.tabs .tab a {
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.tabs .tab a.active {
+  color: #0d47a1;
+  font-weight: bold;
 }
