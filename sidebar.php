@@ -49,7 +49,30 @@ $usuario = $_SESSION['usuario'] ?? null;
                 <i class="material-icons">assignment</i>
                 <span>Préstamos</span>
             </a>
+            <!-- ASEO -->
+            <div class="has-children" id="menu-aseo">
 
+                <div class="menu-parent">
+                    <i class="material-icons">cleaning_services</i>
+                    <span>Aseo</span>
+                    <i class="material-icons arrow">expand_more</i>
+                </div>
+
+                <div class="submenu" id="submenu-aseo">
+
+                    <a href="/SII-IETSN/aseo.php" class="submenu-item">
+                        <i class="material-icons">view_list</i>
+                        <span>Gestión de Aseo</span>
+                    </a>
+
+                    <a href="/SII-IETSN/aseo.php#tab-metricas" class="submenu-item">
+                        <i class="material-icons">analytics</i>
+                        <span>Métricas</span>
+                    </a>
+
+                </div>
+
+            </div>
             <!-- USUARIOS CON SUBMENÚ -->
             <div class="has-children" id="menu-usuarios">
 
@@ -141,14 +164,23 @@ $usuario = $_SESSION['usuario'] ?? null;
             });
         }
     });
-          /* ===============================
-         LOGOUT
-      =============================== */
-      function cerrarSesion() {
+
+    const menuAseo = document.getElementById('menu-aseo');
+    if (menuAseo) {
+        const parentAseo = menuAseo.querySelector('.menu-parent');
+        parentAseo.addEventListener('click', () => {
+            menuAseo.classList.toggle('open');
+            menuAseo.classList.toggle('menu-item');
+        });
+    }
+    /* ===============================
+   LOGOUT
+=============================== */
+    function cerrarSesion() {
         fetch('/SII-IETSN/api/auth/logout.php', {
-          method: 'POST',
-          credentials: 'same-origin'
+            method: 'POST',
+            credentials: 'same-origin'
         })
-          .then(() => location.href = "/SII-IETSN/index.html");
-      }
+            .then(() => location.href = "/SII-IETSN/index.html");
+    }
 </script>

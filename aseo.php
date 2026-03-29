@@ -59,7 +59,6 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
 
 
         <div id="tab-aseo">
-
             <div class="tareas-container" id="contenedor"></div>
             <div class="asistencia-container">
 
@@ -68,73 +67,72 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
                     <span id="contadorAsistencia"></span>
                 </div>
 
-                <div class="section">
-                    <h5>Asistencia del grupo</h5>
-
-                    <!-- ENCABEZADO -->
-                    <div class="row grey lighten-3" style="padding:10px; font-weight:bold;">
-                        <div class="col s1">#</div>
-                        <div class="col s8">Estudiante</div>
-                        <div class="col s3">Estado</div>
-                    </div>
-
-                    <!-- CONTENEDOR -->
-                    <div id="lista-asistencia"></div>
+                <!-- ENCABEZADO DE COLUMNAS -->
+                <div class="at-col-header">
+                    <span class="at-col-label">#</span>
+                    <span class="at-col-label">Estudiante</span>
+                    <span class="at-col-label">Estado</span>
                 </div>
 
+                <!-- CADA FILA (generada dinámicamente) -->
+                <div id="lista-asistencia">
+
+
+                </div>
             </div>
-            <!-- TODO lo que ya tienes (tarjetas, asistencia, etc) -->
         </div>
+        <!-- TODO lo que ya tienes (tarjetas, asistencia, etc) -->
+    </div>
 
-        <div id="tab-metricas" class="section">
+    <div id="tab-metricas" class="section">
 
-            <!-- RESUMEN -->
-            <div class="row">
+        <!-- RESUMEN -->
+        <div class="row">
 
-                <div class="col s12 m4">
-                    <div class="card green lighten-4">
-                        <div class="card-content">
-                            <span class="card-title">🏆 <b>Mejor estudiante</b></span>
-                            <p id="top-estudiante">-</p>
-                        </div>
+            <div class="col s12 m4">
+                <div class="card green lighten-4">
+                    <div class="card-content">
+                        <span class="card-title">🏆 <b>Mejor estudiante</b></span>
+                        <p id="top-estudiante">-</p>
                     </div>
-                </div>
-
-                <div class="col s12 m4">
-                    <div class="card red lighten-4">
-                        <div class="card-content">
-                            <span class="card-title">🚨 <b>En riesgo</b></span>
-                            <p id="riesgo-estudiante">-</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col s12 m4">
-                    <div class="card blue lighten-4">
-                        <div class="card-content">
-                            <span class="card-title">🔁 <b>Ciclo</b></span>
-                            <p id="info-ciclo">-</p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- BARRA DE PROGRESO -->
-            <div class="section">
-                <h6>Progreso del ciclo</h6>
-                <div class="progress">
-                    <div id="barra-ciclo" class="determinate" style="width: 0%"></div>
                 </div>
             </div>
 
-            <!-- RANKING -->
-            <div class="section">
-                <h5>📊 Ranking</h5>
-                <div id="ranking"></div>
+            <div class="col s12 m4">
+                <div class="card red lighten-4">
+                    <div class="card-content">
+                        <span class="card-title">🚨 <b>En riesgo</b></span>
+                        <p id="riesgo-estudiante">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col s12 m4">
+                <div class="card blue lighten-4">
+                    <div class="card-content">
+                        <span class="card-title">🔁 <b>Ciclo</b></span>
+                        <p id="info-ciclo">-</p>
+                    </div>
+                </div>
             </div>
 
         </div>
+
+        <!-- BARRA DE PROGRESO -->
+        <div class="section">
+            <h6>Progreso del ciclo</h6>
+            <div class="progress">
+                <div id="barra-ciclo" class="determinate" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- RANKING -->
+        <div class="section">
+            <h5>📊 Ranking</h5>
+            <div id="ranking"></div>
+        </div>
+
+    </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
@@ -235,58 +233,134 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
                 .then(r => r.json())
                 .then(r => {
 
-                    const cont = document.getElementById("lista-asistencia"); // 👈 nuevo id
+                    const cont = document.getElementById("lista-asistencia");
                     const contador = document.getElementById("contadorAsistencia");
 
                     cont.innerHTML = "";
 
                     let presentes = 0;
+                    let ausentes = 0;
+                    const marcados = [];
+                    const pendientes = [];
 
+                    const avatarColors = [
+                        { bg: "#EAF3DE", color: "#3B6D11" },
+                        { bg: "#E6F1FB", color: "#185FA5" },
+                        { bg: "#EEEDFE", color: "#534AB7" },
+                        { bg: "#FAEEDA", color: "#854F0B" },
+                        { bg: "#FAECE7", color: "#993C1D" },
+                        { bg: "#E1F5EE", color: "#0F6E56" },
+                    ];
+
+                    // 🔥 SEPARAR CORRECTAMENTE
                     r.data.forEach((est, index) => {
 
-                        let estadoHTML = "";
-                        let metodo = est.metodo;
+                        const metodo = (est.metodo || "").toLowerCase().trim();
+                        const estado = (est.estado || "").toLowerCase().trim();
 
-                        if (metodo === "prestamo") {
-                            estadoHTML = `<span class="chip green lighten-4">✔ Préstamo</span>`;
-                            presentes++;
+                        // 🔥 AUSENTE (marcado pero NO presente)
+                        if (estado === "ausente") {
+                            ausentes++;
+                            marcados.push({ est, index });
                         }
+                        else if (metodo === "prestamo" || metodo === "manual") {
+                            presentes++;
+                            marcados.push({ est, index });
+                        }
+
+                        // ⚪ PENDIENTES
+                        else {
+                            pendientes.push({ est, index });
+                        }
+                    });
+
+                    // 🔥 RENDER
+                    function renderRow(est, colorIndex) {
+
+                        const metodo = (est.metodo || "").toLowerCase().trim();
+                        const estado = (est.estado || "").toLowerCase().trim();
+
+                        const { bg, color } = avatarColors[colorIndex % avatarColors.length];
+
+                        const iniciales = `${est.nombre.charAt(0)}${est.apellido.charAt(0)}`.toUpperCase();
+                        const num = String(colorIndex + 1).padStart(2, "0");
+
+                        let estadoHTML = "";
+                        let nameStyle = "";
+
+                        // 🔴 AUSENTE (PRIORIDAD)
+                        if (estado === "ausente") {
+                            estadoHTML = `<span class="pill pill-ausente">Ausente</span>`;
+                            nameStyle = `style="color:#9ca3af;"`;
+                        }
+
+                        // 🟢 PRÉSTAMO
+                        else if (metodo === "prestamo") {
+                            estadoHTML = `<span class="pill pill-present">Préstamo</span>`;
+                            nameStyle = `style="color:#9ca3af;"`;
+                        }
+
+                        // 🔵 MANUAL
                         else if (metodo === "manual") {
-                            estadoHTML = `<span class="chip blue lighten-4">✔ Manual</span>`;
-                            presentes++;
+                            estadoHTML = `<span class="pill pill-manual">Manual</span>`;
+                            nameStyle = `style="color:#9ca3af;"`;
                         }
+
+                        // ⚪ PENDIENTE
                         else {
                             estadoHTML = `
-                        <button class="btn-asistencia" onclick="marcarAsistencia(${est.id_usuario})">
-                            Marcar
-                        </button>
+                        <button class="at-btn btn-p" onclick="marcarAsistencia(${est.id_usuario})" title="Presente">✓</button>
+                        <button class="at-btn btn-a" onclick="marcarAusente(${est.id_usuario})" title="Ausente">✕</button>
                     `;
                         }
 
-                        cont.innerHTML += `
-                    <div class="row" style="padding:8px; border-bottom:1px solid #eee; align-items:center;">
-                        
-                        <!-- NUMERO -->
-                        <div class="col s1">
-                            ${index + 1}
+                        return `
+                    <div class="at-row">
+                        <span class="at-num">${num}</span>
+
+                        <div class="at-student">
+                            <div class="at-avatar" style="background:${bg}; color:${color};">
+                                ${iniciales}
+                            </div>
+                            <span class="at-name" ${nameStyle}>
+                                ${est.nombre} ${est.apellido}
+                            </span>
                         </div>
 
-                        <!-- NOMBRE -->
-                        <div class="col s8">
-                            ${est.nombre} ${est.apellido}
-                        </div>
-
-                        <!-- ESTADO -->
-                        <div class="col s3">
+                        <div class="at-actions">
                             ${estadoHTML}
                         </div>
-
                     </div>
                 `;
-                    });
+                    }
 
-                    contador.innerHTML = `${presentes} presentes`;
+                    // 🔥 MARCADOS
+                    if (marcados.length > 0) {
+                        cont.innerHTML += `<div class="at-sep">Marcados (${marcados.length})</div>`;
+                        marcados.forEach(({ est }, i) => {
+                            cont.innerHTML += renderRow(est, i);
+                        });
+                    }
 
+                    // 🔥 PENDIENTES
+                    if (pendientes.length > 0) {
+                        cont.innerHTML += `<div class="at-sep">Pendientes (${pendientes.length})</div>`;
+                        pendientes.forEach(({ est }, i) => {
+                            cont.innerHTML += renderRow(est, marcados.length + i);
+                        });
+                    }
+
+                    // 🔥 VACÍO
+                    if (marcados.length === 0 && pendientes.length === 0) {
+                        cont.innerHTML = `<p style="padding:12px; color:#9ca3af; font-size:14px;">
+                    No hay estudiantes en este grado.
+                </p>`;
+                    }
+
+                    contador.innerHTML = `
+                        <b>${presentes} presente${presentes !== 1 ? "s" : ""} | 
+                        ${ausentes} ausente${ausentes !== 1 ? "s" : ""}</b>
+                    `;
                 })
                 .catch(err => {
                     console.error("Error cargando asistencia:", err);
@@ -306,6 +380,86 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
                 })
             })
                 .then(() => cargarAsistencia());
+        }
+
+        function marcarAusente(id_usuario) {
+
+            const id_grado = document.getElementById("grupo").value;
+
+            fetch("/SII-IETSN/api/asistencia/ausente.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id_usuario,
+                    id_grado
+                })
+            })
+                .then(r => r.json())
+                .then(r => {
+
+                    if (r.success) {
+                        M.toast({
+                            html: r.message || "Ausente registrado",
+                            classes: "orange"
+                        });
+
+                        cargarAsistencia();
+
+                    } else {
+                        M.toast({
+                            html: r.message || "Error",
+                            classes: "red"
+                        });
+                    }
+                });
+        }
+
+        function marcarAusenteAseo(id_usuario) {
+
+            const id_grado = document.getElementById("grupo").value;
+
+            fetch("/SII-IETSN/api/aseo/ausente.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id_usuario,
+                    id_grado
+                })
+            })
+                .then(res => res.text())
+                .then(text => {
+                    console.log("RESPUESTA RAW:", text);
+                })
+                .then(data => {
+
+                    console.log("RESPUESTA:", data); // 🔍 debug
+
+                    if (data && data.success) {
+
+                        M.toast({
+                            html: data.message || "Marcado como ausente",
+                            classes: "orange"
+                        });
+
+                        cargarAseo();
+
+                    } else {
+                        M.toast({
+                            html: "Error en respuesta",
+                            classes: "red"
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error("ERROR FETCH:", err);
+
+                    M.toast({
+                        html: "Error de conexión",
+                        classes: "red"
+                    });
+                });
         }
 
         function render(data) {
@@ -357,7 +511,7 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
                             <div class="btn-check" onclick="completar(${t.id})">✔</div>
 
                             ${t.estado !== "completado" ? `
-                            <div class="btn-ausente" onclick="marcarAusente(${t.id})">✖</div>
+                            <div class="btn-ausente" onclick="marcarAusenteAseo(${t.id})">✖</div>
                             ` : ""}
                         </div>
                         `;
@@ -443,31 +597,6 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
                         M.toast({
                             html: r.message || "Tarea completada",
                             classes: "green"
-                        });
-                        cargarAseo();
-                    } else {
-                        M.toast({
-                            html: r.message || "Error",
-                            classes: "red"
-                        });
-                    }
-                });
-
-        }
-
-        function marcarAusente(id) {
-
-            fetch("/SII-IETSN/api/aseo/ausente.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id })
-            })
-                .then(r => r.json())
-                .then(r => {
-                    if (r.success) {
-                        M.toast({
-                            html: r.message || "Marcado como ausente",
-                            classes: "orange"
                         });
                         cargarAseo();
                     } else {

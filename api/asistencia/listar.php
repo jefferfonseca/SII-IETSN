@@ -9,7 +9,8 @@ SELECT
     u.id_usuario,
     u.nombre,
     u.apellido,
-    a.metodo
+    a.metodo,
+    a.estado
 FROM usuarios u
 LEFT JOIN asistencia a 
     ON a.id_usuario = u.id_usuario 

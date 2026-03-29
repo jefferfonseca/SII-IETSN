@@ -17,7 +17,8 @@ $actividades = [
    FUNCIONES
 ================================= */
 
-function obtenerCicloActual($pdo, $id_grado) {
+function obtenerCicloActual($pdo, $id_grado)
+{
     $stmt = $pdo->prepare("
         SELECT MAX(ciclo) as ciclo 
         FROM tareas_aseo 
@@ -26,10 +27,11 @@ function obtenerCicloActual($pdo, $id_grado) {
     $stmt->execute([$id_grado]);
     $row = $stmt->fetch();
 
-    return ($row && $row['ciclo']) ? (int)$row['ciclo'] : 1;
+    return ($row && $row['ciclo']) ? (int) $row['ciclo'] : 1;
 }
 
-function cicloCompleto($pdo, $id_grado, $ciclo, $totalActividades, $fecha) {
+function cicloCompleto($pdo, $id_grado, $ciclo, $totalActividades, $fecha)
+{
 
     // estudiantes activos HOY
     $stmt = $pdo->prepare("
@@ -37,9 +39,10 @@ function cicloCompleto($pdo, $id_grado, $ciclo, $totalActividades, $fecha) {
         FROM asistencia
         WHERE id_grado = ?
         AND fecha = ?
+        AND (estado IS NULL OR estado = 'presente')
     ");
     $stmt->execute([$id_grado, $fecha]);
-    $estudiantes = (int)$stmt->fetch()['estudiantes'];
+    $estudiantes = (int) $stmt->fetch()['estudiantes'];
 
     // total asignaciones en el ciclo
     $stmt = $pdo->prepare("
@@ -48,12 +51,13 @@ function cicloCompleto($pdo, $id_grado, $ciclo, $totalActividades, $fecha) {
         WHERE id_grado = ? AND ciclo = ?
     ");
     $stmt->execute([$id_grado, $ciclo]);
-    $total = (int)$stmt->fetch()['total'];
+    $total = (int) $stmt->fetch()['total'];
 
     return $estudiantes > 0 && $total >= ($estudiantes * $totalActividades);
 }
 
-function actividadCompleta($pdo, $id_grado, $actividad, $ciclo, $fecha) {
+function actividadCompleta($pdo, $id_grado, $actividad, $ciclo, $fecha)
+{
 
     // estudiantes activos HOY
     $stmt = $pdo->prepare("
@@ -61,9 +65,10 @@ function actividadCompleta($pdo, $id_grado, $actividad, $ciclo, $fecha) {
         FROM asistencia
         WHERE id_grado = ?
         AND fecha = ?
+        AND (estado IS NULL OR estado = 'presente')
     ");
     $stmt->execute([$id_grado, $fecha]);
-    $estudiantes = (int)$stmt->fetch()['estudiantes'];
+    $estudiantes = (int) $stmt->fetch()['estudiantes'];
 
     // cuántos ya hicieron esta actividad en el ciclo
     $stmt = $pdo->prepare("
@@ -74,7 +79,7 @@ function actividadCompleta($pdo, $id_grado, $actividad, $ciclo, $fecha) {
         AND ciclo = ?
     ");
     $stmt->execute([$id_grado, $actividad, $ciclo]);
-    $total = (int)$stmt->fetch()['total'];
+    $total = (int) $stmt->fetch()['total'];
 
     return $estudiantes > 0 && $total >= $estudiantes;
 }
@@ -139,6 +144,7 @@ foreach ($actividades as $actividad => $cupos) {
 
             WHERE a.fecha = ?
             AND a.id_grado = ?
+            AND (a.estado IS NULL OR a.estado = 'presente')
 
             AND a.id_usuario NOT IN (
                 SELECT id_usuario 
