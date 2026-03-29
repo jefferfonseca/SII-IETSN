@@ -18,7 +18,7 @@ LEFT JOIN asistencia a
     AND a.id_grado = ?
 WHERE u.id_grado = ?
 AND u.activo = 1
-ORDER BY u.nombre
+ORDER BY a.estado,  u.apellido
 ";
 
 $stmt = $pdo->prepare($sql);

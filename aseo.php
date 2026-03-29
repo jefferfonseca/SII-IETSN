@@ -414,27 +414,19 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
                 });
         }
 
-        function marcarAusenteAseo(id_usuario) {
-
-            const id_grado = document.getElementById("grupo").value;
+        function marcarAusenteAseo(id) {
 
             fetch("/SII-IETSN/api/aseo/ausente.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    id_usuario,
-                    id_grado
-                })
+                body: JSON.stringify({ id })
             })
-                .then(res => res.text())
-                .then(text => {
-                    console.log("RESPUESTA RAW:", text);
-                })
+                .then(res => res.json())
                 .then(data => {
 
-                    console.log("RESPUESTA:", data); // 🔍 debug
+                    console.log("RESPUESTA:", data); // 👈 debug
 
                     if (data && data.success) {
 
@@ -453,6 +445,7 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
                     }
                 })
                 .catch(err => {
+
                     console.error("ERROR FETCH:", err);
 
                     M.toast({
@@ -492,7 +485,7 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
                 data
                     .filter(t => t.actividad === act)
                     .forEach(t => {
-
+                        console.log(t.id);
                         const item = document.createElement("div");
                         item.className = "tarea-item";
 

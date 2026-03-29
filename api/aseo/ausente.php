@@ -1,33 +1,28 @@
 <?php
 require_once __DIR__ . "/../config/database.php";
 header('Content-Type: application/json');
+
 $data = json_decode(file_get_contents("php://input"), true);
 
-$id_usuario = $data['id_usuario'];
-$id_grado = $data['id_grado'];
-$fecha = date("Y-m-d");
+$id = $data['id'] ?? null;
 
-if (!$id_usuario || !$id_grado) {
+if (!$id) {
     echo json_encode([
         "success" => false,
-        "message" => "Datos incompletos"
+        "message" => "ID inválido"
     ]);
     exit;
 }
 
-// 🔥 SOLO AFECTA ASEO
 $stmt = $pdo->prepare("
     UPDATE tareas_aseo 
     SET estado='ausente' 
-    WHERE id_usuario=? 
-    AND id_grado=? 
-    ORDER BY fecha DESC
-    LIMIT 1
+    WHERE id=?
 ");
 
-$stmt->execute([$id_usuario, $id_grado]);
+$stmt->execute([$id]);
 
 echo json_encode([
     "success" => true,
-    "message" => "Tarea marcada como ausente."
+    "message" => "Tarea marcada como ausente"
 ]);
