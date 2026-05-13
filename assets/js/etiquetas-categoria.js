@@ -197,7 +197,15 @@ function abrirVentanaImpresion(imagenes) {
             page-break-inside: avoid;
           }
         </style>
-      </head>
+          <!-- Favicon principal -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+
+    <!-- Navegadores modernos (prefieren SVG) -->
+    <link rel="icon" type="image/svg+xml" href="assets/images/qr-icon.svg">
+
+    <!-- Ícono para móviles / PWA -->
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
+</head>
       <body onload="window.print(); window.close();">
         ${imgsHTML}
       <script>

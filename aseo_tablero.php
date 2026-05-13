@@ -80,6 +80,14 @@ session_start();
         }
     </style>
 
+    <!-- Favicon principal -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+
+    <!-- Navegadores modernos (prefieren SVG) -->
+    <link rel="icon" type="image/svg+xml" href="assets/images/qr-icon.svg">
+
+    <!-- Ícono para móviles / PWA -->
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
 </head>
 
 <body>

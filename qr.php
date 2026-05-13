@@ -70,6 +70,14 @@ try {
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
     <link rel="stylesheet" href="/SII-IETSN/css/qr.css">
+    <!-- Favicon principal -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+
+    <!-- Navegadores modernos (prefieren SVG) -->
+    <link rel="icon" type="image/svg+xml" href="assets/images/qr-icon.svg">
+
+    <!-- Ícono para móviles / PWA -->
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
 </head>
 
 <body>

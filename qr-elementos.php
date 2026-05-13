@@ -33,6 +33,14 @@ $usuario = $_SESSION["usuario"];
       background-image: url("<?php echo $imagen_base64; ?>");
     }
   </style>
+    <!-- Favicon principal -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+
+    <!-- Navegadores modernos (prefieren SVG) -->
+    <link rel="icon" type="image/svg+xml" href="assets/images/qr-icon.svg">
+
+    <!-- Ícono para móviles / PWA -->
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
 </head>
 
 <body>
@@ -187,7 +195,15 @@ $usuario = $_SESSION["usuario"];
               height: 5cm;
             }
           </style>
-        </head>
+            <!-- Favicon principal -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+
+    <!-- Navegadores modernos (prefieren SVG) -->
+    <link rel="icon" type="image/svg+xml" href="assets/images/qr-icon.svg">
+
+    <!-- Ícono para móviles / PWA -->
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
+</head>
         <body onload="window.print(); window.close();">
           <img src="${imgData}">
         </body>

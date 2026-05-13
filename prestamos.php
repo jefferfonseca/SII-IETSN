@@ -24,6 +24,14 @@ $usuario = $_SESSION["usuario"];
     <link rel="stylesheet" href="/SII-IETSN/css/usuario.css">
     <link rel="stylesheet" href="/SII-IETSN/css/prestamos.css">
     <link rel="stylesheet" href="/SII-IETSN/css/prestamos-tabla-styles.css">
+    <!-- Favicon principal -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+
+    <!-- Navegadores modernos (prefieren SVG) -->
+    <link rel="icon" type="image/svg+xml" href="assets/images/qr-icon.svg">
+
+    <!-- Ícono para móviles / PWA -->
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
 </head>
 
 <body>
@@ -224,10 +232,27 @@ $usuario = $_SESSION["usuario"];
 
         M.Modal.init(document.querySelectorAll('.modal'), {
             dismissible: true,
-            onOpenEnd: () => {
-                resetearModalPrestamo();
-                setFechaHoy();
-                document.getElementById('inputQrTomador')?.focus();
+
+            onOpenEnd: function (modalElement) {
+
+                // 🔥 Modal préstamo
+                if (modalElement.id === 'modalNuevoPrestamo') {
+
+                    resetearModalPrestamo();
+                    setFechaHoy();
+
+                    setTimeout(() => {
+                        document.getElementById('inputQrTomador')?.focus();
+                    }, 100);
+                }
+
+                // 🔥 Modal devolución
+                if (modalElement.id === 'modalDevolucion') {
+
+                    setTimeout(() => {
+                        document.getElementById('inputQrDevolucion')?.focus();
+                    }, 100);
+                }
             }
         });
 
@@ -492,7 +517,13 @@ $usuario = $_SESSION["usuario"];
 
             // cerrar modal
             const modal = M.Modal.getInstance(document.getElementById('modalNuevoPrestamo'));
+            // cerrar modal
             modal.close();
+
+
+            setTimeout(() => {
+                modal.open();
+            }, 300);
 
             // recargar tabla
             cargarPrestamos();

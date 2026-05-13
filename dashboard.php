@@ -19,7 +19,14 @@ $usuario = $_SESSION["usuario"];
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="css/dashboard.css">
+    <!-- Favicon principal -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
 
+    <!-- Navegadores modernos (prefieren SVG) -->
+    <link rel="icon" type="image/svg+xml" href="assets/images/qr-icon.svg">
+
+    <!-- Ícono para móviles / PWA -->
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
 </head>
 
 <body>
@@ -183,14 +190,15 @@ $usuario = $_SESSION["usuario"];
         });
     </script>
 
-<script>
-const menuElementos = document.getElementById('menu-elementos');
-const submenuElementos = document.getElementById('submenu-elementos');
+    <script>
+        const menuElementos = document.getElementById('menu-elementos');
+        const submenuElementos = document.getElementById('submenu-elementos');
 
-menuElementos.addEventListener('click', () => {
-  menuElementos.classList.toggle('open');
-  submenuElementos.classList.toggle('open');
-});
-</script>
+        menuElementos.addEventListener('click', () => {
+            menuElementos.classList.toggle('open');
+            submenuElementos.classList.toggle('open');
+        });
+    </script>
 </body>
+
 </html>

@@ -23,6 +23,14 @@ if (
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
     <link rel="stylesheet" href="/SII-IETSN/css/usuario-qr.css">
+    <!-- Favicon principal -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+
+    <!-- Navegadores modernos (prefieren SVG) -->
+    <link rel="icon" type="image/svg+xml" href="assets/images/qr-icon.svg">
+
+    <!-- Ícono para móviles / PWA -->
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
 </head>
 
 <body>
@@ -318,18 +326,56 @@ if (
         function renderTabla(estudiantes) {
 
             const tbody = document.getElementById("tabla");
+
             if (!tbody) return;
 
             tbody.innerHTML = "";
 
             if (!estudiantes || estudiantes.length === 0) {
+
                 M.toast({
                     html: '<i class="material-icons left">warning</i> No hay registros',
                     classes: 'rounded orange'
                 });
+
                 return;
             }
 
+            // =========================
+            // ORDENAR POR APELLIDO
+            // =========================
+            estudiantes.sort((a, b) => {
+
+                const obtenerApellido = (nombreCompleto) => {
+
+                    if (!nombreCompleto) return "";
+
+                    const partes = nombreCompleto
+                        .trim()
+                        .split(/\s+/);
+
+                    // Si tiene más de una palabra,
+                    // toma el penúltimo elemento como apellido principal
+                    if (partes.length >= 2) {
+                        return partes[partes.length - 2].toLowerCase();
+                    }
+
+                    return nombreCompleto.toLowerCase();
+                };
+
+                const apellidoA = obtenerApellido(a.nombre);
+                const apellidoB = obtenerApellido(b.nombre);
+
+                return apellidoA.localeCompare(apellidoB, 'es', {
+                    sensitivity: 'base',
+                    numeric: true
+                });
+
+            });
+
+            // =========================
+            // RENDER TABLA
+            // =========================
             estudiantes.forEach(est => {
 
                 const url = `${est.ruta}/${est.archivo}`;
@@ -337,10 +383,17 @@ if (
                 const tr = document.createElement("tr");
 
                 tr.innerHTML = `
-            <td style="font-weight: 600; color: #2c3e50;">${est.nombre}</td>
-            <td>${est.documento}</td>
+            <td style="font-weight: 600; color: #2c3e50;">
+                ${est.nombre}
+            </td>
+
+            <td>
+                ${est.documento}
+            </td>
+
             <td class="center-align">
                 <div class="qr-actions">
+
                     <img
                         src="${url}"
                         width="80"
@@ -349,25 +402,38 @@ if (
                         alt="QR de ${est.nombre}"
                         title="Click para ampliar"
                     >
+
+                    <br>
+
                     <a href="${url}" download>
-                        <i class="material-icons tiny">download</i> Descargar
+                        <i class="material-icons tiny">download</i>
+                        Descargar
                     </a>
+
                 </div>
             </td>
-            <td>${new Date().toLocaleDateString()}</td>
+
+            <td>
+                ${new Date().toLocaleDateString()}
+            </td>
         `;
 
                 tbody.appendChild(tr);
+
             });
 
+            // =========================
+            // MOSTRAR RESULTADOS
+            // =========================
             document.getElementById("resultado").style.display = "block";
+
             document.getElementById("btnZip").style.display = "inline-flex";
+
             document.querySelector("#resultado h5").innerHTML = `
         <i class="material-icons">people</i>
         Estudiantes del Grado ${nombreGradoActual}°
     `;
         }
-
         /* ================= ZIP ================= */
         function descargarZIP() {
 

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="32" fill="#1a1a2e"/>
+
+  <!-- Esquina superior izquierda -->
+  <rect x="28" y="28" width="64" height="64" rx="8" fill="#ffffff"/>
+  <rect x="36" y="36" width="48" height="48" rx="5" fill="#1a1a2e"/>
+  <rect x="46" y="46" width="28" height="28" rx="2" fill="#ffffff"/>
+
+  <!-- Esquina superior derecha -->
+  <rect x="108" y="28" width="64" height="64" rx="8" fill="#ffffff"/>
+  <rect x="116" y="36" width="48" height="48" rx="5" fill="#1a1a2e"/>
+  <rect x="126" y="46" width="28" height="28" rx="2" fill="#ffffff"/>
+
+  <!-- Esquina inferior izquierda -->
+  <rect x="28" y="108" width="64" height="64" rx="8" fill="#ffffff"/>
+  <rect x="36" y="116" width="48" height="48" rx="5" fill="#1a1a2e"/>
+  <rect x="46" y="126" width="28" height="28" rx="2" fill="#ffffff"/>
+
+  <!-- Módulos de datos -->
+  <rect x="108" y="108" width="10" height="10" rx="1" fill="#ffffff"/>
+  <rect x="124" y="108" width="10" height="10" rx="1" fill="#ffffff"/>
+  <rect x="140" y="108" width="10" height="10" rx="1" fill="#ffffff"/>
+  <rect x="156" y="108" width="10" height="10" rx="1" fill="#ffffff"/>
+  <rect x="108" y="124" width="10" height="10" rx="1" fill="#ffffff"/>
+  <rect x="124" y="124" width="10" height="10" rx="1" fill="#00d4aa"/>
+  <rect x="140" y="124" width="10" height="10" rx="1" fill="#ffffff"/>
+  <rect x="156" y="124" width="10" height="10" rx="1" fill="#7c3aed"/>
+  <rect x="108" y="140" width="10" height="10" rx="1" fill="#00d4aa"/>
+  <rect x="124" y="140" width="10" height="10" rx="1" fill="#ffffff"/>
+  <rect x="140" y="140" width="10" height="10" rx="1" fill="#00d4aa"/>
+  <rect x="156" y="140" width="10" height="10" rx="1" fill="#ffffff"/>
+  <rect x="108" y="156" width="10" height="10" rx="1" fill="#ffffff"/>
+  <rect x="124" y="156" width="10" height="10" rx="1" fill="#7c3aed"/>
+  <rect x="140" y="156" width="10" height="10" rx="1" fill="#ffffff"/>
+  <rect x="156" y="156" width="10" height="10" rx="1" fill="#ffffff"/>
+
+  <!-- Línea de escaneo -->
+  <rect x="16" y="97" width="168" height="2.5" rx="1.2" fill="#00d4aa" opacity="0.9"/>
+
+  <!-- Marcadores de esquina (scanner) -->
+  <path d="M16 40 L16 20 L36 20" fill="none" stroke="#00d4aa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M184 40 L184 20 L164 20" fill="none" stroke="#00d4aa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M16 160 L16 180 L36 180" fill="none" stroke="#00d4aa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M184 160 L184 180 L164 180" fill="none" stroke="#00d4aa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

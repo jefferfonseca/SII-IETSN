@@ -20,6 +20,14 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
     <link rel="stylesheet" href="/SII-IETSN/css/sidebar.css">
     <link rel="stylesheet" href="/SII-IETSN/css/aseo.css">
 
+    <!-- Favicon principal -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+
+    <!-- Navegadores modernos (prefieren SVG) -->
+    <link rel="icon" type="image/svg+xml" href="assets/images/qr-icon.svg">
+
+    <!-- Ícono para móviles / PWA -->
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
 </head>
 
 <body>
@@ -61,7 +69,9 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
         <div id="tab-aseo">
             <div class="tareas-container" id="contenedor"></div>
             <div class="asistencia-container">
-
+                <button onclick="marcarTodosPresentes()" class="btn green">
+                    ✔ Marcar todos presentes
+                </button>
                 <div class="asistencia-header">
                     <h5>Asistencia del grupo</h5>
                     <span id="contadorAsistencia"></span>
@@ -719,7 +729,42 @@ if (!isset($_SESSION["usuario"]) || $_SESSION["usuario"]["rol"] !== "Admin") {
             }
         }
 
+        async function marcarTodosPresentes() {
 
+            const id_grado = document.getElementById("grupo").value;
+
+            if (!id_grado) {
+                M.toast({ html: 'Seleccione un grupo', classes: 'red' });
+                return;
+            }
+
+            // 👇 IMPORTANTE: selector según tu render
+            const botones = document.querySelectorAll('[onclick^="marcarAsistencia"]');
+
+            for (const btn of botones) {
+
+                // extrae el id desde el onclick="marcarAsistencia(5)"
+                const match = btn.getAttribute('onclick').match(/\d+/);
+
+                if (!match) continue;
+
+                const id_usuario = match[0];
+
+                await fetch("/SII-IETSN/api/asistencia/manual.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        id_usuario,
+                        id_grado
+                    })
+                });
+            }
+
+            // 🔥 refresco final
+            cargarAsistencia();
+
+            M.toast({ html: 'Todos marcados como presentes', classes: 'green' });
+        }
 
     </script>
 
